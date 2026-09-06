@@ -1,197 +1,203 @@
 /* ==========================================================================
-   TESTE-HUD // INTERFACE TÁTICA DA OFICINA (WORKSHOP MODULE HUD)
-   Fidelidade extrema ao visual original militar / sci-fi com tons âmbar e CRT
+   TESTE-HUD // OFICINA TÁTICA [МАСТЕРСКАЯ]
+   Fidelidade extrema, pixel-por-pixel ao layout militar/sci-fi de referência
    ========================================================================== */
 
 :root {
-  --tac-bg-deep: #060403;
-  --tac-bg-dark: #0a0705;
-  --tac-bg-panel: rgba(12, 8, 5, 0.88);
-  --tac-amber-main: #ff6a00;
-  --tac-amber-bright: #ff8c33;
-  --tac-amber-glow: rgba(255, 106, 0, 0.45);
-  --tac-amber-dark: #7a3205;
-  --tac-amber-fill: #994006;
-  --tac-amber-faint: rgba(255, 106, 0, 0.12);
-  --tac-amber-border: rgba(255, 106, 0, 0.35);
+  --th-bg-deep: #050302;
+  --th-bg-black: #070503;
+  --th-bg-panel: rgba(10, 7, 5, 0.94);
+  --th-amber: #ff6a00;
+  --th-amber-bright: #ff852e;
+  --th-amber-glow: rgba(255, 106, 0, 0.55);
+  --th-amber-dim: #7a3205;
+  --th-amber-dark: #401a03;
+  --th-amber-fill: #994006;
+  --th-amber-faint: rgba(255, 106, 0, 0.12);
+  --th-amber-border: rgba(255, 106, 0, 0.35);
 
-  --tac-text-bright: #f0eae1;
-  --tac-text-main: #d4bfb0;
-  --tac-text-muted: #8c7667;
-  --tac-text-dim: #59493e;
+  --th-text-bright: #ffffff;
+  --th-text-cream: #eee5db;
+  --th-text-main: #c4b0a1;
+  --th-text-muted: #7d6a5c;
+  --th-text-dim: #4d3e34;
 
-  --tac-red-alert: #e53935;
-  --tac-green-ok: #43a047;
-
-  --tac-font-mono: "Cascadia Code", "Consolas", "Courier New", monospace;
+  --th-red-alert: #e53935;
+  --th-mono-font: "Cascadia Code", "Consolas", "Courier New", monospace;
 }
 
-/* --- Container Janela do Foundry ApplicationV2 --- */
+/* Janela do Foundry ApplicationV2 */
 .teste-hud-window {
-  --color-border: var(--tac-amber-border);
-  background: var(--tac-bg-deep) !important;
-  border: 1px solid var(--tac-amber-border) !important;
-  box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 106, 0, 0.15) !important;
-  color: var(--tac-text-main);
-  font-family: var(--tac-font-mono);
+  background: var(--th-bg-deep) !important;
+  border: 1px solid var(--th-amber-border) !important;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), 0 0 16px rgba(255, 106, 0, 0.15) !important;
+  padding: 0 !important;
+  color: var(--th-text-main);
+  font-family: var(--th-mono-font);
 }
 
 .teste-hud-window .window-header {
-  background: #080503;
-  border-bottom: 1px solid var(--tac-amber-border);
-  color: var(--tac-amber-bright);
-  font-family: var(--tac-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  background: #060403 !important;
+  border-bottom: 1px solid var(--th-amber-border) !important;
+  color: var(--th-amber-bright) !important;
+  font-family: var(--th-mono-font) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+  padding: 3px 8px !important;
 }
 
 .teste-hud-window .window-content {
-  background: var(--tac-bg-deep);
+  background: var(--th-bg-deep) !important;
   padding: 0 !important;
   overflow: hidden !important;
 }
 
-/* --- Raiz do Terminal Tático --- */
+/* Raiz do Console */
 .tactical-terminal-root {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 720px;
-  background: var(--tac-bg-deep);
-  color: var(--tac-text-main);
-  font-family: var(--tac-font-mono);
+  min-height: 576px;
+  background: var(--th-bg-deep);
+  color: var(--th-text-main);
+  font-family: var(--th-mono-font);
   overflow: hidden;
   user-select: none;
   box-sizing: border-box;
 }
 
-/* Grade de Fundo com Pontos Incandescentes */
+/* Ferramentas Rápidas no Canto Superior Direito */
+.terminal-quick-tools {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.quick-tool-btn {
+  background: rgba(15, 10, 6, 0.8);
+  border: 1px solid var(--th-amber-border);
+  color: var(--th-amber-bright);
+  border-radius: 2px;
+  padding: 2px 6px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-tool-btn:hover {
+  background: var(--th-amber-fill);
+  color: #fff;
+  box-shadow: 0 0 6px var(--th-amber-glow);
+}
+
+/* Grade CRT com Pontos e Vinheta */
 .tactical-grid-bg {
   position: absolute;
   inset: 0;
   background-image: radial-gradient(circle, rgba(255, 106, 0, 0.16) 1px, transparent 1px);
   background-size: 24px 24px;
-  opacity: 0.65;
+  opacity: 0.7;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Vinheta Tática */
 .tactical-vignette-fx {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.85) 100%);
+  background: radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.9) 100%);
   pointer-events: none;
   z-index: 2;
 }
 
-/* Scanlines Sutis */
 .tactical-scanlines-fx {
   position: absolute;
   inset: 0;
   background: repeating-linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.18),
-    rgba(0, 0, 0, 0.18) 1px,
+    rgba(0, 0, 0, 0.22),
+    rgba(0, 0, 0, 0.22) 1px,
     transparent 1px,
     transparent 2px
   );
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 0.75;
   z-index: 3;
 }
 
-/* --- Moldura Externa com Cantoneiras Técnicas --- */
+/* Moldura Externa com Cantoneiras */
 .terminal-outer-frame {
   position: relative;
-  width: calc(100% - 24px);
-  height: calc(100% - 24px);
-  margin: 12px;
-  border: 1px solid var(--tac-amber-border);
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  margin: 8px;
+  border: 1px solid var(--th-amber-border);
   box-sizing: border-box;
   z-index: 4;
 }
 
 .frame-corner {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: var(--tac-amber-main);
+  width: 8px;
+  height: 8px;
+  border-color: var(--th-amber);
   border-style: solid;
 }
 
-.frame-corner.top-left {
-  top: -1px;
-  left: -1px;
-  border-width: 2px 0 0 2px;
-}
-
-.frame-corner.top-right {
-  top: -1px;
-  right: -1px;
-  border-width: 2px 2px 0 0;
-}
-
-.frame-corner.bottom-left {
-  bottom: -1px;
-  left: -1px;
-  border-width: 0 0 2px 2px;
-}
-
-.frame-corner.bottom-right {
-  bottom: -1px;
-  right: -1px;
-  border-width: 0 2px 2px 0;
-}
+.frame-corner.top-left     { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.frame-corner.top-right    { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.frame-corner.bottom-left  { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+.frame-corner.bottom-right { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
 .frame-top-marker {
   position: absolute;
-  top: -4px;
+  top: -3px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
-  height: 7px;
-  border-left: 2px solid var(--tac-amber-main);
-  border-right: 2px solid var(--tac-amber-main);
+  width: 32px;
+  height: 5px;
+  border-left: 2px solid var(--th-amber);
+  border-right: 2px solid var(--th-amber);
 }
 
 .frame-bottom-marker {
   position: absolute;
-  bottom: -4px;
+  bottom: -3px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
-  height: 7px;
-  border-left: 2px solid var(--tac-amber-main);
-  border-right: 2px solid var(--tac-amber-main);
+  width: 32px;
+  height: 5px;
+  border-left: 2px solid var(--th-amber);
+  border-right: 2px solid var(--th-amber);
 }
 
-/* --- Layout Principal em 3 Colunas --- */
+/* Layout das 3 Colunas */
 .terminal-body-layout {
   display: flex;
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
 }
 
+
 /* ==========================================================================
-   COLUNA ESQUERDA: VARREDURA DE SINAIS (24% Largura)
+   COLUNA ESQUERDA: VARREDURA DE SINAL (22.5% da largura)
    ========================================================================== */
 .terminal-col-left {
-  width: 280px;
-  min-width: 260px;
-  max-width: 320px;
+  width: 228px;
+  min-width: 215px;
+  max-width: 245px;
   height: 100%;
-  border-right: 1px solid var(--tac-amber-border);
+  border-right: 1px solid var(--th-amber-border);
   display: flex;
   flex-direction: column;
-  background: rgba(10, 7, 5, 0.5);
-  box-sizing: border-box;
+  background: rgba(8, 5, 3, 0.55);
 }
 
 .tactical-panel {
-  border-bottom: 1px solid var(--tac-amber-border);
-  padding: 8px 10px;
+  border-bottom: 1px solid var(--th-amber-border);
+  padding: 4px 6px 6px 6px;
   box-sizing: border-box;
 }
 
@@ -200,287 +206,299 @@
   flex: 1;
 }
 
-.panel-header {
+/* Barras de Cabeçalho dos Painéis com Endcaps */
+.panel-header-bar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--tac-amber-bright);
-  letter-spacing: 0.12em;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-}
-
-.panel-tag-right {
-  color: var(--tac-text-muted);
-}
-
-/* Bloco 1: Parâmetros Orbitais */
-.telemetry-table-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.telemetry-row {
-  display: grid;
-  grid-template-columns: 52px 1fr 60px;
-  gap: 6px;
-  font-size: 9px;
-  line-height: 1.25;
-  border-bottom: 1px dashed rgba(255, 106, 0, 0.12);
-  padding-bottom: 3px;
-}
-
-.telemetry-row:last-child {
-  border-bottom: none;
-}
-
-.col-ids {
-  color: var(--tac-text-muted);
-  display: flex;
-  flex-direction: column;
-}
-
-.col-params {
-  color: var(--tac-text-main);
-}
-
-.param-line {
-  display: flex;
   justify-content: space-between;
-}
-
-.param-line .lbl {
-  color: var(--tac-text-muted);
-}
-
-.param-line .val {
-  color: var(--tac-text-bright);
-}
-
-.col-telemetry {
-  color: var(--tac-amber-main);
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Bloco 2: Tabela de Alvos e Frequências */
-.target-spectrum-table {
-  font-size: 8.5px;
-}
-
-.spectrum-table-header {
-  display: grid;
-  grid-template-columns: 46px 26px 42px 24px 22px 1fr;
-  color: var(--tac-amber-bright);
+  font-size: 8px;
   font-weight: bold;
-  border-bottom: 1px solid var(--tac-amber-border);
+  letter-spacing: 0.1em;
+  color: var(--th-amber-bright);
+  border-bottom: 1px solid rgba(255, 106, 0, 0.2);
   padding-bottom: 2px;
   margin-bottom: 4px;
 }
 
-.spectrum-table-body {
+.header-cap {
+  width: 8px;
+  height: 2.5px;
+  background: var(--th-amber);
+  display: inline-block;
+}
+
+.header-sub {
+  color: var(--th-text-muted);
+}
+
+/* Painel 1: Linhas de Telemetria */
+.telemetry-table-rows {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1.5px;
+  font-size: 7.5px;
+  line-height: 1.25;
 }
 
-.spectrum-table-row {
+.t-row {
   display: grid;
-  grid-template-columns: 46px 26px 42px 24px 22px 1fr;
-  color: var(--tac-text-main);
-  line-height: 1.3;
+  grid-template-columns: 46px 64px 38px 48px;
+  align-items: center;
 }
 
-.spectrum-table-row:hover {
-  background: var(--tac-amber-faint);
-  color: var(--tac-amber-bright);
+.t-row.has-border-top {
+  border-top: 1px dashed rgba(255, 106, 0, 0.12);
+  padding-top: 1.5px;
+  margin-top: 1.5px;
 }
 
-.col-id { color: var(--tac-text-muted); }
-.col-freq { color: var(--tac-text-bright); }
-.col-range { color: var(--tac-text-muted); }
-.col-angle { color: var(--tac-amber-main); }
-.col-idx { color: var(--tac-text-muted); }
-.col-target { color: var(--tac-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.col-code { color: var(--th-text-muted); }
+.col-lbl  { color: var(--th-text-cream); }
+.col-val  { color: var(--th-text-bright); text-align: right; }
+.col-ref  { color: var(--th-amber); text-align: right; }
 
-/* Bloco 3: Matriz de 15 Dials Circulares */
+/* Painel 2: Tabela de Alvos e Espectro */
+.target-spectrum-table {
+  font-size: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+}
+
+.spectrum-grid-row {
+  display: grid;
+  grid-template-columns: 38px 18px 34px 18px 14px 1fr;
+  line-height: 1.25;
+  align-items: center;
+}
+
+.spectrum-grid-row.s-head {
+  color: var(--th-amber-bright);
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 106, 0, 0.2);
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+.spectrum-grid-row:hover {
+  background: var(--th-amber-faint);
+  color: #ffffff;
+}
+
+.c-id   { color: var(--th-text-muted); }
+.c-freq { color: var(--th-text-bright); }
+.c-range{ color: var(--th-text-cream); }
+.c-ang  { color: var(--th-amber); }
+.c-idx  { color: var(--th-text-muted); }
+.c-tag  { color: var(--th-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.text-alert {
+  color: var(--th-red-alert) !important;
+  font-weight: bold;
+}
+
+/* Painel 3: Matriz de 15 Dials Circulares */
 .dials-matrix-panel {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .dials-micro-status {
   display: flex;
   justify-content: space-between;
-  font-size: 7.5px;
-  color: var(--tac-text-muted);
-  line-height: 1.2;
+  font-size: 6.5px;
+  line-height: 1.25;
+  color: var(--th-text-muted);
 }
 
-.dials-grid-container {
+.status-left div span {
+  color: var(--th-text-dim);
+  display: inline-block;
+  width: 32px;
+}
+
+.status-right {
+  text-align: right;
+}
+
+.dials-grid-3x5 {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px 4px;
-  padding: 4px 0;
+  gap: 4px 2px;
+  padding: 2px 0;
 }
 
-.tactical-dial-node {
+.tactical-dial-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
-.tactical-dial-node:hover {
-  transform: scale(1.08);
+.tactical-dial-cell:hover {
+  transform: scale(1.1);
 }
 
-.dial-ring {
-  position: relative;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--tac-amber-main);
-  background: radial-gradient(circle, rgba(255, 106, 0, 0.08) 0%, transparent 70%);
-  box-shadow: 0 0 6px rgba(255, 106, 0, 0.25), inset 0 0 4px rgba(255, 106, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.dial-arc-svg {
+  width: 28px;
+  height: 28px;
 }
 
-.tactical-dial-node.is-active .dial-ring {
-  border-color: var(--tac-amber-bright);
-  box-shadow: 0 0 10px rgba(255, 106, 0, 0.6), inset 0 0 6px rgba(255, 106, 0, 0.4);
+.dial-track {
+  fill: rgba(255, 106, 0, 0.04);
+  stroke: var(--th-amber-dark);
+  stroke-width: 2px;
 }
 
-.dial-core-dot {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: var(--tac-amber-bright);
-  border-radius: 50%;
-  box-shadow: 0 0 4px #ff6a00;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.dial-arc {
+  fill: none;
+  stroke: var(--th-amber);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px var(--th-amber-glow));
 }
 
-.dial-labels {
-  font-size: 7px;
-  color: var(--tac-text-muted);
-  text-align: center;
+.tactical-dial-cell.is-active .dial-arc {
+  stroke: #ff3b14;
+  filter: drop-shadow(0 0 5px rgba(255, 59, 20, 0.8));
 }
 
-/* Bloco 4: Forma de Onda / Analisador Espectrográfico */
-.waveform-panel-content {
+.dial-center-dot {
+  fill: var(--th-amber-bright);
+}
+
+.dial-num-stack {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  height: 100%;
+  align-items: center;
+  font-size: 6px;
+  line-height: 1.15;
+  color: var(--th-text-muted);
 }
 
-.tactical-waveform-display {
-  height: 64px;
-  background: rgba(18, 12, 8, 0.6);
-  border: 1px solid var(--tac-amber-border);
-  padding: 4px 6px;
+.d-code { color: var(--th-text-cream); }
+.d-val  { color: var(--th-text-dim); }
+
+/* Painel 4: Forma de Onda e Sub-medidor */
+.waveform-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tactical-waveform-visual {
+  height: 52px;
+  background: rgba(14, 9, 6, 0.5);
+  border: 1px solid rgba(255, 106, 0, 0.2);
+  padding: 3px 4px;
   display: flex;
   align-items: flex-end;
   box-sizing: border-box;
 }
 
-.waveform-candlestick-strip {
+.waveform-columns-strip {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   width: 100%;
   height: 100%;
-  gap: 2px;
+  gap: 1.5px;
 }
 
-.waveform-column {
+.wave-candlestick {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   width: 3px;
   height: 100%;
-  justify-content: flex-end;
 }
 
-.wave-peak-dot {
-  width: 2.5px;
-  height: 2.5px;
+.peak-dot {
+  width: 2px;
+  height: 2px;
   background: #ffffff;
   border-radius: 50%;
-  box-shadow: 0 0 3px #ffffff;
-  margin-bottom: 2px;
+  box-shadow: 0 0 2px #fff;
+  margin-bottom: 1.5px;
 }
 
-.wave-stem {
+.candlestick-bar {
   width: 1px;
-  height: var(--col-h, 24px);
-  background: var(--tac-amber-main);
+  height: var(--stem-h, 18px);
+  background: #ffffff;
   opacity: 0.85;
 }
 
-.wave-bottom-dot {
-  width: 1.5px;
-  height: 1.5px;
-  background: var(--tac-amber-dark);
-  border-radius: 50%;
+.wave-candlestick.is-amber .candlestick-bar {
+  background: var(--th-amber);
+  box-shadow: 0 0 2px var(--th-amber-glow);
 }
 
-.waveform-precision-readouts {
-  font-size: 7.5px;
-  color: var(--tac-text-muted);
-  line-height: 1.35;
+.wave-candlestick.is-amber .peak-dot {
+  background: var(--th-amber-bright);
+  box-shadow: 0 0 2px var(--th-amber);
 }
 
-.waveform-precision-readouts .readout-row {
+.base-dot {
+  width: 1px;
+  height: 1px;
+  background: var(--th-amber-dark);
+}
+
+.waveform-numeric-matrix {
+  font-size: 6.5px;
+  line-height: 1.25;
+  color: var(--th-text-muted);
+}
+
+.num-row {
   display: flex;
   justify-content: space-between;
 }
 
-.waveform-sub-meter {
+.waveform-sub-meter-box {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: auto;
+  gap: 6px;
+  margin-top: 2px;
+  padding-top: 2px;
+  border-top: 1px dashed rgba(255, 106, 0, 0.15);
 }
 
-.sub-meter-tracks {
+.sub-sf-tag {
+  font-size: 7px;
+  font-weight: bold;
+  color: var(--th-amber);
+}
+
+.sub-sf-bars {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
-.sub-track {
-  height: 3px;
-  background: rgba(255, 106, 0, 0.15);
+.sf-bar-line {
+  height: 2px;
+  background: rgba(255, 106, 0, 0.12);
   border-radius: 1px;
   overflow: hidden;
 }
 
-.sub-fill {
+.sf-fill {
   height: 100%;
-  background: var(--tac-amber-main);
 }
 
-.sub-meter-code {
-  font-size: 8px;
-  color: var(--tac-amber-bright);
-}
+.bar-red .sf-fill    { background: #e53935; }
+.bar-white .sf-fill  { background: #f0f0f0; }
+.bar-orange .sf-fill { background: #ff6a00; }
 
 
 /* ==========================================================================
-   COLUNA CENTRAL: ESQUEMA LÓGICO DA OFICINA (Largura Principal)
+   COLUNA CENTRAL: ESQUEMA LÓGICO DA OFICINA (60% da largura)
    ========================================================================== */
 .terminal-col-center {
   flex: 1;
@@ -488,179 +506,166 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  background: rgba(8, 5, 3, 0.4);
-  box-sizing: border-box;
+  background: rgba(6, 4, 3, 0.35);
 }
 
 /* Cabeçalho Superior da Oficina */
-.workshop-header-area {
-  padding: 10px 16px 6px 16px;
-  border-bottom: 1px solid var(--tac-amber-border);
+.workshop-header-banner {
+  padding: 6px 12px 2px 12px;
+  box-sizing: border-box;
+}
+
+.banner-cap-line {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 3px;
+  margin: 2px 0;
+}
+
+.endcap {
+  width: 10px;
+  height: 3px;
+  background: var(--th-amber);
+}
+
+.cap-divider {
+  flex: 1;
+  height: 1px;
+  background: var(--th-amber-border);
 }
 
 .workshop-title-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 4px;
+  align-items: baseline;
+  padding: 2px 0;
 }
 
-.workshop-main-title {
-  margin: 0;
+.workshop-title-left {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
 
-.workshop-main-title .title-primary {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--tac-amber-bright);
-  letter-spacing: 0.15em;
-  text-shadow: 0 0 10px rgba(255, 106, 0, 0.5);
-}
-
-.workshop-main-title .title-sub-ru {
-  font-size: 12px;
-  color: var(--tac-text-muted);
-  letter-spacing: 0.1em;
-}
-
-.workshop-subtitle-group {
-  text-align: right;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-}
-
-.ws-sub-title {
-  color: var(--tac-text-bright);
+.workshop-cyrillic-title {
+  margin: 0;
+  font-size: 19px;
   font-weight: 700;
+  color: var(--th-amber-bright);
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 8px rgba(255, 106, 0, 0.5);
 }
 
-.ws-sub-status {
-  color: var(--tac-text-muted);
+.workshop-pt-badge {
+  font-size: 9.5px;
+  color: var(--th-text-muted);
+  letter-spacing: 0.1em;
 }
 
-/* Faixa de Códigos Técnicos do Sistema */
-.workshop-system-codes-strip {
+.workshop-title-right {
+  text-align: right;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.ws-head-en {
+  color: var(--th-text-bright);
+  font-weight: bold;
+}
+
+.ws-head-check {
+  color: var(--th-text-muted);
+}
+
+.workshop-codes-telemetry-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  font-size: 8.5px;
-  color: var(--tac-text-muted);
-  padding: 3px 0;
-  border-top: 1px dashed rgba(255, 106, 0, 0.15);
-  overflow-x: auto;
+  font-size: 7.5px;
+  color: var(--th-text-muted);
+  padding: 1px 0;
 }
 
-.highlight-voltage {
+.code-voltage {
   color: #ffffff;
   font-weight: bold;
 }
 
-.tag-danger {
-  color: var(--tac-red-alert);
+.code-danger-tag {
+  color: var(--th-amber-bright);
+  background: rgba(255, 106, 0, 0.12);
+  padding: 1px 4px;
 }
 
-/* Banner de Matriz de Pontos LED (Dot Matrix Display) */
-.dot-matrix-display-container {
-  margin-top: 6px;
-  height: 24px;
-  background: rgba(16, 10, 6, 0.7);
-  border: 1px solid var(--tac-amber-border);
-  padding: 2px 6px;
+/* Banner de LED Dot-Matrix */
+.dot-matrix-led-display {
+  width: 100%;
+  height: 28px;
+  background: rgba(10, 6, 4, 0.85);
+  border: 1px solid rgba(255, 106, 0, 0.25);
   display: flex;
   align-items: center;
-  box-sizing: border-box;
-  overflow: hidden;
+  justify-content: center;
+  margin: 2px 0;
 }
 
-.dot-matrix-grid {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.dot-matrix-canvas {
   width: 100%;
-  height: 100%;
+  height: 28px;
 }
 
-.dot-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 2px;
-}
-
-.dot-row::before {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 1.5px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--tac-amber-main) 0px,
-    var(--tac-amber-main) 2px,
-    transparent 2px,
-    transparent 6px
-  );
-  opacity: 0.75;
-  animation: dotMatrixScan 4s linear infinite;
-}
-
-@keyframes dotMatrixScan {
-  0% { transform: translateX(0); }
-  50% { opacity: 0.9; }
-  100% { transform: translateX(-30px); }
-}
-
-/* --- Seção do Circuito e Relés --- */
-.workshop-circuit-section {
+/* --- Manifold do Circuito e Relés --- */
+.circuit-manifold-section {
   display: flex;
   flex: 1;
   position: relative;
-  padding: 10px 14px;
+  padding: 4px 8px;
   box-sizing: border-box;
 }
 
-.circuit-left-telemetry {
-  width: 70px;
+.circuit-margin-telemetry {
+  width: 58px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  font-size: 8.5px;
+  font-size: 7.5px;
   border-right: 1px dashed rgba(255, 106, 0, 0.15);
-  padding-right: 8px;
+  padding-right: 6px;
 }
 
-.circuit-coord-line {
+.margin-coord span { color: var(--th-text-muted); }
+.margin-coord strong { color: var(--th-amber-bright); }
+
+.margin-vertical-ruler {
   display: flex;
   flex-direction: column;
-  margin-bottom: 4px;
+  gap: 4px;
+  font-size: 7px;
+  color: var(--th-text-dim);
 }
 
-.circuit-coord-line span {
-  color: var(--tac-text-muted);
-}
-
-.circuit-coord-line strong {
-  color: var(--tac-amber-bright);
-}
-
-.circuit-vertical-scale {
+.ruler-bottom-ticks {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  color: var(--tac-text-dim);
-  font-size: 8px;
+  gap: 2px;
+  margin-top: 4px;
 }
 
-/* Canvas e Nodes do Circuito */
-.circuit-canvas-wrapper {
+.r-tick {
+  width: 8px;
+  height: 1px;
+  background: var(--th-amber-dim);
+}
+
+/* Palco Central do Circuito */
+.circuit-stage-container {
   flex: 1;
   position: relative;
-  margin-left: 12px;
+  margin-left: 8px;
 }
 
-.circuit-wiring-svg {
+.circuit-svg-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -669,497 +674,556 @@
   z-index: 1;
 }
 
-.wire-path {
+.circuit-wire {
   fill: none;
-  stroke: var(--tac-amber-main);
+  stroke: var(--th-amber-dark);
   stroke-width: 1.5px;
-  opacity: 0.65;
+  transition: stroke 0.3s ease, filter 0.3s ease;
 }
 
-.wire-junction {
-  fill: var(--tac-amber-bright);
+.circuit-wire.is-powered {
+  stroke: var(--th-amber);
+  filter: drop-shadow(0 0 3px var(--th-amber-glow));
 }
 
-.circuit-nodes-layer {
+.junction-dot {
+  fill: var(--th-amber-bright);
+}
+
+.circuit-interactive-nodes {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 280px;
+  min-height: 240px;
   z-index: 2;
 }
 
-/* Estilos dos Nodes / Botões do Circuito */
-.circuit-node {
+.c-node {
   position: absolute;
   transform: translate(-50%, -50%);
 }
 
-.node-badge {
+/* Badges e Botões do Circuito */
+.badge-outline {
   display: inline-block;
-  padding: 3px 8px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  padding: 2px 6px;
+  font-size: 8px;
+  font-weight: bold;
+  border: 1px solid var(--th-amber);
+  color: var(--th-amber);
+  background: var(--th-bg-deep);
 }
 
-.node-badge.border-amber {
-  border: 1px solid var(--tac-amber-main);
-  color: var(--tac-amber-main);
-  background: var(--tac-bg-deep);
+.badge-solid {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 8px;
+  font-weight: bold;
+  background: var(--th-amber-fill);
+  color: #ffffff;
+  box-shadow: 0 0 5px var(--th-amber-glow);
 }
 
-.node-badge.fill-amber {
-  background: var(--tac-amber-fill);
-  color: var(--tac-bg-deep);
-  font-weight: 800;
-  box-shadow: 0 0 6px var(--tac-amber-glow);
-}
-
-.node-btn {
+.btn-micro-outline {
   background: transparent;
-  border: 1px solid var(--tac-amber-main);
-  color: var(--tac-amber-bright);
-  font-family: var(--tac-font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  padding: 4px 10px;
+  border: 1px solid var(--th-amber-border);
+  color: var(--th-text-cream);
+  font-family: var(--th-mono-font);
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 7px;
   cursor: pointer;
-  letter-spacing: 0.08em;
   transition: all 0.2s ease;
 }
 
-.node-btn:hover {
-  background: var(--tac-amber-faint);
-  box-shadow: 0 0 8px var(--tac-amber-glow);
+.btn-micro-outline:hover,
+.btn-micro-outline.is-active {
+  border-color: var(--th-amber-bright);
+  color: var(--th-amber-bright);
+  background: var(--th-amber-faint);
+  box-shadow: 0 0 6px var(--th-amber-glow);
 }
 
-.node-btn.btn-solid-amber {
-  background: var(--tac-amber-fill);
+.btn-block-amber {
+  background: var(--th-amber-fill);
+  border: 1px solid var(--th-amber-bright);
   color: #ffffff;
-  border-color: var(--tac-amber-bright);
-  box-shadow: 0 0 10px rgba(255, 106, 0, 0.4);
+  font-family: var(--th-mono-font);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 8px 16px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 106, 0, 0.45);
+  transition: all 0.2s ease;
+}
+
+.btn-block-amber:hover,
+.btn-block-amber.is-engaged {
+  background: #b84d08;
+  box-shadow: 0 0 14px rgba(255, 106, 0, 0.8);
+}
+
+.btn-pill-amber {
+  background: var(--th-bg-deep);
+  border: 1px solid var(--th-amber-dark);
+  color: var(--th-amber-dark);
+  font-family: var(--th-mono-font);
+  font-size: 7.5px;
+  font-weight: bold;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.btn-pill-amber.is-engaged {
+  background: var(--th-amber-fill);
+  border-color: var(--th-amber-bright);
+  color: #ffffff;
+  box-shadow: 0 0 6px var(--th-amber-glow);
 }
 
 /* Posições dos Nós Superiores */
-.node-top-asd  { top: 12%; left: 8%; }
-.node-top-pod  { top: 12%; left: 32%; }
-.node-top-open { top: 12%; left: 50%; }
-.node-top-web  { top: 12%; left: 68%; }
-.node-top-doi  { top: 12%; left: 92%; }
+.node-top-asd  { top: 10%; left: 7%; }
+.node-top-pod  { top: 10%; left: 31%; }
+.node-top-open { top: 10%; left: 50%; }
+.node-top-web  { top: 10%; left: 69%; }
+.node-top-doi  { top: 10%; left: 93%; }
 
-.node-mid-open { top: 26%; left: 50%; }
+.node-large-open { top: 23%; left: 50%; }
 
-/* Caixas de Chassis Centrais */
-.circuit-chassis-box {
+/* Chassis Centrais com Cantos Chanfrados */
+.chassis-bracketed-unit {
   position: absolute;
   transform: translate(-50%, -50%);
-  border: 1px solid var(--tac-amber-border);
-  background: rgba(18, 12, 8, 0.9);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.circuit-chassis-box.is-illuminated {
-  border-color: var(--tac-amber-bright);
-  box-shadow: 0 0 12px var(--tac-amber-glow);
-}
-
-.chassis-tag {
-  font-size: 9px;
-  font-weight: bold;
-  color: var(--tac-text-muted);
-}
-
-.chassis-micro-tag {
-  font-size: 7.5px;
-  color: var(--tac-text-muted);
-}
-
-.chassis-switch-btn {
-  background: #1a120b;
-  border: 1px solid var(--tac-amber-border);
-  color: var(--tac-text-muted);
-  font-family: var(--tac-font-mono);
-  font-size: 9px;
-  font-weight: bold;
-  padding: 4px 10px;
-  cursor: pointer;
-  letter-spacing: 0.1em;
-  transition: all 0.2s ease;
-}
-
-.chassis-switch-btn.is-on {
-  border-color: var(--tac-amber-bright);
-  background: var(--tac-amber-fill);
-  color: #ffffff;
-  box-shadow: 0 0 8px var(--tac-amber-glow);
-}
-
-.chassis-switch-btn.btn-semi {
-  border-color: var(--tac-amber-main);
-  color: var(--tac-amber-bright);
-}
-
-/* Posições Centrais */
-.chassis-asd { top: 48%; left: 8%; width: 50px; }
-.chassis-pod { top: 48%; left: 32%; width: 50px; }
-.chassis-ptu { top: 48%; left: 50%; width: 54px; }
-.chassis-web { top: 48%; left: 68%; width: 50px; }
-.chassis-doi { top: 48%; left: 92%; width: 50px; }
-
-/* Sub-chassis Manual SYS-01 e SYS-02 */
-.circuit-sub-chassis {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  border: 1px solid var(--tac-amber-border);
-  background: rgba(14, 9, 6, 0.85);
-  padding: 5px 6px;
+  border: 1px solid var(--th-amber-border);
+  background: rgba(14, 9, 6, 0.9);
+  padding: 4px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
   width: 44px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
 }
 
-.chassis-sys1 { top: 48%; left: 19%; }
-.chassis-sys2 { top: 48%; left: 80%; }
-
-.sub-chassis-header {
-  font-size: 7.5px;
-  color: var(--tac-amber-bright);
-  font-weight: bold;
+.chassis-bracketed-unit.is-illuminated {
+  border-color: var(--th-amber-bright);
+  box-shadow: 0 0 10px var(--th-amber-glow);
 }
 
-.sub-chassis-meters {
-  display: flex;
-  gap: 4px;
-  height: 42px;
-}
-
-.vertical-slider-track {
-  width: 6px;
-  height: 100%;
-  background: rgba(255, 106, 0, 0.15);
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-}
-
-.vertical-slider-fill {
-  width: 100%;
-  background: var(--tac-amber-main);
-  box-shadow: 0 0 4px var(--tac-amber-glow);
-}
-
-.sub-chassis-code {
-  font-size: 7px;
-  color: var(--tac-text-muted);
-}
-
-/* Nós Inferiores */
-.node-mid-close { top: 68%; left: 50%; }
-.node-bot-auto  { top: 82%; left: 50%; }
-
-.node-bot-asd { top: 82%; left: 8%; }
-.node-bot-pod { top: 82%; left: 32%; }
-.node-bot-web { top: 82%; left: 68%; }
-.node-bot-doi { top: 82%; left: 92%; }
-
-.btn-status-off {
-  border: 1px solid var(--tac-amber-dark);
-  color: var(--tac-amber-dark);
-  background: var(--tac-bg-deep);
-  cursor: pointer;
-}
-
-.btn-status-on {
-  border: 1px solid var(--tac-amber-bright);
-  color: var(--tac-amber-bright);
-  background: var(--tac-amber-fill);
-  cursor: pointer;
-  box-shadow: 0 0 8px var(--tac-amber-glow);
-}
-
-/* Faixa Divisória Horizontal de Telemetria */
-.terminal-horizontal-telemetry-strip {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.chassis-header-tag {
   font-size: 8px;
-  color: var(--tac-text-muted);
-  border-top: 1px solid var(--tac-amber-border);
-  border-bottom: 1px solid var(--tac-amber-border);
-  padding: 4px 16px;
-  background: rgba(14, 9, 6, 0.5);
+  font-weight: bold;
+  color: var(--th-text-muted);
 }
 
-.terminal-horizontal-telemetry-strip strong {
-  color: var(--tac-amber-bright);
+.chassis-micro-pt {
+  font-size: 6.5px;
+  color: var(--th-text-muted);
 }
 
-.telemetry-item-center {
-  font-size: 7.5px;
-  color: var(--tac-text-dim);
+.chassis-toggle-btn {
+  background: #140d07;
+  border: 1px solid var(--th-amber-dark);
+  color: var(--th-text-muted);
+  font-family: var(--th-mono-font);
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 6px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  width: 100%;
+  transition: all 0.2s ease;
 }
 
-/* --- Painel Duplo Inferior de Disjuntores / Pinos (Switchboard) --- */
-.switchboard-pinout-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px 14px 14px;
-  background: rgba(10, 7, 5, 0.6);
-  border-top: 1px dashed rgba(255, 106, 0, 0.2);
+.chassis-toggle-btn.is-on {
+  background: var(--th-amber-fill);
+  border-color: var(--th-amber-bright);
+  color: #ffffff;
+  box-shadow: 0 0 6px var(--th-amber-glow);
 }
 
-.pinout-array {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
+.chassis-toggle-btn.btn-semi {
+  border-color: var(--th-amber);
+  color: var(--th-amber-bright);
 }
 
-.pinout-row {
-  display: flex;
-  justify-content: space-between;
-}
+/* Posições Centrais */
+.unit-asd { top: 46%; left: 7%; }
+.unit-pod { top: 46%; left: 31%; }
+.unit-ptu { top: 46%; left: 50%; width: 48px; }
+.unit-web { top: 46%; left: 69%; }
+.unit-doi { top: 46%; left: 93%; }
 
-.pinout-cell {
+/* Módulos de Slider Manual SYS-01 e SYS-02 */
+.chassis-slider-module {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--th-amber-border);
+  background: rgba(12, 8, 5, 0.85);
+  padding: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  width: 40px;
+}
+
+.unit-sys1 { top: 46%; left: 19%; }
+.unit-sys2 { top: 46%; left: 81%; }
+
+.slider-module-head {
+  font-size: 6.5px;
+  font-weight: bold;
+  color: var(--th-amber-bright);
+}
+
+.slider-dual-channels {
+  display: flex;
+  gap: 4px;
+  height: 44px;
+  padding: 2px 0;
+}
+
+.channel-col {
+  cursor: ns-resize;
+}
+
+.channel-track {
+  width: 7px;
+  height: 100%;
+  background: rgba(255, 106, 0, 0.12);
+  border: 1px solid rgba(255, 106, 0, 0.25);
+  display: flex;
+  align-items: flex-end;
+}
+
+.channel-fill {
+  width: 100%;
+  background: var(--th-amber);
+  box-shadow: 0 0 3px var(--th-amber-glow);
+  transition: height 0.15s ease;
+}
+
+.slider-module-foot {
+  font-size: 6.5px;
+  color: var(--th-text-muted);
+}
+
+/* Nós Inferiores */
+.node-large-close { top: 68%; left: 50%; }
+.node-btn-auto    { top: 82%; left: 50%; }
+
+.node-bot-asd { top: 82%; left: 7%; }
+.node-bot-pod { top: 82%; left: 31%; }
+.node-bot-web { top: 82%; left: 69%; }
+.node-bot-doi { top: 82%; left: 93%; }
+
+/* Faixa Divisória Horizontal Central */
+.center-horizontal-telemetry-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 7.5px;
+  color: var(--th-text-muted);
+  border-top: 1px solid var(--th-amber-border);
+  border-bottom: 1px solid var(--th-amber-border);
+  padding: 2px 12px;
+  background: rgba(12, 8, 5, 0.6);
+}
+
+.center-horizontal-telemetry-line strong {
+  color: var(--th-amber-bright);
+}
+
+.telemetry-mid {
+  font-size: 7px;
+  color: var(--th-text-dim);
+}
+
+/* --- Switchboard Duplo de Pinos (36 Módulos) --- */
+.switchboard-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 8px 12px;
+  background: rgba(8, 5, 3, 0.6);
+  border-top: 1px dashed rgba(255, 106, 0, 0.18);
+}
+
+.switchboard-bank {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   position: relative;
 }
 
-.pinout-led-btn {
-  width: 14px;
-  height: 14px;
-  background: #1c140c;
-  border: 1px solid var(--tac-amber-dark);
-  border-radius: 2px;
+.bank-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bank-bus-wire-left,
+.bank-bus-wire-right {
+  width: 100%;
+  height: 1px;
+  background: var(--th-amber-dark);
+  margin: 1px 0;
+}
+
+.bank-module-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.module-face {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--th-amber-dark);
+  background: rgba(15, 10, 6, 0.8);
+  padding: 1px 3px;
+  border-radius: 1px;
+}
+
+.module-led-btn {
+  width: 9px;
+  height: 9px;
+  background: #140d07;
+  border: 1px solid var(--th-amber-dark);
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.pinout-led-btn:hover {
-  border-color: var(--tac-amber-bright);
+.led-core {
+  width: 4.5px;
+  height: 4.5px;
+  background: #2b180a;
 }
 
-.pin-indicator {
-  width: 6px;
-  height: 6px;
-  background: #382415;
-  border-radius: 1px;
+.module-led-btn.is-lit {
+  border-color: var(--th-amber-bright);
+  background: #401a04;
+  box-shadow: 0 0 5px var(--th-amber-glow);
 }
 
-.pinout-led-btn.is-on {
-  border-color: var(--tac-amber-bright);
-  background: #331704;
-  box-shadow: 0 0 6px var(--tac-amber-glow);
+.module-led-btn.is-lit .led-core {
+  background: var(--th-amber-bright);
+  box-shadow: 0 0 3px #ff6a00;
 }
 
-.pinout-led-btn.is-on .pin-indicator {
-  background: var(--tac-amber-bright);
-  box-shadow: 0 0 4px #ff6a00;
+.module-val {
+  font-size: 6.5px;
+  color: var(--th-text-muted);
 }
 
-.pin-value-lbl {
-  font-size: 7px;
-  color: var(--tac-text-muted);
-}
-
-.pin-drop-trace {
+.module-bus-drop-down {
   width: 1px;
-  height: 6px;
-  background: var(--tac-amber-dark);
+  height: 5px;
+  background: var(--th-amber-dark);
 }
 
-.pin-drop-trace-top {
+.module-bus-drop-up {
   width: 1px;
-  height: 6px;
-  background: var(--tac-amber-dark);
+  height: 5px;
+  background: var(--th-amber-dark);
 }
 
 /* Conduíte Central de Aterramento */
-.pinout-center-grounding {
-  width: 50px;
+.switchboard-center-ground {
+  width: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  padding: 0 8px;
+  padding: 0 6px;
 }
 
-.grounding-stem-top {
+.ground-stem-top {
   width: 1px;
-  height: 12px;
-  background: var(--tac-amber-main);
+  height: 8px;
+  background: var(--th-amber);
 }
 
-.grounding-loop-circle {
-  width: 22px;
-  height: 22px;
+.ground-loop-ring {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 1px solid var(--tac-amber-main);
+  border: 1px solid var(--th-amber);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 6px var(--tac-amber-glow);
+  box-shadow: 0 0 5px var(--th-amber-glow);
 }
 
-.inner-ground-core {
-  width: 6px;
-  height: 6px;
+.ground-core-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: var(--tac-amber-bright);
+  background: var(--th-amber-bright);
 }
 
-.grounding-stem-bottom {
+.ground-stem-mid {
   width: 1px;
-  height: 12px;
-  background: var(--tac-amber-main);
+  height: 8px;
+  background: var(--th-amber);
 }
 
-.grounding-bus-horizontal {
+.ground-cross-bus {
   width: 100%;
   height: 1px;
-  background: var(--tac-amber-main);
+  background: var(--th-amber);
 }
 
 
 /* ==========================================================================
-   COLUNA DIREITA: MIRA TÁTICA E DRONE (16% Largura)
+   COLUNA DIREITA: DRONE & RETÍCULOS (17.5% da largura)
    ========================================================================== */
 .terminal-col-right {
-  width: 180px;
+  width: 172px;
   min-width: 160px;
-  max-width: 200px;
+  max-width: 185px;
   height: 100%;
-  border-left: 1px solid var(--tac-amber-border);
+  border-left: 1px solid var(--th-amber-border);
   display: flex;
   flex-direction: column;
-  padding: 10px 8px;
-  background: rgba(10, 7, 5, 0.5);
+  padding: 6px 6px;
+  background: rgba(8, 5, 3, 0.55);
   box-sizing: border-box;
   position: relative;
 }
 
-/* Tag Vertical do Drone (VANT) */
-.drone-vertical-badge {
+/* Tag Vertical do Drone Pendurada na Moldura */
+.drone-vertical-insignia {
   position: absolute;
-  top: 14px;
+  top: 10px;
   right: -1px;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.drone-badge-body {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  background: var(--tac-amber-bright);
-  color: var(--tac-bg-deep);
-  font-size: 8.5px;
-  font-weight: 900;
-  letter-spacing: 0.15em;
-  padding: 10px 3px;
-  box-shadow: 0 0 8px var(--tac-amber-glow);
-}
-
-.drone-sub-pip {
-  width: 8px;
-  height: 6px;
-  background: #ffffff;
-  margin-top: 2px;
-}
-
-/* Grade de Retículos de Mira Tática (2x4 = 8 Retículos) */
-.tactical-reticles-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 8px;
-  margin-top: 140px; /* espaço abaixo da tag do drone */
-  align-items: center;
-}
-
-.reticle-unit-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
   cursor: pointer;
+  z-index: 5;
   transition: transform 0.2s ease;
 }
 
-.reticle-unit-node:hover {
+.drone-vertical-insignia:hover {
+  transform: scale(1.06);
+}
+
+.drone-amber-block {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  background: var(--th-amber-fill);
+  border: 1px solid var(--th-amber-bright);
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  padding: 8px 3px;
+  box-shadow: 0 0 8px var(--th-amber-glow);
+}
+
+.drone-notch-white {
+  width: 8px;
+  height: 5px;
+  background: #ffffff;
+  margin-top: 1px;
+}
+
+/* 8 Retículos Gimbal (2x4) */
+.reticles-matrix-2x4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 4px;
+  margin-top: 105px; /* Alinhado exatamente com o início dos retículos */
+}
+
+.gimbal-reticle-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.gimbal-reticle-unit:hover {
   transform: scale(1.08);
 }
 
-.reticle-ring {
+.gimbal-circle-frame {
   position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--tac-amber-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle, rgba(255, 106, 0, 0.04) 0%, transparent 70%);
-  transition: border-color 0.3s ease;
+  width: 38px;
+  height: 38px;
 }
 
-.reticle-unit-node:hover .reticle-ring {
-  border-color: var(--tac-amber-bright);
-  box-shadow: 0 0 8px var(--tac-amber-glow);
-}
-
-.reticle-cross-h {
-  position: absolute;
+.gimbal-svg {
   width: 100%;
-  height: 1px;
-  background: rgba(255, 106, 0, 0.3);
-}
-
-.reticle-cross-v {
-  position: absolute;
   height: 100%;
-  width: 1px;
-  background: rgba(255, 106, 0, 0.3);
 }
 
-.reticle-tick-marker {
-  position: absolute;
-  width: 3px;
-  height: 1px;
-  background: var(--tac-amber-bright);
+.gimbal-bg-ring {
+  fill: rgba(255, 106, 0, 0.03);
+  stroke: var(--th-amber-border);
+  stroke-width: 1px;
 }
 
-.reticle-tick-marker.t-0   { top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 3px; }
-.reticle-tick-marker.t-90  { right: 0; top: 50%; transform: translateY(-50%); }
-.reticle-tick-marker.t-180 { bottom: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 3px; }
-.reticle-tick-marker.t-270 { left: 0; top: 50%; transform: translateY(-50%); }
-
-.reticle-center-pip {
-  width: 3px;
-  height: 3px;
-  background: var(--tac-amber-bright);
-  border-radius: 50%;
-  box-shadow: 0 0 3px #ff6a00;
+.gimbal-active-arc {
+  fill: none;
+  stroke: var(--th-amber);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px var(--th-amber-glow));
 }
 
-.reticle-coords {
+.gimbal-active-arc.arc-red {
+  stroke: #ff3311;
+  filter: drop-shadow(0 0 4px rgba(255, 51, 17, 0.8));
+}
+
+.gimbal-axis {
+  stroke: rgba(255, 106, 0, 0.25);
+  stroke-width: 0.75px;
+}
+
+.gimbal-tick {
+  stroke: var(--th-amber-bright);
+  stroke-width: 1px;
+}
+
+/* Efeito de Travamento de Alvo */
+.gimbal-reticle-unit.is-locked .gimbal-bg-ring {
+  stroke: #ff3311;
+  filter: drop-shadow(0 0 6px #ff3311);
+  animation: reticlePulse 0.5s ease;
+}
+
+@keyframes reticlePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.gimbal-sub-bar {
+  width: 28px;
+  height: 2px;
+  background: rgba(255, 106, 0, 0.15);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.gimbal-sub-bar-fill {
+  height: 100%;
+  background: var(--th-amber);
+}
+
+.gimbal-coords-row {
   display: flex;
-  gap: 4px;
-  font-size: 7.5px;
-  color: var(--tac-text-muted);
+  gap: 3px;
+  font-size: 6.5px;
+  color: var(--th-text-muted);
 }

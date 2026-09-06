@@ -1,10 +1,20 @@
 <div class="tactical-terminal-root" id="tactical-workshop-terminal">
-  <!-- Grade de Fundo e Linhas de Escaneamento Estilo CRT -->
+  <!-- Grade de Fundo CRT e Efeitos Ópticos -->
   <div class="tactical-grid-bg"></div>
   <div class="tactical-vignette-fx"></div>
   <div class="tactical-scanlines-fx"></div>
 
-  <!-- Moldura Externa com Cantoneiras Técnicas -->
+  <!-- Barra Superior de Controle de Som / Janela -->
+  <div class="terminal-quick-tools">
+    <button type="button" class="quick-tool-btn" data-action="toggleSound" title="Alternar Efeitos Sonoros">
+      <i class="fa-solid {{#if soundEnabled}}fa-volume-high{{else}}fa-volume-xmark{{/if}}"></i>
+    </button>
+    <button type="button" class="quick-tool-btn" data-action="resetCircuit" title="Reiniciar Circuito">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+  </div>
+
+  <!-- Moldura Externa com Cantoneiras Técnicas e Marcadores -->
   <div class="terminal-outer-frame">
     <div class="frame-corner top-left"></div>
     <div class="frame-corner top-right"></div>
@@ -13,93 +23,90 @@
     <div class="frame-top-marker"></div>
     <div class="frame-bottom-marker"></div>
 
-    <!-- CORPO PRINCIPAL DO CONSOLE -->
+    <!-- CORPO DO CONSOLE EM 3 COLUNAS -->
     <div class="terminal-body-layout">
 
       <!-- =================================================================== -->
-      <!-- COLUNA ESQUERDA: VARREDURA DE SINAIS E TELEMETRIA (4 BLOCOS)        -->
+      <!-- COLUNA ESQUERDA: VARREDURA DE SINAL (4 PAINÉIS TÉCNICOS)            -->
       <!-- =================================================================== -->
       <aside class="terminal-col-left">
 
-        <!-- BLOCO 1: PARÂMETROS ORBITAIS E TELEMETRIA -->
+        <!-- PAINEL 1: TELEMETRIA ORBITAL -->
         <section class="tactical-panel panel-left-1">
-          <header class="panel-header">
-            <span class="panel-tag-left">VARREDURA DE SINAL</span>
-            <span class="panel-tag-right">PROTOCOLO 0264-1</span>
+          <header class="panel-header-bar">
+            <span class="header-cap cap-left"></span>
+            <span class="header-title">VARREDURA DE SINAL</span>
+            <span class="header-sub">PROTOCOLO 0264-1</span>
+            <span class="header-cap cap-right"></span>
           </header>
-          <div class="panel-content telemetry-table-rows">
-            <div class="telemetry-row">
-              <div class="col-ids">
-                <span>5691712</span>
-                <span>2459872</span>
-              </div>
-              <div class="col-params">
-                <div class="param-line"><span class="lbl">Latitude</span> <span class="val">-0.35°</span></div>
-                <div class="param-line"><span class="lbl">Longitude</span> <span class="val">77.42°</span></div>
-              </div>
-              <div class="col-telemetry">
-                <span>201.07935</span>
-                <span>201.07722</span>
-              </div>
+          <div class="panel-inner telemetry-table-rows">
+            <div class="t-row">
+              <span class="col-code">5691712</span>
+              <span class="col-lbl">Latitude</span>
+              <span class="col-val">-0.35°</span>
+              <span class="col-ref">201.07935</span>
             </div>
-
-            <div class="telemetry-row">
-              <div class="col-ids">
-                <span>3465255</span>
-                <span>3733145</span>
-              </div>
-              <div class="col-params">
-                <div class="param-line"><span class="lbl">Resolução</span> <span class="val">4.55 m/px</span></div>
-                <div class="param-line"><span class="lbl">Ângulo Fase</span> <span class="val">48.49°</span></div>
-                <div class="param-line"><span class="lbl">Ângulo Incidência</span> <span class="val">48.33°</span></div>
-              </div>
-              <div class="col-telemetry">
-                <span>201.07593</span>
-                <span>201.07662</span>
-                <span>201.07554</span>
-              </div>
+            <div class="t-row">
+              <span class="col-code">2459872</span>
+              <span class="col-lbl">Longitude</span>
+              <span class="col-val">77.42°</span>
+              <span class="col-ref">201.07935</span>
             </div>
-
-            <div class="telemetry-row">
-              <div class="col-ids">
-                <span>5594529</span>
-                <span>5278482</span>
-              </div>
-              <div class="col-params">
-                <div class="param-line"><span class="lbl">Ângulo Emissão</span> <span class="val">2.15°</span></div>
-                <div class="param-line"><span class="lbl">Azimute Norte</span> <span class="val">43.50°</span></div>
-              </div>
-              <div class="col-telemetry">
-                <span>201.07431</span>
-                <span>201.07431</span>
-              </div>
+            <div class="t-row has-border-top">
+              <span class="col-code">5465255</span>
+              <span class="col-lbl">Resolução</span>
+              <span class="col-val">4.55 m/px</span>
+              <span class="col-ref">201.07762</span>
             </div>
-
-            <div class="telemetry-row">
-              <div class="col-ids">
-                <span>3712665</span>
-                <span>3515518</span>
-              </div>
-              <div class="col-params">
-                <div class="param-line"><span class="lbl">Alcance Inclinado (km)</span> <span class="val">579.73</span></div>
-                <div class="param-line"><span class="lbl">Nave Orbital</span> <span class="val">375.72</span></div>
-              </div>
-              <div class="col-telemetry">
-                <span>201.07431</span>
-                <span>201.07431</span>
-              </div>
+            <div class="t-row">
+              <span class="col-code">3733145</span>
+              <span class="col-lbl">Ângulo de Fase</span>
+              <span class="col-val">48.49°</span>
+              <span class="col-ref">201.07762</span>
+            </div>
+            <div class="t-row">
+              <span class="col-code">5278482</span>
+              <span class="col-lbl">Ângulo Incidência</span>
+              <span class="col-val">48.33°</span>
+              <span class="col-ref">201.07554</span>
+            </div>
+            <div class="t-row has-border-top">
+              <span class="col-code">5594529</span>
+              <span class="col-lbl">Ângulo Emissão</span>
+              <span class="col-val">2.15°</span>
+              <span class="col-ref">201.07555</span>
+            </div>
+            <div class="t-row">
+              <span class="col-code">3307503</span>
+              <span class="col-lbl">Azimute Norte</span>
+              <span class="col-val">43.50°</span>
+              <span class="col-ref">201.07499</span>
+            </div>
+            <div class="t-row has-border-top">
+              <span class="col-code">3712665</span>
+              <span class="col-lbl">Alcance Inclinado (km)</span>
+              <span class="col-val">579.73</span>
+              <span class="col-ref">201.07431</span>
+            </div>
+            <div class="t-row">
+              <span class="col-code">3515518</span>
+              <span class="col-lbl">Nave Orbital</span>
+              <span class="col-val">375.72</span>
+              <span class="col-ref">201.07354</span>
             </div>
           </div>
         </section>
 
-        <!-- BLOCO 2: TABELA DE FREQUÊNCIA E RASTREIO DE ALVOS -->
+        <!-- PAINEL 2: ESPECTRO DE ALVOS E FREQUÊNCIAS -->
         <section class="tactical-panel panel-left-2">
-          <header class="panel-header">
-            <span class="panel-tag-left">VARREDURA DE SINAL</span>
-            <span class="panel-tag-right">PROTOCOLO 0264-1</span>
+          <header class="panel-header-bar">
+            <span class="header-cap cap-left"></span>
+            <span class="header-title">VARREDURA DE SINAL</span>
+            <span class="header-sub">PROTOCOLO 0264-1</span>
+            <span class="header-cap cap-right"></span>
           </header>
-          <div class="panel-content target-spectrum-table">
-            <div class="spectrum-table-header">
+          <div class="panel-inner target-spectrum-table">
+            <div class="spectrum-grid-row s-head">
               <span>ID ALVO</span>
               <span>FREQ</span>
               <span>FAIXA</span>
@@ -107,94 +114,122 @@
               <span>ÍND</span>
               <span>REGISTRO // DESIGNAÇÃO</span>
             </div>
-            <div class="spectrum-table-body">
-              <div class="spectrum-table-row">
-                <span class="col-id">2459872</span>
-                <span class="col-freq">23.5</span>
-                <span class="col-range">50-150 M</span>
-                <span class="col-angle">45°</span>
-                <span class="col-idx">6.1</span>
-                <span class="col-target">459872 [2014 EX24]</span>
-              </div>
-              <div class="spectrum-table-row">
-                <span class="col-id">3465255</span>
-                <span class="col-freq">24.1</span>
-                <span class="col-range">50-150 M</span>
-                <span class="col-angle">29°</span>
-                <span class="col-idx">11.1</span>
-                <span class="col-target">[2009 OSS]</span>
-              </div>
-              <div class="spectrum-table-row">
-                <span class="col-id">3733145</span>
-                <span class="col-freq">24.5</span>
-                <span class="col-range">51-68 M</span>
-                <span class="col-angle">32°</span>
-                <span class="col-idx">10.1</span>
-                <span class="col-target">[2015 XE]</span>
-              </div>
-              <div class="spectrum-table-row">
-                <span class="col-id">5278482</span>
-                <span class="col-freq">24.7</span>
-                <span class="col-range">33-65 M</span>
-                <span class="col-angle">35°</span>
-                <span class="col-idx">18.1</span>
-                <span class="col-target">[2005 NA]</span>
-              </div>
-              <div class="spectrum-table-row">
-                <span class="col-id">5594529</span>
-                <span class="col-freq">24.6</span>
-                <span class="col-range">32-71 M</span>
-                <span class="col-angle">36°</span>
-                <span class="col-idx">8.6</span>
-                <span class="col-target">[2014 UN14]</span>
-              </div>
-              <div class="spectrum-table-row">
-                <span class="col-id">3712665</span>
-                <span class="col-freq">25.1</span>
-                <span class="col-range">40-94 M</span>
-                <span class="col-angle">41°</span>
-                <span class="col-idx">17.6</span>
-                <span class="col-target">[2007 TF15]</span>
-              </div>
-              <div class="spectrum-table-row">
-                <span class="col-id">3515518</span>
-                <span class="col-freq">25.4</span>
-                <span class="col-range">44-99 M</span>
-                <span class="col-angle">21°</span>
-                <span class="col-idx">8.7</span>
-                <span class="col-target">[2005 XP4]</span>
-              </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">2459872</span>
+              <span class="c-freq">23.5</span>
+              <span class="c-range">50-150 M</span>
+              <span class="c-ang">45°</span>
+              <span class="c-idx">6.1</span>
+              <span class="c-tag">459872 [2014 EX24]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">5465255</span>
+              <span class="c-freq">24.5</span>
+              <span class="c-range">51-75 M</span>
+              <span class="c-ang">29°</span>
+              <span class="c-idx">3.3</span>
+              <span class="c-tag">[2009 OSS]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">3733145</span>
+              <span class="c-freq">24.5</span>
+              <span class="c-range">35-75 M</span>
+              <span class="c-ang">32°</span>
+              <span class="c-idx">6.9</span>
+              <span class="c-tag">[2015 XE]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">5278482</span>
+              <span class="c-freq">24.7</span>
+              <span class="c-range">51-68 M</span>
+              <span class="c-ang">35°</span>
+              <span class="c-idx">10.1</span>
+              <span class="c-tag">[2005 NA]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">5594529</span>
+              <span class="c-freq">24.5</span>
+              <span class="c-range">33-75 M</span>
+              <span class="c-ang">32°</span>
+              <span class="c-idx">17.6</span>
+              <span class="c-tag">[2014 UN14]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">3307503</span>
+              <span class="c-freq">24.6</span>
+              <span class="c-range">32-71 M</span>
+              <span class="c-ang">4°</span>
+              <span class="c-idx">0.7</span>
+              <span class="c-tag">[2007 TF15]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">3712665</span>
+              <span class="c-freq">24.0</span>
+              <span class="c-range">42-94 M</span>
+              <span class="c-ang text-alert">-40°</span>
+              <span class="c-idx">15.8</span>
+              <span class="c-tag">[2015 OJ215]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">3515518</span>
+              <span class="c-freq">24.4</span>
+              <span class="c-range text-alert">35-78 M</span>
+              <span class="c-ang">4°</span>
+              <span class="c-idx">3.2</span>
+              <span class="c-tag">[2010 JK2]</span>
+            </div>
+            <div class="spectrum-grid-row">
+              <span class="c-id">3363697</span>
+              <span class="c-freq">23.9</span>
+              <span class="c-range">44-99 M</span>
+              <span class="c-ang">21°</span>
+              <span class="c-idx">0.7</span>
+              <span class="c-tag">[2005 XP4]</span>
             </div>
           </div>
         </section>
 
-        <!-- BLOCO 3: MATRIZ DE 15 MOSTRADORES CIRCULARES (DIALS) -->
+        <!-- PAINEL 3: MATRIZ DE 15 MOSTRADORES CIRCULARES (DIALS) -->
         <section class="tactical-panel panel-left-3">
-          <header class="panel-header">
-            <span class="panel-tag-left">VARREDURA DE SINAL</span>
-            <span class="panel-tag-right">PROTOCOLO 0264-1</span>
+          <header class="panel-header-bar">
+            <span class="header-cap cap-left"></span>
+            <span class="header-title">VARREDURA DE SINAL</span>
+            <span class="header-sub">PROTOCOLO 0264-1</span>
+            <span class="header-cap cap-right"></span>
           </header>
-          <div class="panel-content dials-matrix-panel">
+          <div class="panel-inner dials-matrix-panel">
             <div class="dials-micro-status">
               <div class="status-left">
-                <span>INATIVO: 395.441</span>
-                <span>SINAL: 41.87.52.74</span>
+                <div><span>INATIVO</span> 395.441</div>
+                <div><span>FREQ</span> 41.87.52.74</div>
+                <div><span>NT</span> 547.564</div>
+                <div><span>ONLINE</span> 1.368745678</div>
               </div>
               <div class="status-right">
-                <span>RESÍDUO MATERIAL // NENHUM SINAL</span>
-                <span>ALCANÇARÁ ESTA ÁREA SE HOUVER FALHA</span>
+                <div>RESÍDUO MATERIAL</div>
+                <div>NENHUM SINAL ALCANÇARÁ</div>
+                <div>ESTA ÁREA EM CASO DE</div>
+                <div>FALHA OU INVASÃO</div>
               </div>
             </div>
 
-            <!-- Grade 3x5 de Dials Circulares Incandescentes -->
-            <div class="dials-grid-container">
+            <!-- Matriz 3x5 de Dials -->
+            <div class="dials-grid-3x5">
               {{#each dials}}
-              <div class="tactical-dial-node {{#if this.isActive}}is-active{{/if}}" data-dial-id="{{this.id}}" title="{{this.code}} // {{this.value}}">
-                <div class="dial-ring">
-                  <div class="dial-core-dot" style="transform: rotate({{this.angle}}deg) translate(0, -9px);"></div>
-                </div>
-                <div class="dial-labels">
-                  <span class="dial-code">{{this.code}}</span>
+              <div class="tactical-dial-cell {{#if this.isActive}}is-active{{/if}}" data-dial-id="{{this.id}}" title="{{this.code}} // {{this.val}}">
+                <svg class="dial-arc-svg" viewBox="0 0 40 40">
+                  <!-- Trilha do Arco -->
+                  <circle cx="20" cy="20" r="14" class="dial-track" />
+                  <!-- Arco Ativo Incandescente -->
+                  <circle cx="20" cy="20" r="14" class="dial-arc"
+                    style="stroke-dasharray: 87.96; stroke-dashoffset: {{this.dashOffset}};"
+                    transform="rotate({{this.rot}} 20 20)" />
+                  <!-- Ponto Central -->
+                  <circle cx="20" cy="20" r="1.5" class="dial-center-dot" />
+                </svg>
+                <div class="dial-num-stack">
+                  <span class="d-code">{{this.code}}</span>
+                  <span class="d-val">{{this.val}}</span>
                 </div>
               </div>
               {{/each}}
@@ -202,57 +237,60 @@
           </div>
         </section>
 
-        <!-- BLOCO 4: ANALISADOR DE FORMA DE ONDA / ESPECTROGRÁFICO -->
+        <!-- PAINEL 4: FORMA DE ONDA / ESPECTROGRÁFICO -->
         <section class="tactical-panel panel-left-4">
-          <header class="panel-header">
-            <span class="panel-tag-left">VARREDURA DE SINAL</span>
-            <span class="panel-tag-right">PROTOCOLO 0264-1</span>
+          <header class="panel-header-bar">
+            <span class="header-cap cap-left"></span>
+            <span class="header-title">VARREDURA DE SINAL</span>
+            <span class="header-sub">PROTOCOLO 0264-1</span>
+            <span class="header-cap cap-right"></span>
           </header>
-          <div class="panel-content waveform-panel-content">
-            <!-- Canvas ou barras SVG da forma de onda -->
-            <div class="tactical-waveform-display" id="tacticalWaveformCanvas">
-              <div class="waveform-candlestick-strip">
+          <div class="panel-inner waveform-panel-inner">
+            <!-- Espectrograma de Barras Vivas -->
+            <div class="tactical-waveform-visual" id="waveformDisplay">
+              <div class="waveform-columns-strip">
                 {{#each waveformBars}}
-                <div class="waveform-column" style="--col-h: {{this.height}}px; --col-peak: {{this.peak}}px;">
-                  <span class="wave-peak-dot"></span>
-                  <span class="wave-stem"></span>
-                  <span class="wave-bottom-dot"></span>
+                <div class="wave-candlestick {{#if this.isOrange}}is-amber{{/if}}" style="--stem-h: {{this.height}}px;">
+                  <span class="peak-dot"></span>
+                  <span class="candlestick-bar"></span>
+                  <span class="base-dot"></span>
                 </div>
                 {{/each}}
               </div>
             </div>
 
             <!-- Leituras de Frequência em Alta Precisão -->
-            <div class="waveform-precision-readouts">
-              <div class="readout-row">
+            <div class="waveform-numeric-matrix">
+              <div class="num-row">
                 <span>114.383871307.88956347</span>
                 <span>78.474242451</span>
                 <span>46.1</span>
               </div>
-              <div class="readout-row">
+              <div class="num-row">
                 <span>108.1577627</span>
-                <span>132.6813583</span>
+                <span>132.6813093</span>
                 <span>119.7421885</span>
               </div>
-              <div class="readout-row">
-                <span>100.050154</span>
-                <span>168.2322495</span>
-                <span>126.8768826</span>
+              <div class="num-row">
+                <span>100.050154 180.3902299</span>
+                <span>126.0786266</span>
+                <span>108</span>
               </div>
-              <div class="readout-row">
+              <div class="num-row">
                 <span>183.2508324</span>
                 <span>194.4258428</span>
-                <span>183.13212734</span>
+                <span>183.132127345.</span>
               </div>
             </div>
 
-            <!-- Mini-medidor de Barramento Inferior -->
-            <div class="waveform-sub-meter">
-              <div class="sub-meter-tracks">
-                <div class="sub-track"><div class="sub-fill fill-1" style="width: 48%;"></div></div>
-                <div class="sub-track"><div class="sub-fill fill-2" style="width: 72%;"></div></div>
+            <!-- Sub-medidor Inferior com Indicador Triplo SF -->
+            <div class="waveform-sub-meter-box">
+              <span class="sub-sf-tag">SF</span>
+              <div class="sub-sf-bars">
+                <div class="sf-bar-line bar-red"><div class="sf-fill" style="width: 85%;"></div></div>
+                <div class="sf-bar-line bar-white"><div class="sf-fill" style="width: 65%;"></div></div>
+                <div class="sf-bar-line bar-orange"><div class="sf-fill" style="width: 45%;"></div></div>
               </div>
-              <div class="sub-meter-code">RPZ // STATUS 01</div>
             </div>
           </div>
         </section>
@@ -265,306 +303,349 @@
       <!-- =================================================================== -->
       <main class="terminal-col-center">
 
-        <!-- CABEÇALHO TÁTICO DA OFICINA -->
-        <header class="workshop-header-area">
+        <!-- CABEÇALHO TÁTICO DA OFICINA COM ENDCAPS ÂMBAR -->
+        <header class="workshop-header-banner">
+          <div class="banner-cap-line top-line">
+            <span class="endcap cap-left"></span>
+            <span class="cap-divider"></span>
+            <span class="endcap cap-right"></span>
+          </div>
+
           <div class="workshop-title-row">
-            <h1 class="workshop-main-title">
-              <span class="title-primary">OFICINA TÁTICA</span>
-              <span class="title-sub-ru" title="Original: МАСТЕРСКАЯ">[МАСТЕРСКАЯ]</span>
-            </h1>
-            <div class="workshop-subtitle-group">
-              <div class="ws-sub-title">MÓDULO DA OFICINA // WORKSHOP MODULE</div>
-              <div class="ws-sub-status">VERIFICAÇÃO DE SISTEMA // SYSTEM CHECK</div>
+            <div class="workshop-title-left">
+              <h1 class="workshop-cyrillic-title">МАСТЕРСКАЯ</h1>
+              <span class="workshop-pt-badge">OFICINA TÁTICA</span>
+            </div>
+            <div class="workshop-title-right">
+              <div class="ws-head-en">WORKSHOP MODULE</div>
+              <div class="ws-head-check">SYSTEM CHECK // VERIFICAÇÃO DE SISTEMA</div>
             </div>
           </div>
 
           <!-- Linha de Códigos Técnicos do Sistema -->
-          <div class="workshop-system-codes-strip">
-            <span class="code-item">X8</span>
-            <span class="code-item">23.58</span>
-            <span class="code-item highlight-voltage">875.84V</span>
-            <span class="code-item">Y3/88</span>
-            <span class="code-item">5.94</span>
-            <span class="code-item">L3</span>
-            <span class="code-item">770</span>
-            <span class="code-item">92</span>
-            <span class="code-item">AJ2</span>
-            <span class="code-item">S12</span>
-            <span class="code-item">48.0328</span>
-            <span class="code-item">0.020000008535141</span>
-            <span class="code-item tag-danger">RP2/1220439014-A</span>
+          <div class="workshop-codes-telemetry-row">
+            <span>X8</span>
+            <span>23.58</span>
+            <span class="code-voltage">875.84V</span>
+            <span>Y3/88</span>
+            <span>5.94</span>
+            <span>L3</span>
+            <span>770</span>
+            <span>92</span>
+            <span>AJ2</span>
+            <span>S12</span>
+            <span>48.0328</span>
+            <span>0.020000008535141</span>
+            <span class="code-danger-tag">RPZ/1220439014-A</span>
           </div>
 
-          <!-- BANNER DE MATRIZ DE PONTOS LED (DOT MATRIX DISPLAY) -->
-          <div class="dot-matrix-display-container" id="dotMatrixBanner">
-            <div class="dot-matrix-grid">
-              <!-- Gerado com pontos luminosos em padrão de onda militar -->
-              <div class="dot-row r1"></div>
-              <div class="dot-row r2"></div>
-              <div class="dot-row r3"></div>
-              <div class="dot-row r4"></div>
-              <div class="dot-row r5"></div>
-              <div class="dot-row r6"></div>
-              <div class="dot-row r7"></div>
-              <div class="dot-row r8"></div>
-            </div>
+          <div class="banner-cap-line mid-line">
+            <span class="endcap cap-left"></span>
+            <span class="cap-divider"></span>
+            <span class="endcap cap-right"></span>
+          </div>
+
+          <!-- BANNER DE MATRIZ DE PONTOS LED (8 FILEIRAS DE LEDS VIVOS) -->
+          <div class="dot-matrix-led-display" id="dotMatrixDisplay">
+            <canvas class="dot-matrix-canvas" id="dotMatrixCanvas" width="580" height="28"></canvas>
+          </div>
+
+          <div class="banner-cap-line bot-line">
+            <span class="endcap cap-left"></span>
+            <span class="cap-divider"></span>
           </div>
         </header>
 
         <!-- SEÇÃO DO CIRCUITO / ESQUEMA DE FLUXO E RELÉS -->
-        <section class="workshop-circuit-section">
+        <section class="circuit-manifold-section">
 
-          <!-- Régua de Calibração e Telemetria à Esquerda do Circuito -->
-          <div class="circuit-left-telemetry">
-            <div class="circuit-coord-line"><span>XQ-535</span> <strong>16.79</strong></div>
-            <div class="circuit-coord-line"><span>RD-669</span> <strong>38.04</strong></div>
-            <div class="circuit-coord-line"><span>PK-096</span> <strong>19.39</strong></div>
+          <!-- Régua e Coordenadas à Esquerda do Circuito -->
+          <div class="circuit-margin-telemetry">
+            <div class="margin-coord"><span>XQ-535</span> <strong>16.79</strong></div>
+            <div class="margin-coord"><span>RD-669</span> <strong>38.04</strong></div>
+            <div class="margin-coord"><span>PK-096</span> <strong>19.39</strong></div>
 
-            <div class="circuit-vertical-scale">
-              <span class="scale-val">1700</span>
-              <span class="scale-val">14.6</span>
-              <span class="scale-val">8.1</span>
-              <span class="scale-val">15.2</span>
-              <span class="scale-val">70</span>
-              <span class="scale-val">204</span>
-              <span class="scale-val">1521</span>
-              <span class="scale-val">1439</span>
+            <div class="margin-vertical-ruler">
+              <span>1700</span>
+              <span>14.6</span>
+              <span>8.1</span>
+              <span>15.2</span>
+              <span>70</span>
+              <span>204</span>
+              <span>1521</span>
+              <span>1439</span>
+              <div class="ruler-bottom-ticks">
+                <span class="r-tick"></span>
+                <span class="r-tick"></span>
+                <span class="r-tick"></span>
+                <span class="r-tick"></span>
+              </div>
             </div>
           </div>
 
           <!-- O CIRCUITO ESQUEMÁTICO CENTRAL -->
-          <div class="circuit-canvas-wrapper">
-            <!-- Fios e Trilhas Conectoras do Circuito em SVG -->
-            <svg class="circuit-wiring-svg" viewBox="0 0 740 340" preserveAspectRatio="none">
-              <!-- Linhas Horizontais e Verticais dos Barramentos -->
-              <!-- Top Bus -->
-              <path class="wire-path bus-main" d="M 50,40 L 690,40" />
-              <path class="wire-path drop-1" d="M 60,40 L 60,110" />
-              <path class="wire-path drop-2" d="M 235,40 L 235,110" />
-              <path class="wire-path drop-center-top" d="M 370,40 L 370,70" />
-              <path class="wire-path drop-center-mid" d="M 370,105 L 370,140" />
-              <path class="wire-path drop-center-bot" d="M 370,175 L 370,210" />
-              <path class="wire-path drop-center-auto" d="M 370,245 L 370,275" />
-              <path class="wire-path drop-3" d="M 505,40 L 505,110" />
-              <path class="wire-path drop-4" d="M 680,40 L 680,110" />
+          <div class="circuit-stage-container">
+            <!-- Camada SVG de Fiação e Barramentos -->
+            <svg class="circuit-svg-canvas" viewBox="0 0 680 290" preserveAspectRatio="none">
+              <!-- Top Bus Wires -->
+              <path class="circuit-wire {{#if relays.pod}}is-powered{{/if}}" d="M 50,30 L 210,30" />
+              <path class="circuit-wire {{#if relays.web}}is-powered{{/if}}" d="M 470,30 L 630,30" />
+              <path class="circuit-wire" d="M 210,30 L 210,95" />
+              <path class="circuit-wire" d="M 470,30 L 470,95" />
 
-              <!-- Cross connections from SYS-01 and SYS-02 -->
-              <path class="wire-path bus-sys1" d="M 145,150 L 205,150" />
-              <path class="wire-path bus-sys2" d="M 535,150 L 595,150" />
+              <!-- Conexões Horizontais ao Bloco ABRIR (OPEN) -->
+              <path class="circuit-wire {{#if relays.mainOpen}}is-powered{{/if}}" d="M 210,58 L 340,58" />
+              <path class="circuit-wire {{#if relays.mainOpen}}is-powered{{/if}}" d="M 470,58 L 340,58" />
+              <path class="circuit-wire" d="M 340,30 L 340,46" />
 
-              <!-- Lower Circuit Returns -->
-              <path class="wire-path return-left" d="M 60,185 L 60,285 L 680,285 L 680,185" />
-              <path class="wire-path return-pod" d="M 235,185 L 235,285" />
-              <path class="wire-path return-web" d="M 505,185 L 505,285" />
+              <!-- Linhas Verticais Centrais: OPEN -> SEMI -> CLOSE -> AUTO -->
+              <path class="circuit-wire {{#if relays.mainOpen}}is-powered{{/if}}" d="M 340,70 L 340,118" />
+              <path class="circuit-wire {{#if relays.mainClose}}is-powered{{/if}}" d="M 340,140 L 340,172" />
+              <path class="circuit-wire" d="M 340,200 L 340,230" />
 
-              <!-- Junction Dots -->
-              <circle cx="60" cy="40" r="3" class="wire-junction" />
-              <circle cx="235" cy="40" r="3" class="wire-junction" />
-              <circle cx="370" cy="40" r="3" class="wire-junction" />
-              <circle cx="505" cy="40" r="3" class="wire-junction" />
-              <circle cx="680" cy="40" r="3" class="wire-junction" />
-              <circle cx="60" cy="285" r="3" class="wire-junction" />
-              <circle cx="235" cy="285" r="3" class="wire-junction" />
-              <circle cx="505" cy="285" r="3" class="wire-junction" />
-              <circle cx="680" cy="285" r="3" class="wire-junction" />
+              <!-- Ramificações Horizontais de SEMI para POD e WEB -->
+              <path class="circuit-wire {{#if relays.ptu}}is-powered{{/if}}" d="M 252,130 L 305,130" />
+              <path class="circuit-wire {{#if relays.ptu}}is-powered{{/if}}" d="M 375,130 L 428,130" />
+
+              <!-- Ramificações Horizontais de FECHAR (CLOSE) para linhas de retorno -->
+              <path class="circuit-wire {{#if relays.mainClose}}is-powered{{/if}}" d="M 210,185 L 295,185" />
+              <path class="circuit-wire {{#if relays.mainClose}}is-powered{{/if}}" d="M 385,185 L 470,185" />
+
+              <!-- Linhas Verticais de Alimentação Contínua -->
+              <path class="circuit-wire" d="M 50,30 L 50,110" />
+              <path class="circuit-wire" d="M 630,30 L 630,110" />
+              <path class="circuit-wire {{#if relays.pod}}is-powered{{/if}}" d="M 210,150 L 210,240" />
+              <path class="circuit-wire {{#if relays.web}}is-powered{{/if}}" d="M 470,150 L 470,240" />
+
+              <!-- Retorno Inferior com Cruzamentos Ortogonais -->
+              <path class="circuit-wire" d="M 50,150 L 50,240 L 210,240" />
+              <path class="circuit-wire" d="M 630,150 L 630,240 L 470,240" />
+
+              <!-- Pontos de Junção / Nós Soldados -->
+              <circle cx="210" cy="30" r="2.5" class="junction-dot" />
+              <circle cx="470" cy="30" r="2.5" class="junction-dot" />
+              <circle cx="210" cy="58" r="2.5" class="junction-dot" />
+              <circle cx="470" cy="58" r="2.5" class="junction-dot" />
+              <circle cx="210" cy="185" r="2.5" class="junction-dot" />
+              <circle cx="470" cy="185" r="2.5" class="junction-dot" />
+              <circle cx="210" cy="240" r="2.5" class="junction-dot" />
+              <circle cx="470" cy="240" r="2.5" class="junction-dot" />
             </svg>
 
-            <!-- NODES E MÓDULOS DE CONTROLE DO CIRCUITO (ABSOLUTOS) -->
-            <div class="circuit-nodes-layer">
+            <!-- CAMADA DE CHASSIS E COMPONENTES DO CIRCUITO -->
+            <div class="circuit-interactive-nodes">
 
-              <!-- Linha Superior de Nodes -->
-              <div class="circuit-node node-top-asd" data-node="asd-top">
-                <span class="node-badge border-amber">ASD</span>
+              <!-- NÓS DA LINHA SUPERIOR -->
+              <div class="c-node node-top-asd"><span class="badge-outline">ASD</span></div>
+              <div class="c-node node-top-pod"><span class="badge-solid">POD</span></div>
+              <div class="c-node node-top-open">
+                <button type="button" class="btn-micro-outline" data-action="toggleRelay" data-relay="openTop">OPEN</button>
               </div>
-              <div class="circuit-node node-top-pod" data-node="pod-top">
-                <span class="node-badge fill-amber">POD</span>
-              </div>
-              <div class="circuit-node node-top-open" data-node="open-top">
-                <button type="button" class="node-btn btn-outline" data-action="toggleRelay" data-relay="openTop">ABRIR</button>
-              </div>
-              <div class="circuit-node node-top-web" data-node="web-top">
-                <span class="node-badge fill-amber">WEB</span>
-              </div>
-              <div class="circuit-node node-top-doi" data-node="doi-top">
-                <span class="node-badge fill-amber">DOI</span>
-              </div>
+              <div class="c-node node-top-web"><span class="badge-solid">WEB</span></div>
+              <div class="c-node node-top-doi"><span class="badge-solid">DOI</span></div>
 
-              <!-- Grande Bloco Superior ABRIR -->
-              <div class="circuit-node node-mid-open">
-                <button type="button" class="node-btn btn-solid-amber" data-action="toggleRelay" data-relay="mainOpen">ABRIR</button>
-              </div>
-
-              <!-- LINHA CENTRAL: ASD / SYS-01 / POD / PTU / WEB / SYS-02 / DOI -->
-
-              <!-- Chassis ASD (Esquerda) -->
-              <div class="circuit-chassis-box chassis-asd">
-                <div class="chassis-tag">ASD</div>
-                <button type="button" class="chassis-switch-btn {{#if relays.asd}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="asd">
-                  {{#if relays.asd}}LIG{{else}}DESL{{/if}}
+              <!-- GRANDE BLOCO SUPERIOR ABRIR (OPEN) -->
+              <div class="c-node node-large-open">
+                <button type="button" class="btn-block-amber {{#if relays.mainOpen}}is-engaged{{/if}}" data-action="toggleRelay" data-relay="mainOpen">
+                  OPEN
                 </button>
               </div>
 
-              <!-- Módulo de Controle Manual SYS-01 -->
-              <div class="circuit-sub-chassis chassis-sys1">
-                <div class="sub-chassis-header">MAN LIG</div>
-                <div class="sub-chassis-meters">
-                  <div class="vertical-slider-track" data-slider="sys1A">
-                    <div class="vertical-slider-fill" style="height: {{sys1.channelA}}%;"></div>
+              <!-- CHASSIS ASD (ESQUERDA) -->
+              <div class="chassis-bracketed-unit unit-asd">
+                <div class="chassis-header-tag">ASD</div>
+                <button type="button" class="chassis-toggle-btn {{#if relays.asd}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="asd">
+                  {{#if relays.asd}}ON{{else}}OFF{{/if}}
+                </button>
+              </div>
+
+              <!-- MÓDULO MANUAL SYS - 01 -->
+              <div class="chassis-slider-module unit-sys1">
+                <div class="slider-module-head">MAN ON</div>
+                <div class="slider-dual-channels">
+                  <div class="channel-col" data-slider="sys1A" title="SYS-01 Canal A: {{sys1.channelA}}%">
+                    <div class="channel-track">
+                      <div class="channel-fill" style="height: {{sys1.channelA}}%;"></div>
+                    </div>
                   </div>
-                  <div class="vertical-slider-track" data-slider="sys1B">
-                    <div class="vertical-slider-fill" style="height: {{sys1.channelB}}%;"></div>
+                  <div class="channel-col" data-slider="sys1B" title="SYS-01 Canal B: {{sys1.channelB}}%">
+                    <div class="channel-track">
+                      <div class="channel-fill" style="height: {{sys1.channelB}}%;"></div>
+                    </div>
                   </div>
                 </div>
-                <div class="sub-chassis-code">[SYS - 01]</div>
+                <div class="slider-module-foot">[SYS] - 01</div>
               </div>
 
-              <!-- Chassis POD (Centro-Esquerda) -->
-              <div class="circuit-chassis-box chassis-pod is-illuminated">
-                <div class="chassis-tag">POD</div>
-                <button type="button" class="chassis-switch-btn {{#if relays.pod}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="pod">
-                  {{#if relays.pod}}LIG{{else}}DESL{{/if}}
+              <!-- CHASSIS POD (CENTRO-ESQUERDA) - ILUMINADO COMO NA IMAGEM -->
+              <div class="chassis-bracketed-unit unit-pod is-illuminated">
+                <div class="chassis-header-tag">POD</div>
+                <button type="button" class="chassis-toggle-btn {{#if relays.pod}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="pod">
+                  {{#if relays.pod}}ON{{else}}OFF{{/if}}
                 </button>
               </div>
 
-              <!-- Unidade Central PTU // SEMI -->
-              <div class="circuit-chassis-box chassis-ptu">
-                <div class="chassis-micro-tag">PTU</div>
-                <button type="button" class="chassis-switch-btn btn-semi {{#if relays.ptu}}is-on{{/if}}" data-action="toggleRelay" data-relay="ptu">
+              <!-- UNIDADE CENTRAL PTU // SEMI -->
+              <div class="chassis-bracketed-unit unit-ptu">
+                <div class="chassis-micro-pt">PTU</div>
+                <button type="button" class="chassis-toggle-btn btn-semi {{#if relays.ptu}}is-on{{/if}}" data-action="toggleRelay" data-relay="ptu">
                   SEMI
                 </button>
               </div>
 
-              <!-- Chassis WEB (Centro-Direita) -->
-              <div class="circuit-chassis-box chassis-web">
-                <div class="chassis-tag">WEB</div>
-                <button type="button" class="chassis-switch-btn {{#if relays.web}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="web">
-                  {{#if relays.web}}LIG{{else}}DESL{{/if}}
+              <!-- CHASSIS WEB (CENTRO-DIREITA) -->
+              <div class="chassis-bracketed-unit unit-web">
+                <div class="chassis-header-tag">WEB</div>
+                <button type="button" class="chassis-toggle-btn {{#if relays.web}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="web">
+                  {{#if relays.web}}ON{{else}}OFF{{/if}}
                 </button>
               </div>
 
-              <!-- Módulo de Controle Manual SYS-02 -->
-              <div class="circuit-sub-chassis chassis-sys2">
-                <div class="sub-chassis-header">MAN LIG</div>
-                <div class="sub-chassis-meters">
-                  <div class="vertical-slider-track" data-slider="sys2A">
-                    <div class="vertical-slider-fill" style="height: {{sys2.channelA}}%;"></div>
+              <!-- MÓDULO MANUAL SYS - 02 -->
+              <div class="chassis-slider-module unit-sys2">
+                <div class="slider-module-head">MAN ON</div>
+                <div class="slider-dual-channels">
+                  <div class="channel-col" data-slider="sys2A" title="SYS-02 Canal A: {{sys2.channelA}}%">
+                    <div class="channel-track">
+                      <div class="channel-fill" style="height: {{sys2.channelA}}%;"></div>
+                    </div>
                   </div>
-                  <div class="vertical-slider-track" data-slider="sys2B">
-                    <div class="vertical-slider-fill" style="height: {{sys2.channelB}}%;"></div>
+                  <div class="channel-col" data-slider="sys2B" title="SYS-02 Canal B: {{sys2.channelB}}%">
+                    <div class="channel-track">
+                      <div class="channel-fill" style="height: {{sys2.channelB}}%;"></div>
+                    </div>
                   </div>
                 </div>
-                <div class="sub-chassis-code">[SYS - 02]</div>
+                <div class="slider-module-foot">[SYS] - 02</div>
               </div>
 
-              <!-- Chassis DOI (Direita) -->
-              <div class="circuit-chassis-box chassis-doi">
-                <div class="chassis-tag">DOI</div>
-                <button type="button" class="chassis-switch-btn {{#if relays.doi}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="doi">
-                  {{#if relays.doi}}LIG{{else}}DESL{{/if}}
+              <!-- CHASSIS DOI (DIREITA) -->
+              <div class="chassis-bracketed-unit unit-doi">
+                <div class="chassis-header-tag">DOI</div>
+                <button type="button" class="chassis-toggle-btn {{#if relays.doi}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="doi">
+                  {{#if relays.doi}}ON{{else}}OFF{{/if}}
                 </button>
               </div>
 
-              <!-- Grande Bloco Inferior FECHAR -->
-              <div class="circuit-node node-mid-close">
-                <button type="button" class="node-btn btn-solid-amber" data-action="toggleRelay" data-relay="mainClose">FECHAR</button>
+              <!-- GRANDE BLOCO INFERIOR FECHAR (CLOSE) -->
+              <div class="c-node node-large-close">
+                <button type="button" class="btn-block-amber {{#if relays.mainClose}}is-engaged{{/if}}" data-action="toggleRelay" data-relay="mainClose">
+                  CLOSE
+                </button>
               </div>
 
-              <!-- Botão AUTO -->
-              <div class="circuit-node node-bot-auto">
-                <button type="button" class="node-btn btn-outline {{#if relays.auto}}is-active{{/if}}" data-action="toggleRelay" data-relay="auto">AUTO</button>
+              <!-- BOTÃO AUTO -->
+              <div class="c-node node-btn-auto">
+                <button type="button" class="btn-micro-outline {{#if relays.auto}}is-active{{/if}}" data-action="toggleRelay" data-relay="auto">
+                  AUTO
+                </button>
               </div>
 
-              <!-- Linha Inferior de Nodes -->
-              <div class="circuit-node node-bot-asd">
-                <span class="node-badge btn-status-off {{#if relays.botAsd}}is-on{{/if}}" data-action="toggleRelay" data-relay="botAsd">DESL</span>
+              <!-- NÓS DA LINHA INFERIOR (OFF / ON / OFF / OFF) -->
+              <div class="c-node node-bot-asd">
+                <button type="button" class="btn-pill-amber {{#if relays.botAsd}}is-engaged{{/if}}" data-action="toggleRelay" data-relay="botAsd">OFF</button>
               </div>
-              <div class="circuit-node node-bot-pod">
-                <span class="node-badge btn-status-on {{#if relays.botPod}}is-on{{else}}is-off{{/if}}" data-action="toggleRelay" data-relay="botPod">LIG</span>
+              <div class="c-node node-bot-pod">
+                <button type="button" class="btn-pill-amber is-engaged {{#if relays.botPod}}is-engaged{{/if}}" data-action="toggleRelay" data-relay="botPod">ON</button>
               </div>
-              <div class="circuit-node node-bot-web">
-                <span class="node-badge btn-status-off {{#if relays.botWeb}}is-on{{/if}}" data-action="toggleRelay" data-relay="botWeb">DESL</span>
+              <div class="c-node node-bot-web">
+                <button type="button" class="btn-pill-amber {{#if relays.botWeb}}is-engaged{{/if}}" data-action="toggleRelay" data-relay="botWeb">OFF</button>
               </div>
-              <div class="circuit-node node-bot-doi">
-                <span class="node-badge btn-status-off {{#if relays.botDoi}}is-on{{/if}}" data-action="toggleRelay" data-relay="botDoi">DESL</span>
+              <div class="c-node node-bot-doi">
+                <button type="button" class="btn-pill-amber {{#if relays.botDoi}}is-engaged{{/if}}" data-action="toggleRelay" data-relay="botDoi">OFF</button>
               </div>
 
             </div>
           </div>
         </section>
 
-        <!-- FAIXA DIVISÓRIA DE TELEMETRIA ANGULAR & SOLAR -->
-        <div class="terminal-horizontal-telemetry-strip">
-          <div class="telemetry-item">Alt: <strong>+13.5°</strong>, Az: <strong>207.0° SSO</strong>, Alt Sol: <strong>-1.0</strong></div>
-          <div class="telemetry-item-center">ALTITUDE: -02.7° ÂNGULO DE POSIÇÃO VERTICAL: 247.7°</div>
-          <div class="telemetry-item">Alt: <strong>+13.5°</strong>, Az: <strong>207.0° SSO</strong>, A...</div>
+        <!-- FAIXA DIVISÓRIA DE TELEMETRIA HORIZONTAL (ALTITUDE / AZIMUTE) -->
+        <div class="center-horizontal-telemetry-line">
+          <div class="telemetry-left">Alt: <strong>+13.5°</strong>, Az: <strong>207.0° SSW</strong>, Alt. Sun: <strong>-1.0</strong></div>
+          <div class="telemetry-mid">ALTITUDE: -02.7° VERTICAL POSITION ANGLE: 247.7°</div>
+          <div class="telemetry-right">Alt: <strong>+13.5°</strong>, Az: <strong>207.0° SSW</strong>, A...</div>
         </div>
 
-        <!-- PAINEL DUPLO INFERIOR: DISJUNTORES / RELÉS DE BARRAMENTO (36 PINOS) -->
-        <section class="switchboard-pinout-section">
+        <!-- PAINEL DUPLO INFERIOR: DISJUNTORES / PINOUTS (36 MÓDULOS) -->
+        <section class="switchboard-section">
 
-          <!-- Painel de Pinos Esquerdo (2x9 = 18 Pinos) -->
-          <div class="pinout-array array-left">
+          <!-- MATRIZ ESQUERDA (18 PINOS: 90 -> 10) -->
+          <div class="switchboard-bank bank-left">
             <!-- Fileira Superior Esquerda -->
-            <div class="pinout-row row-top">
+            <div class="bank-row row-top">
               {{#each pinoutsLeftTop}}
-              <div class="pinout-cell" data-pin-id="{{this.id}}">
-                <button type="button" class="pinout-led-btn {{#if this.isActive}}is-on{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
-                  <span class="pin-indicator"></span>
-                </button>
-                <span class="pin-value-lbl">{{this.val}}</span>
-                <div class="pin-drop-trace"></div>
+              <div class="bank-module-unit" data-pin-id="{{this.id}}">
+                <div class="module-face">
+                  <button type="button" class="module-led-btn {{#if this.isActive}}is-lit{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
+                    <span class="led-core"></span>
+                  </button>
+                  <span class="module-val">{{this.val}}</span>
+                </div>
+                <div class="module-bus-drop-down"></div>
               </div>
               {{/each}}
             </div>
+
+            <!-- Barramento Horizontal Esquerdo -->
+            <div class="bank-bus-wire-left"></div>
 
             <!-- Fileira Inferior Esquerda -->
-            <div class="pinout-row row-bottom">
+            <div class="bank-row row-bottom">
               {{#each pinoutsLeftBottom}}
-              <div class="pinout-cell" data-pin-id="{{this.id}}">
-                <div class="pin-drop-trace-top"></div>
-                <button type="button" class="pinout-led-btn {{#if this.isActive}}is-on{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
-                  <span class="pin-indicator"></span>
-                </button>
-                <span class="pin-value-lbl">{{this.val}}</span>
+              <div class="bank-module-unit" data-pin-id="{{this.id}}">
+                <div class="module-bus-drop-up"></div>
+                <div class="module-face">
+                  <button type="button" class="module-led-btn {{#if this.isActive}}is-lit{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
+                    <span class="led-core"></span>
+                  </button>
+                  <span class="module-val">{{this.val}}</span>
+                </div>
               </div>
               {{/each}}
             </div>
           </div>
 
-          <!-- Conduíte de Aterramento Central (Loop de Terra) -->
-          <div class="pinout-center-grounding">
-            <div class="grounding-stem-top"></div>
-            <div class="grounding-loop-circle">
-              <div class="inner-ground-core"></div>
+          <!-- CONDUÍTE CENTRAL DE ATERRAMENTO (LOOP DE TERRA) -->
+          <div class="switchboard-center-ground">
+            <div class="ground-stem-top"></div>
+            <div class="ground-loop-ring">
+              <div class="ground-core-dot"></div>
             </div>
-            <div class="grounding-stem-bottom"></div>
-            <div class="grounding-bus-horizontal"></div>
+            <div class="ground-stem-mid"></div>
+            <div class="ground-cross-bus"></div>
           </div>
 
-          <!-- Painel de Pinos Direito (2x9 = 18 Pinos) -->
-          <div class="pinout-array array-right">
+          <!-- MATRIZ DIREITA (18 PINOS: 10 -> 90) -->
+          <div class="switchboard-bank bank-right">
             <!-- Fileira Superior Direita -->
-            <div class="pinout-row row-top">
+            <div class="bank-row row-top">
               {{#each pinoutsRightTop}}
-              <div class="pinout-cell" data-pin-id="{{this.id}}">
-                <button type="button" class="pinout-led-btn {{#if this.isActive}}is-on{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
-                  <span class="pin-indicator"></span>
-                </button>
-                <span class="pin-value-lbl">{{this.val}}</span>
-                <div class="pin-drop-trace"></div>
+              <div class="bank-module-unit" data-pin-id="{{this.id}}">
+                <div class="module-face">
+                  <button type="button" class="module-led-btn {{#if this.isActive}}is-lit{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
+                    <span class="led-core"></span>
+                  </button>
+                  <span class="module-val">{{this.val}}</span>
+                </div>
+                <div class="module-bus-drop-down"></div>
               </div>
               {{/each}}
             </div>
+
+            <!-- Barramento Horizontal Direito -->
+            <div class="bank-bus-wire-right"></div>
 
             <!-- Fileira Inferior Direita -->
-            <div class="pinout-row row-bottom">
+            <div class="bank-row row-bottom">
               {{#each pinoutsRightBottom}}
-              <div class="pinout-cell" data-pin-id="{{this.id}}">
-                <div class="pin-drop-trace-top"></div>
-                <button type="button" class="pinout-led-btn {{#if this.isActive}}is-on{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
-                  <span class="pin-indicator"></span>
-                </button>
-                <span class="pin-value-lbl">{{this.val}}</span>
+              <div class="bank-module-unit" data-pin-id="{{this.id}}">
+                <div class="module-bus-drop-up"></div>
+                <div class="module-face">
+                  <button type="button" class="module-led-btn {{#if this.isActive}}is-lit{{/if}}" data-action="togglePin" data-pin="{{this.id}}" title="Canal {{this.val}}">
+                    <span class="led-core"></span>
+                  </button>
+                  <span class="module-val">{{this.val}}</span>
+                </div>
               </div>
               {{/each}}
             </div>
@@ -576,36 +657,51 @@
 
 
       <!-- =================================================================== -->
-      <!-- COLUNA DIREITA: MIRA TÁTICA & SISTEMA DE DRONE (VANT)               -->
+      <!-- COLUNA DIREITA: DRONE (VANT) & 8 RETÍCULOS DE MIRA TÁTICA           -->
       <!-- =================================================================== -->
       <aside class="terminal-col-right">
 
-        <!-- Tag Vertical do Drone (VANT) -->
-        <div class="drone-vertical-badge">
-          <div class="drone-badge-body">
+        <!-- INSÍGNIA VERTICAL DO DRONE -->
+        <div class="drone-vertical-insignia" data-action="toggleDrone" title="Alternar Módulo do Drone / VANT">
+          <div class="drone-amber-block">
             <span>DRONE</span>
           </div>
-          <div class="drone-sub-pip"></div>
+          <div class="drone-notch-white"></div>
         </div>
 
-        <!-- Grade 2x4 de Retículos de Mira Tática (Gimbal Reticles) -->
-        <div class="tactical-reticles-container">
+        <!-- 8 RETÍCULOS GIMBAL / MIRA TÁTICA (2 COLUNAS X 4 LINHAS) -->
+        <div class="reticles-matrix-2x4">
           {{#each reticles}}
-          <div class="reticle-unit-node" data-reticle-id="{{this.id}}" title="Retículo {{this.id}} // {{this.coordA}} {{this.coordB}}">
-            <div class="reticle-ring">
-              <!-- Eixos Cruzados -->
-              <span class="reticle-cross-h"></span>
-              <span class="reticle-cross-v"></span>
-              <!-- Marcações de Graus -->
-              <span class="reticle-tick-marker t-0"></span>
-              <span class="reticle-tick-marker t-90"></span>
-              <span class="reticle-tick-marker t-180"></span>
-              <span class="reticle-tick-marker t-270"></span>
-              <div class="reticle-center-pip"></div>
+          <div class="gimbal-reticle-unit" data-reticle-id="{{this.id}}" title="Retículo {{this.id}} [{{this.coordA}} {{this.coordB}}]">
+            <!-- Anel Circular com Eixos e Ticks -->
+            <div class="gimbal-circle-frame">
+              <svg class="gimbal-svg" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="18" class="gimbal-bg-ring" />
+                {{#if this.hasArc}}
+                <circle cx="22" cy="22" r="18" class="gimbal-active-arc arc-{{this.arcType}}"
+                  style="stroke-dasharray: 113.1; stroke-dashoffset: {{this.arcOffset}};"
+                  transform="rotate({{this.arcRot}} 22 22)" />
+                {{/if}}
+                <!-- Crosshairs -->
+                <line x1="22" y1="4" x2="22" y2="40" class="gimbal-axis" />
+                <line x1="4" y1="22" x2="40" y2="22" class="gimbal-axis" />
+                <!-- Ticks dos Quadrantes -->
+                <line x1="22" y1="2" x2="22" y2="5" class="gimbal-tick" />
+                <line x1="22" y1="39" x2="22" y2="42" class="gimbal-tick" />
+                <line x1="2" y1="22" x2="5" y2="22" class="gimbal-tick" />
+                <line x1="39" y1="22" x2="42" y2="22" class="gimbal-tick" />
+              </svg>
             </div>
-            <div class="reticle-coords">
-              <span class="coord-val">{{this.coordA}}</span>
-              <span class="coord-val">{{this.coordB}}</span>
+
+            <!-- Mini Barra de Nível Horizontal Abaixo do Anel -->
+            <div class="gimbal-sub-bar">
+              <div class="gimbal-sub-bar-fill" style="width: {{this.barPct}}%;"></div>
+            </div>
+
+            <!-- Coordenadas Numéricas -->
+            <div class="gimbal-coords-row">
+              <span class="coord-1">{{this.coordA}}</span>
+              <span class="coord-2">{{this.coordB}}</span>
             </div>
           </div>
           {{/each}}
