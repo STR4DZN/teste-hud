@@ -554,9 +554,323 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
+/**
+ * DnaHudApp — Console de Análise Genômica e DNA [DNA ANALYSIS]
+ * Simulação 3D procedural da dupla-hélice em Canvas com feixe laser de varredura ativa.
+ */
+export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "dna-hud-app",
+    classes: ["dna-hud-window"],
+    position: {
+      width: 1280,
+      height: 720
+    },
+    window: {
+      title: "ANÁLISE DE DNA // GENÔMICA TÁTICA [DNA ANALYSIS]",
+      icon: "fa-solid fa-dna",
+      resizable: true
+    },
+    actions: {
+      closeDnaWindow: DnaHudApp.#onCloseDnaWindow,
+      clickBadge: DnaHudApp.#onClickBadge,
+      clickReticle: DnaHudApp.#onClickReticle
+    }
+  };
+
+  static PARTS = {
+    main: {
+      template: "modules/teste-hud/templates/dna.hbs"
+    }
+  };
+
+  constructor(options = {}) {
+    super(options);
+    this._animId = null;
+    this.rotSpeed = 0.015;
+    this.angle = 0;
+    this.laserX = 0.15;
+    this.laserDir = 1;
+  }
+
+  async _prepareContext(options) {
+    return {};
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    this._initDnaCanvas();
+  }
+
+  _initDnaCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#dna-helix-canvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    };
+    resizeCanvas();
+
+    // 35 nós de plexo neural flutuante
+    const meshNodes = [];
+    for (let i = 0; i < 35; i++) {
+      meshNodes.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.0008,
+        vy: (Math.random() - 0.5) * 0.0008,
+        z: Math.random() * 2 - 1
+      });
+    }
+
+    let lastTime = performance.now();
+
+    const renderFrame = (now) => {
+      if (!this.element || !canvas.isConnected) return;
+      const dt = Math.min(50, now - lastTime);
+      lastTime = now;
+
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      this.angle += this.rotSpeed;
+
+      // Movimento do Laser Dourado
+      this.laserX += 0.0035 * this.laserDir;
+      if (this.laserX > 0.88) this.laserDir = -1;
+      if (this.laserX < 0.12) this.laserDir = 1;
+      const laserPx = this.laserX * w;
+
+      // 1. Plexo Neural ao Fundo
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < meshNodes.length; i++) {
+        const n = meshNodes[i];
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > 1) n.vx *= -1;
+        if (n.y < 0 || n.y > 1) n.vy *= -1;
+
+        const nx = n.x * w;
+        const ny = n.y * h;
+
+        for (let j = i + 1; j < meshNodes.length; j++) {
+          const n2 = meshNodes[j];
+          const dist = Math.hypot(nx - n2.x * w, ny - n2.y * h);
+          if (dist < 110) {
+            const alpha = (1 - dist / 110) * 0.12;
+            ctx.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(nx, ny);
+            ctx.lineTo(n2.x * w, n2.y * h);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // 2. Parâmetros da Dupla Hélice
+      const numBases = 58;
+      const marginX = w * 0.08;
+      const usableW = w - marginX * 2;
+      const centerY = h * 0.5;
+      const helixRadius = Math.min(85, h * 0.28);
+      const cycles = 3.6;
+
+      const particles = [];
+
+      for (let i = 0; i < numBases; i++) {
+        const t = i / (numBases - 1);
+        const x = marginX + t * usableW;
+        const theta = t * Math.PI * 2 * cycles + this.angle;
+
+        const y1 = centerY + Math.sin(theta) * helixRadius;
+        const z1 = Math.cos(theta) * helixRadius;
+
+        const y2 = centerY + Math.sin(theta + Math.PI) * helixRadius;
+        const z2 = Math.cos(theta + Math.PI) * helixRadius;
+
+        const isHitByLaser = Math.abs(x - laserPx) < 22;
+
+        particles.push({
+          type: "rung",
+          x,
+          y1,
+          z1,
+          y2,
+          z2,
+          avgZ: (z1 + z2) / 2,
+          isHitByLaser
+        });
+
+        particles.push({
+          type: "node",
+          strand: 1,
+          x,
+          y: y1,
+          z: z1,
+          isHitByLaser
+        });
+
+        particles.push({
+          type: "node",
+          strand: 2,
+          x,
+          y: y2,
+          z: z2,
+          isHitByLaser
+        });
+      }
+
+      // Z-Buffer: Ordena por profundidade
+      particles.sort((a, b) => {
+        const zA = a.type === "rung" ? a.avgZ : a.z;
+        const zB = b.type === "rung" ? b.avgZ : b.z;
+        return zA - zB;
+      });
+
+      // 3. Renderiza Dupla Hélice
+      for (const p of particles) {
+        if (p.type === "rung") {
+          ctx.beginPath();
+          ctx.setLineDash([2, 3]);
+          if (p.isHitByLaser) {
+            ctx.strokeStyle = "rgba(255, 209, 92, 0.85)";
+            ctx.lineWidth = 1.2;
+          } else {
+            const alpha = 0.15 + 0.35 * ((p.avgZ + helixRadius) / (helixRadius * 2));
+            ctx.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
+            ctx.lineWidth = 0.8;
+          }
+          ctx.moveTo(p.x, p.y1);
+          ctx.lineTo(p.x, p.y2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // 2 mini nós de bases (A-T ou C-G)
+          const my1 = p.y1 + (p.y2 - p.y1) * 0.35;
+          const my2 = p.y1 + (p.y2 - p.y1) * 0.65;
+          ctx.fillStyle = p.isHitByLaser ? "#ffffff" : "rgba(63, 244, 213, 0.6)";
+          ctx.beginPath();
+          ctx.arc(p.x, my1, 1.2, 0, Math.PI * 2);
+          ctx.arc(p.x, my2, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+
+        } else if (p.type === "node") {
+          const normZ = (p.z + helixRadius) / (helixRadius * 2);
+          const radius = 2.5 + normZ * 3.5;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+
+          if (p.isHitByLaser) {
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "#ffd15c";
+            ctx.shadowBlur = 12;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, radius + 2, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(255, 209, 92, 0.8)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          } else {
+            if (normZ > 0.5) {
+              ctx.fillStyle = "#3ff4d5";
+              ctx.shadowColor = "rgba(63, 244, 213, 0.7)";
+              ctx.shadowBlur = 8 * normZ;
+              ctx.fill();
+              ctx.shadowBlur = 0;
+
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, radius + 1.2, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(200, 255, 245, ${0.4 + 0.4 * normZ})`;
+              ctx.lineWidth = 0.75;
+              ctx.stroke();
+            } else {
+              ctx.fillStyle = `rgba(20, 99, 102, ${0.35 + 0.45 * normZ})`;
+              ctx.fill();
+            }
+          }
+        }
+      }
+
+      // 4. Linha de Varredura Laser Dourada
+      const laserGrad = ctx.createLinearGradient(0, centerY - helixRadius * 1.3, 0, centerY + helixRadius * 1.3);
+      laserGrad.addColorStop(0, "rgba(255, 209, 92, 0)");
+      laserGrad.addColorStop(0.3, "rgba(255, 209, 92, 0.6)");
+      laserGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.95)");
+      laserGrad.addColorStop(0.7, "rgba(255, 209, 92, 0.6)");
+      laserGrad.addColorStop(1, "rgba(255, 209, 92, 0)");
+
+      ctx.beginPath();
+      ctx.strokeStyle = laserGrad;
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = "#ffb833";
+      ctx.shadowBlur = 10;
+      ctx.moveTo(laserPx, centerY - helixRadius * 1.4);
+      ctx.lineTo(laserPx, centerY + helixRadius * 1.4);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(laserPx, centerY, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      this._animId = requestAnimationFrame(renderFrame);
+    };
+
+    this._animId = requestAnimationFrame(renderFrame);
+
+    canvas.addEventListener("click", () => {
+      soundFx.playCodonBeep(Math.floor(Math.random() * 8));
+      this.rotSpeed = this.rotSpeed === 0.015 ? 0.035 : 0.015;
+    });
+  }
+
+  async close(options) {
+    if (this._animId) {
+      cancelAnimationFrame(this._animId);
+      this._animId = null;
+    }
+    return super.close(options);
+  }
+
+  static #onCloseDnaWindow(event, target) {
+    soundFx.playRelayClick(false);
+    this.close();
+  }
+
+  static #onClickBadge(event, target) {
+    soundFx.playGeneLock();
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.info("GENÔMICA // AMOSTRA X-71: Sequência cromossômica bloqueada para síntese.");
+    }
+  }
+
+  static #onClickReticle(event, target) {
+    soundFx.playDnaScanHum();
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.warn("GIMBAL // FOCO MOLECULAR: Resolução ajustada para escala de 0.1 nanômetros.");
+    }
+  }
+}
+
 // Instâncias singleton para controle
 let oficinaAppInstance = null;
 let navegacaoAppInstance = null;
+let dnaAppInstance = null;
 
 export function getOficinaHudApp() {
   if (!oficinaAppInstance) {
@@ -600,39 +914,67 @@ export function toggleNavegacaoHud() {
   return app.render(true);
 }
 
+export function getDnaHudApp() {
+  if (!dnaAppInstance) {
+    dnaAppInstance = new DnaHudApp();
+  }
+  return dnaAppInstance;
+}
+
+export function openDnaHud() {
+  return getDnaHudApp().render(true);
+}
+
+export function closeDnaHud() {
+  return dnaAppInstance?.close();
+}
+
+export function toggleDnaHud() {
+  const app = getDnaHudApp();
+  if (app.rendered) return app.close();
+  return app.render(true);
+}
+
 // Aliases retrocompatíveis para chamadas anteriores
-export const getHudApp = getOficinaHudApp;
-export const openHud = openOficinaHud;
-export const closeHud = closeOficinaHud;
-export const toggleHud = toggleOficinaHud;
+export const getHudApp = getDnaHudApp;
+export const openHud = openDnaHud;
+export const closeHud = closeDnaHud;
+export const toggleHud = toggleDnaHud;
 
 // Inicialização de Hooks no Foundry VTT
 Hooks.once("init", () => {
-  console.log("Teste-Hud | Inicializando Console Tático & Navegação Marciana v1.2.0...");
+  console.log("Teste-Hud | Inicializando Trilogia Tática: Oficina, Navegação & Análise de DNA v1.3.0...");
 
   game.modules.get("teste-hud").api = {
-    // Atalhos Padrão (Retrocompatíveis)
-    open: openNavegacaoHud,
-    close: closeNavegacaoHud,
-    toggle: toggleNavegacaoHud,
-    getApp: getNavegacaoHudApp,
+    // Atalhos Padrão (Abre o HUD mais recente ou configurado)
+    open: openDnaHud,
+    close: closeDnaHud,
+    toggle: toggleDnaHud,
+    getApp: getDnaHudApp,
 
-    // Tela 1: Oficina Tática
+    // Tela 1: Oficina Tática [МАСТЕРСКАЯ]
     openOficina: openOficinaHud,
     closeOficina: closeOficinaHud,
     toggleOficina: toggleOficinaHud,
     getOficina: getOficinaHudApp,
 
-    // Tela 2: Navegação Marciana
+    // Tela 2: Navegação Marciana [火星 NAVIGATION]
     openNavegacao: openNavegacaoHud,
     closeNavegacao: closeNavegacaoHud,
     toggleNavegacao: toggleNavegacaoHud,
     getNavegacao: getNavegacaoHudApp,
 
+    // Tela 3: Análise Genômica & DNA [DNA ANALYSIS]
+    openDna: openDnaHud,
+    closeDna: closeDnaHud,
+    toggleDna: toggleDnaHud,
+    getDna: getDnaHudApp,
+
     // Motor de Áudio Procedural
     sound: soundFx
   };
 });
+
 
 
 

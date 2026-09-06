@@ -1,0 +1,815 @@
+/* ==========================================================================
+   CONSOLE DE ANÁLISE GENÔMICA // [DNA ANALYSIS HUD] v1.3.0
+   Ciber-Biotecnologia Tática Militar de Alta Fidelidade
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+
+.dna-hud-window {
+  --dna-bg-void: #011316;
+  --dna-bg-slate: #041c20;
+  --dna-border-dark: #0a4147;
+  --dna-border-tech: #0e565f;
+  --dna-cyan-neon: #3ff4d5;
+  --dna-cyan-bright: #00e5c8;
+  --dna-gold-laser: #ffd15c;
+  --dna-text-white: #f5fffd;
+  --dna-text-main: #a2e3de;
+  --dna-text-sec: #76b8b2;
+  --dna-text-dim: #367774;
+
+  background: var(--dna-bg-void) !important;
+  color: var(--dna-text-main) !important;
+  font-family: "Share Tech Mono", "Rajdhani", monospace !important;
+  user-select: none;
+  overflow: hidden !important;
+  box-shadow: 0 0 50px rgba(63, 244, 213, 0.2), 0 0 120px rgba(0, 0, 0, 0.95) !important;
+  border: 1px solid var(--dna-border-tech) !important;
+}
+
+/* Ocultação e Integração Total do Header Padrão do Foundry */
+.dna-hud-window .window-header {
+  display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+.dna-hud-window .window-content {
+  background: var(--dna-bg-void) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Botão de Fechar Militar Integrado ao HUD */
+.dna-hud-close-btn {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  background: rgba(4, 28, 32, 0.85);
+  border: 1px solid var(--dna-border-dark);
+  color: var(--dna-cyan-neon);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 150;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.dna-hud-close-btn:hover {
+  background: var(--dna-border-dark);
+  border-color: var(--dna-cyan-neon);
+  color: #ffffff;
+  box-shadow: 0 0 10px var(--dna-cyan-neon);
+}
+
+/* Base do Console */
+.dna-console {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--dna-bg-void);
+  background-image: 
+    radial-gradient(rgba(10, 65, 71, 0.4) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Efeitos Ópticos Analógicos CRT Ciber-Teal */
+.dna-crt-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  background: linear-gradient(rgba(1, 19, 22, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 2px;
+}
+
+.dna-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 101;
+  background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.85) 100%);
+}
+
+/* ==================== FAIXA SUPERIOR ==================== */
+.dna-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  background: rgba(4, 28, 32, 0.9);
+  border-bottom: 1px solid var(--dna-border-dark);
+  z-index: 10;
+  height: 28px;
+  box-sizing: border-box;
+}
+
+.top-badge-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(1, 19, 22, 0.8);
+  border: 1px solid var(--dna-border-dark);
+  padding: 2px 8px;
+}
+
+.top-cyan-sq {
+  width: 9px;
+  height: 9px;
+  background: var(--dna-cyan-neon);
+  box-shadow: 0 0 6px var(--dna-cyan-neon);
+}
+
+.top-badge-text {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 9.5px;
+  font-weight: bold;
+  color: var(--dna-text-white);
+  letter-spacing: 0.1em;
+}
+
+.top-serials-ticker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 7.5px;
+  color: var(--dna-text-sec);
+  letter-spacing: 0.08em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.serial-sep {
+  color: var(--dna-border-tech);
+}
+
+.top-coords-matrix {
+  display: flex;
+  flex-direction: column;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 7px;
+  color: var(--dna-text-sec);
+  line-height: 1.1;
+  margin-right: 28px;
+}
+
+.top-coords-matrix .axis {
+  color: var(--dna-cyan-neon);
+  font-weight: bold;
+  margin-right: 3px;
+}
+
+/* ==================== CORPO PRINCIPAL ==================== */
+.dna-main-area {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  flex: 1;
+  padding: 8px 12px;
+  gap: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Coluna Esquerda */
+.dna-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+}
+
+.dna-block {
+  background: rgba(4, 28, 32, 0.85);
+  border: 1px solid var(--dna-border-dark);
+  padding: 6px 8px;
+  box-sizing: border-box;
+  backdrop-filter: blur(4px);
+}
+
+/* Dials 08_X:98S */
+.dna-dials-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dials-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(14, 86, 95, 0.4);
+  padding-bottom: 2px;
+}
+
+.dials-tag {
+  font-size: 10px;
+  color: var(--dna-cyan-neon);
+  letter-spacing: 0.12em;
+}
+
+.dials-val {
+  font-size: 9px;
+  color: var(--dna-text-white);
+}
+
+.dials-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.dna-dial-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dna-dial-svg {
+  width: 32px;
+  height: 32px;
+  transform: rotate(-90deg);
+}
+
+.dial-bg {
+  fill: none;
+  stroke: rgba(10, 65, 71, 0.5);
+  stroke-width: 2.5;
+}
+
+.dial-arc {
+  fill: none;
+  stroke: var(--dna-cyan-neon);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(63, 244, 213, 0.6));
+}
+
+.dial-lbl {
+  font-size: 7px;
+  color: var(--dna-text-sec);
+}
+
+/* Matriz de Telemetria */
+.dna-telem-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.matrix-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.m-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: var(--dna-text-dim);
+  letter-spacing: 0.04em;
+}
+
+.dna-pill-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.dna-pill {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dna-pill.outlined {
+  border: 1px solid var(--dna-cyan-neon);
+  background: rgba(1, 19, 22, 0.8);
+  color: var(--dna-cyan-neon);
+  box-shadow: 0 0 6px rgba(63, 244, 213, 0.25);
+}
+
+.dna-pill.outlined:hover {
+  background: rgba(63, 244, 213, 0.15);
+  color: #ffffff;
+}
+
+.dna-pill.filled {
+  background: var(--dna-cyan-neon);
+  color: #011316;
+  font-weight: bold;
+  box-shadow: 0 0 8px rgba(63, 244, 213, 0.6);
+}
+
+.dna-pill.filled:hover {
+  background: var(--dna-cyan-bright);
+  box-shadow: 0 0 12px var(--dna-cyan-bright);
+}
+
+/* Retículo Gimbal */
+.dna-reticle-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.reticle-viewport {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin: auto 0;
+}
+
+.reticle-ring-outer {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--dna-cyan-neon);
+  border-radius: 50%;
+  animation: reticleSpin 24s infinite linear;
+  box-shadow: 0 0 6px rgba(63, 244, 213, 0.3);
+}
+
+.reticle-ring-mid {
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(14, 86, 95, 0.8);
+  border-radius: 50%;
+}
+
+.reticle-ring-inner {
+  position: absolute;
+  inset: 20px;
+  border: 1.5px solid var(--dna-cyan-neon);
+  border-radius: 50%;
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 0 70%);
+  animation: reticleSpinReverse 8s infinite linear;
+}
+
+.reticle-center-cross {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px #ffffff;
+}
+
+@keyframes reticleSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes reticleSpinReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.reticle-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-top: 1px solid rgba(14, 86, 95, 0.4);
+  padding-top: 4px;
+}
+
+.mini-eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.eq-b {
+  width: 3px;
+  background: var(--dna-cyan-neon);
+  box-shadow: 0 0 3px var(--dna-cyan-neon);
+}
+
+.reticle-codes {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.c-code {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--dna-text-white);
+  letter-spacing: 0.1em;
+}
+
+.c-sub {
+  font-size: 6.5px;
+  color: var(--dna-text-dim);
+}
+
+/* ==================== CENTRO: VIEWPORT DA DUPLA-HÉLICE ==================== */
+.dna-center-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.dna-viewport-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(4, 28, 32, 0.7);
+  border: 1px solid var(--dna-border-dark);
+  padding: 3px 8px;
+  z-index: 10;
+}
+
+.dna-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vp-bracket-code {
+  font-size: 8.5px;
+  color: var(--dna-cyan-neon);
+  border-left: 2px solid var(--dna-cyan-neon);
+  padding-left: 4px;
+  font-weight: bold;
+}
+
+.vp-sub-num {
+  font-size: 8px;
+  color: var(--dna-text-sec);
+}
+
+.vp-title-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.vp-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 8px rgba(63, 244, 213, 0.7);
+}
+
+.vp-en {
+  font-size: 8.5px;
+  color: var(--dna-cyan-neon);
+  letter-spacing: 0.08em;
+}
+
+.vp-sub {
+  font-size: 8px;
+  color: var(--dna-text-sec);
+}
+
+.dna-header-bar-segment {
+  width: 140px;
+  height: 12px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(14, 86, 95, 0.4) 0px,
+    rgba(14, 86, 95, 0.4) 4px,
+    transparent 4px,
+    transparent 6px
+  );
+  border: 1px solid rgba(14, 86, 95, 0.6);
+}
+
+/* Container do Canvas e Réguas Y */
+.dna-canvas-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background: radial-gradient(ellipse at center, rgba(4, 38, 44, 0.4) 0%, rgba(1, 19, 22, 0.95) 75%);
+  border: 1px solid var(--dna-border-dark);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+/* Réguas Y */
+.dna-y-scale {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 7px;
+  color: var(--dna-text-dim);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dna-y-scale.left { left: 8px; }
+.dna-y-scale.right { right: 8px; text-align: right; }
+
+/* O Canvas 3D */
+.dna-helix-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+.dna-helix-canvas:active {
+  cursor: grabbing;
+}
+
+/* Bloco de Ressequenciamento */
+.dna-resequence-box {
+  position: absolute;
+  bottom: 10px;
+  left: 36px;
+  background: rgba(1, 19, 22, 0.85);
+  border: 1px solid var(--dna-border-dark);
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.resequence-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--dna-cyan-neon);
+  letter-spacing: 0.12em;
+}
+
+.resequence-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+}
+
+.r-row {
+  display: flex;
+  gap: 8px;
+  font-size: 7px;
+  color: var(--dna-text-sec);
+}
+
+.resequence-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(10, 65, 71, 0.4);
+  border: 1px solid rgba(14, 86, 95, 0.6);
+  margin-top: 2px;
+}
+
+.r-bar-fill {
+  height: 100%;
+  background: var(--dna-cyan-neon);
+  box-shadow: 0 0 5px var(--dna-cyan-neon);
+}
+
+/* Telemetria Flutuante Direita */
+.dna-floating-telem-right {
+  position: absolute;
+  bottom: 10px;
+  right: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 15;
+  pointer-events: none;
+  font-size: 7px;
+  color: var(--dna-text-sec);
+}
+
+.rnd-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+
+.rnd-block .w-data {
+  color: var(--dna-cyan-neon);
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.rnd-block .w-num {
+  font-size: 8px;
+  color: #ffffff;
+}
+
+.avd-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 6.5px;
+  color: var(--dna-text-dim);
+}
+
+/* ==================== PAINEL INFERIOR ==================== */
+.dna-bottom-panel {
+  display: grid;
+  grid-template-columns: 140px 1fr 220px;
+  height: 130px;
+  background: rgba(4, 28, 32, 0.95);
+  border-top: 1px solid var(--dna-border-dark);
+  padding: 6px 12px;
+  gap: 12px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+/* Coluna 1 Inferior */
+.dna-bot-col-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  font-size: 7.5px;
+  color: var(--dna-text-sec);
+  border-right: 1px solid rgba(14, 86, 95, 0.4);
+  padding-right: 8px;
+}
+
+.telem-line {
+  white-space: nowrap;
+}
+
+/* Coluna 2: Tabelas de Códons */
+.dna-bot-codon-tables {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.codon-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.codon-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.c-header {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--dna-cyan-neon);
+  border-bottom: 1px solid rgba(14, 86, 95, 0.5);
+  padding-bottom: 1px;
+}
+
+.c-data {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+  font-size: 6.5px;
+  color: var(--dna-text-dim);
+}
+
+.c-data div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.codon-timecode-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(1, 19, 22, 0.9);
+  border: 1px solid var(--dna-cyan-neon);
+  padding: 1px 6px;
+  box-shadow: 0 0 6px rgba(63, 244, 213, 0.3);
+}
+
+.codon-timecode-badge span {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 8.5px;
+  color: var(--dna-cyan-neon);
+  font-weight: bold;
+}
+
+/* Coluna 3: Contagem Celular */
+.dna-bot-col-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 1px solid rgba(14, 86, 95, 0.4);
+  padding-left: 8px;
+}
+
+.cell-count-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.cc-title {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.1em;
+}
+
+.cc-title .cc-sub {
+  color: var(--dna-text-sec);
+  font-size: 7.5px;
+}
+
+.cc-code {
+  font-size: 8px;
+  color: var(--dna-cyan-neon);
+  font-weight: bold;
+}
+
+.nucleotide-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+}
+
+.n-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 6.5px;
+  color: var(--dna-text-dim);
+}
+
+.cell-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.c-bar {
+  height: 4px;
+  background: rgba(10, 65, 71, 0.4);
+  border: 1px solid rgba(14, 86, 95, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.c-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--dna-cyan-neon);
+  box-shadow: 0 0 4px var(--dna-cyan-neon);
+}
+
+.c-bar.bar-1::after { width: 75%; }
+.c-bar.bar-2::after { width: 45%; }
+.c-bar.bar-3::after { width: 90%; }

@@ -176,6 +176,93 @@ export class TacticalAudioEngine {
     osc.stop(now + 0.05);
   }
 
+  /**
+   * Zumbido de ressonância bio-molecular e varredura de DNA
+   */
+  playDnaScanHum() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(660, now + 0.3);
+
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(now + 0.3);
+  }
+
+  /**
+   * Bipe harmônico de sequenciamento de códon/nucleotídeo
+   */
+  playCodonBeep(idx = 0) {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+    const freq = notes[idx % notes.length];
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.08);
+
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(now + 0.08);
+  }
+
+  /**
+   * Travamento de gene / sequência completa
+   */
+  playGeneLock() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = "sine";
+    osc2.type = "triangle";
+    osc1.frequency.setValueAtTime(880, now);
+    osc2.frequency.setValueAtTime(1320, now);
+
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start();
+    osc2.start();
+    osc1.stop(now + 0.25);
+    osc2.stop(now + 0.25);
+  }
+
   toggleMute() {
     this.isEnabled = !this.isEnabled;
     return this.isEnabled;
