@@ -438,15 +438,4 @@ Hooks.once("init", () => {
   };
 });
 
-Hooks.on("getSceneControlButtons", (controls) => {
-  const tokenControls = controls.find(c => c.name === "token");
-  if (!tokenControls) return;
 
-  tokenControls.tools.push({
-    name: "teste-hud",
-    title: "Oficina Tática [HUD]",
-    icon: "fa-solid fa-microchip",
-    button: true,
-    onClick: () => toggleHud()
-  });
-});
