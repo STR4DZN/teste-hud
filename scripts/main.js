@@ -1215,10 +1215,623 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
+/**
+ * ReactorHudApp — Console de Núcleo do Reator // Fusão Quântica [REACTOR CORE // ANALYSING DATA]
+ * Simulação 3D procedural do reator cilíndrico explodido em Canvas 2D com plasma e telemetria militar.
+ */
+export class ReactorHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "reactor-hud-app",
+    classes: ["reactor-hud-window"],
+    position: {
+      width: 1280,
+      height: 720
+    },
+    window: {
+      title: "NÚCLEO DO REATOR // FUSÃO QUÂNTICA [REACTOR CORE // ANALYSING DATA]",
+      icon: "fa-solid fa-atom",
+      resizable: true
+    },
+    actions: {
+      closeReactorWindow: ReactorHudApp.#onCloseReactorWindow,
+      clickReticle: ReactorHudApp.#onClickReticle,
+      clickAtom: ReactorHudApp.#onClickAtom
+    }
+  };
+
+  static PARTS = {
+    main: {
+      template: "modules/teste-hud/templates/reactor.hbs"
+    }
+  };
+
+  constructor(options = {}) {
+    super(options);
+    this._animId = null;
+    this._atomAnimId = null;
+    this._waveformInterval = null;
+    this._tempInterval = null;
+    this.rotSpeed = 0.008;
+    this.angle = 0;
+    this.corePulsePhase = 0;
+    this.tiltX = 0;
+    this.tiltY = 0;
+    this.targetTiltX = 0;
+    this.targetTiltY = 0;
+    this.sparks = [];
+    this.coreTemp = 83.29;
+    this.atomAngle = 0;
+
+    // Partículas de fluxo contínuo ao longo do eixo do reator
+    this.fluxParticles = [];
+    for (let i = 0; i < 40; i++) {
+      this.fluxParticles.push({
+        z: -270 + Math.random() * 580,
+        r: Math.random() * 18,
+        theta: Math.random() * Math.PI * 2,
+        speed: 1.2 + Math.random() * 2.2,
+        color: Math.random() > 0.4 ? "#3ff4d5" : "#ffd15c"
+      });
+    }
+  }
+
+  async _prepareContext(options) {
+    return {};
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    this._initReactorCanvas();
+    this._initAtomCanvas();
+    this._initWaveform();
+    soundFx.playReactorHum();
+  }
+
+  _initReactorCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#reactor-3d-canvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = 0;
+    let height = 0;
+
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resizeCanvas();
+
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => resizeCanvas());
+      ro.observe(canvas);
+    }
+
+    // Interatividade com o mouse para inclinação 3D
+    const onMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / rect.width - 0.5;
+      const my = (e.clientY - rect.top) / rect.height - 0.5;
+      this.targetTiltY = mx * 0.18;
+      this.targetTiltX = -my * 0.14;
+    };
+    const onMouseLeave = () => {
+      this.targetTiltX = 0;
+      this.targetTiltY = 0;
+    };
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseleave", onMouseLeave);
+
+    // Clique no reator: pulso eletromagnético, faíscas e som
+    const onClick = (e) => {
+      soundFx.playPlasmaPulse();
+      soundFx.playRadiationTick();
+      this.rotSpeed = 0.024;
+      setTimeout(() => { this.rotSpeed = 0.008; }, 600);
+
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      for (let k = 0; k < 35; k++) {
+        this.sparks.push({
+          x: clickX + (Math.random() - 0.5) * 16,
+          y: clickY + (Math.random() - 0.5) * 16,
+          vx: (Math.random() - 0.5) * 5.0,
+          vy: (Math.random() - 0.5) * 5.0 - 1.5,
+          life: 1.0,
+          color: Math.random() > 0.45 ? "#ffffff" : (Math.random() > 0.5 ? "#ffd15c" : "#3ff4d5")
+        });
+      }
+    };
+    canvas.addEventListener("click", onClick);
+
+    // Matriz de Rotação 3D Calibrada (eixo inclinado a ~-24.4°, anéis a ~65.6°, aspecto 0.292)
+    const R0 = [
+      [0.3736,  0.3181,  0.8713],
+      [0.1474,  0.9071, -0.3943],
+      [-0.9158,  0.2757,  0.2920]
+    ];
+
+    let lastTime = performance.now();
+
+    const renderFrame = (now) => {
+      if (!this.element || !canvas.isConnected) {
+        if (ro) ro.disconnect();
+        return;
+      }
+      const dt = Math.min(50, now - lastTime);
+      lastTime = now;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Suavização da inclinação
+      this.tiltX += (this.targetTiltX - this.tiltX) * 0.08;
+      this.tiltY += (this.targetTiltY - this.tiltY) * 0.08;
+      this.angle += this.rotSpeed;
+      this.corePulsePhase += 0.035;
+
+      const cosA = Math.cos(this.angle);
+      const sinA = Math.sin(this.angle);
+
+      // Centro do Reator no Canvas
+      const CX = width * 0.46;
+      const CY = height * 0.51;
+
+      // Função de Projeção 3D
+      const project = (lx, ly, lz) => {
+        // 1. Rotação em torno do eixo do reator (local Z)
+        const rx = lx * cosA - ly * sinA;
+        const ry = lx * sinA + ly * cosA;
+        const rz = lz;
+
+        // 2. Projeção pela matriz orientada
+        const px_raw = R0[0][0] * rx + R0[0][1] * ry + R0[0][2] * rz;
+        const py_raw = R0[1][0] * rx + R0[1][1] * ry + R0[1][2] * rz;
+        const pz_raw = R0[2][0] * rx + R0[2][1] * ry + R0[2][2] * rz;
+
+        // 3. Inclinação interativa do mouse
+        const px_tilt = px_raw + this.tiltY * 90;
+        const py_tilt = py_raw - this.tiltX * 70;
+
+        // 4. Perspectiva sutil
+        const scale = 1.0 + pz_raw * 0.0006;
+        return {
+          px: CX + px_tilt * scale,
+          py: CY + py_tilt * scale,
+          scale,
+          z: pz_raw
+        };
+      };
+
+      // 1. Grade Técnica de Fundo
+      ctx.fillStyle = "rgba(63, 244, 213, 0.08)";
+      for (let gx = 30; gx < width; gx += 40) {
+        for (let gy = 30; gy < height; gy += 40) {
+          ctx.beginPath();
+          ctx.arc(gx, gy, 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      const renderables = [];
+
+      // Auxiliares de Geometria 3D
+      const addRing = (radius, zPos, numPts, colorFn, lineWidth = 1, isLine = true) => {
+        const pts = [];
+        for (let i = 0; i < numPts; i++) {
+          const th = (i / numPts) * Math.PI * 2;
+          const p = project(radius * Math.cos(th), radius * Math.sin(th), zPos);
+          pts.push({ ...p, th });
+        }
+        for (let i = 0; i < numPts; i++) {
+          const p1 = pts[i];
+          const p2 = pts[(i + 1) % numPts];
+          const avgZ = (p1.z + p2.z) * 0.5;
+          const col = colorFn(p1.th, avgZ);
+          if (isLine) {
+            renderables.push({
+              type: "line",
+              p1,
+              p2,
+              color: col,
+              width: lineWidth,
+              z: avgZ
+            });
+          } else {
+            renderables.push({
+              type: "dot",
+              p: p1,
+              r: lineWidth * p1.scale,
+              color: col,
+              z: p1.z
+            });
+          }
+        }
+      };
+
+      const addSpokes = (rInner, rOuter, zPos, numSpokes, colorFn, lineWidth = 1) => {
+        for (let i = 0; i < numSpokes; i++) {
+          const th = (i / numSpokes) * Math.PI * 2;
+          const p1 = project(rInner * Math.cos(th), rInner * Math.sin(th), zPos);
+          const p2 = project(rOuter * Math.cos(th), rOuter * Math.sin(th), zPos);
+          const avgZ = (p1.z + p2.z) * 0.5;
+          renderables.push({
+            type: "line",
+            p1,
+            p2,
+            color: colorFn(th, avgZ),
+            width: lineWidth,
+            z: avgZ
+          });
+        }
+      };
+
+      // --- Estágio 1: Bocal Injetor Frontal (z: -270 a -230) ---
+      for (let z = -270; z <= -230; z += 9) {
+        const rad = 18 + (z - (-270)) * 0.15;
+        addRing(rad, z, 32, (th, z_d) => `rgba(255, 170, 50, ${(0.45 + 0.45 * Math.max(0, Math.min(1, (z_d + 80) / 160.0))).toFixed(2)})`, 1);
+      }
+      addRing(28, -270, 24, () => "rgba(63, 244, 213, 0.75)", 1.2);
+      addSpokes(14, 28, -270, 8, () => "rgba(255, 200, 80, 0.8)", 1);
+
+      // --- Estágio 2: Anel Estator 1 com Dentes Radiais (z: -215) ---
+      addRing(48, -215, 48, () => "rgba(63, 244, 213, 0.75)", 1);
+      addRing(58, -215, 60, () => "rgba(63, 244, 213, 0.9)", 1.2, false);
+      addSpokes(48, 62, -215, 24, () => "rgba(63, 244, 213, 0.6)", 1);
+
+      // --- Estágio 3: Grande Disco de Compressão 1 (z: -140) ---
+      addRing(72, -140, 64, () => "rgba(63, 244, 213, 0.65)", 1);
+      addRing(86, -140, 72, () => "rgba(63, 244, 213, 0.85)", 1.5, false);
+      addSpokes(70, 88, -140, 36, () => "rgba(20, 140, 150, 0.45)", 1);
+      for (let i = 0; i < 12; i++) {
+        const th = (i / 12) * Math.PI * 2;
+        const p = project(96 * Math.cos(th), 96 * Math.sin(th), -140);
+        renderables.push({ type: "dot", p, r: 2.0, color: "rgba(63, 244, 213, 0.75)", z: p.z });
+      }
+
+      // --- Estágio 4: Flange & Anel de Transição Segmentado (z: -65) ---
+      addRing(52, -65, 48, () => "rgba(255, 175, 55, 0.75)", 1);
+      addRing(66, -65, 54, () => "rgba(63, 244, 213, 0.8)", 1.2, false);
+      addSpokes(52, 66, -65, 18, () => "rgba(255, 190, 70, 0.7)", 1);
+
+      // --- Estágio 5: CORAÇÃO DE PLASMA INCANDESCENTE (z: 0) ---
+      const R_core = 42 + 2.0 * Math.sin(this.corePulsePhase);
+      const numCageRings = 14;
+      for (let c = 0; c < numCageRings; c++) {
+        const lat = -Math.PI * 0.42 + (c / (numCageRings - 1)) * Math.PI * 0.84;
+        const r_lat = R_core * Math.cos(lat);
+        const z_lat = R_core * Math.sin(lat);
+        addRing(r_lat, z_lat, 36, (th, z_d) => {
+          const normZ = Math.max(0, Math.min(1, (z_d + 60) / 120.0));
+          return `rgba(255, ${150 + Math.floor(90 * Math.sin(th * 3 + this.corePulsePhase))}, 30, ${(0.6 + 0.4 * normZ).toFixed(2)})`;
+        }, 1.5);
+      }
+
+      // Nervuras de confinamento magnético meridianas
+      for (let m = 0; m < 8; m++) {
+        const th_m = (m / 8) * Math.PI;
+        const pts_m = [];
+        for (let step = 0; step < 32; step++) {
+          const phi = (step / 31) * Math.PI * 2;
+          const lx = R_core * Math.cos(phi) * Math.cos(th_m);
+          const ly = R_core * Math.cos(phi) * Math.sin(th_m);
+          const lz = R_core * Math.sin(phi);
+          pts_m.push(project(lx, ly, lz));
+        }
+        for (let step = 0; step < 31; step++) {
+          const p1 = pts_m[step];
+          const p2 = pts_m[step + 1];
+          const avgZ = (p1.z + p2.z) * 0.5;
+          const normZ = Math.max(0, Math.min(1, (avgZ + 50) / 100.0));
+          renderables.push({
+            type: "line",
+            p1,
+            p2,
+            color: `rgba(255, 195, 60, ${(0.55 + 0.45 * normZ).toFixed(2)})`,
+            width: 1.4,
+            z: avgZ
+          });
+        }
+      }
+
+      // --- Estágio 6: Anel de Transição & Blindagem Secundária (z: +65) ---
+      addRing(56, 65, 48, () => "rgba(63, 244, 213, 0.65)", 1);
+      addRing(70, 65, 54, () => "rgba(63, 244, 213, 0.85)", 1.5, false);
+      addSpokes(56, 70, 65, 18, () => "rgba(20, 140, 150, 0.5)", 1);
+
+      // --- Estágio 7: OS ANÉIS GÊMEOS DE BISEL CIANO (z: +105 & +125) ---
+      for (const z_r of [105, 125]) {
+        addRing(88, z_r, 72, () => "rgba(63, 244, 213, 0.95)", 2.4);
+        addRing(76, z_r, 64, () => "rgba(63, 244, 213, 0.8)", 1.4);
+        addSpokes(76, 88, z_r, 32, () => "rgba(63, 244, 213, 0.65)", 1);
+        addRing(82, z_r, 48, () => "rgba(200, 255, 245, 0.9)", 1.4, false);
+      }
+
+      // --- Estágio 8: GRANDE ESTATOR ACELERADOR PRINCIPAL (z: +180) ---
+      addRing(95, 180, 80, () => "rgba(63, 244, 213, 0.7)", 1);
+      addRing(128, 180, 96, () => "rgba(63, 244, 213, 0.9)", 2.0);
+      addRing(142, 180, 96, () => "rgba(63, 244, 213, 0.85)", 1.4, false);
+      addSpokes(95, 142, 180, 48, () => "rgba(63, 244, 213, 0.55)", 1);
+
+      // Escudos em arco flutuantes
+      for (let arcIdx = 0; arcIdx < 4; arcIdx++) {
+        const thStart = (arcIdx / 4) * Math.PI * 2 + 0.2;
+        const thEnd = thStart + 0.9;
+        const arcPts = [];
+        for (let step = 0; step < 16; step++) {
+          const thA = thStart + (step / 15) * (thEnd - thStart);
+          arcPts.push(project(160 * Math.cos(thA), 160 * Math.sin(thA), 180));
+        }
+        for (let step = 0; step < 15; step++) {
+          const p1 = arcPts[step];
+          const p2 = arcPts[step + 1];
+          const avgZ = (p1.z + p2.z) * 0.5;
+          renderables.push({
+            type: "line",
+            p1,
+            p2,
+            color: "rgba(63, 244, 213, 0.8)",
+            width: 2.4,
+            z: avgZ
+          });
+        }
+      }
+
+      // --- Estágio 9: Rotor de Turbina / Palhetas Radiais (z: +230) ---
+      addRing(62, 230, 54, () => "rgba(255, 180, 60, 0.8)", 1.2);
+      addRing(78, 230, 64, () => "rgba(63, 244, 213, 0.75)", 1);
+      addSpokes(32, 76, 230, 42, () => "rgba(255, 195, 75, 0.7)", 1.2);
+
+      // --- Estágio 10: Tubo de Escape & Bobinas Terminais (z: +265 a +310) ---
+      for (let z_ex = 265; z_ex <= 310; z_ex += 9) {
+        const rad_ex = 42 - (z_ex - 265) * 0.22;
+        addRing(rad_ex, z_ex, 32, () => "rgba(255, 175, 55, 0.75)", 1.4);
+      }
+      addRing(30, 310, 24, () => "rgba(63, 244, 213, 0.9)", 1.8);
+
+      // --- Grandes Retículos HUD Circulares (Centralizados no Estator em z: +180) ---
+      addRing(205, 180, 120, () => "rgba(63, 244, 213, 0.3)", 1);
+      addRing(220, 180, 120, () => "rgba(63, 244, 213, 0.2)", 1);
+      for (let i = 0; i < 36; i++) {
+        const th = (i / 36) * Math.PI * 2;
+        const isMajor = (i % 9 === 0);
+        const r1 = 205;
+        const r2 = isMajor ? 225 : 213;
+        const p1 = project(r1 * Math.cos(th), r1 * Math.sin(th), 180);
+        const p2 = project(r2 * Math.cos(th), r2 * Math.sin(th), 180);
+        renderables.push({
+          type: "line",
+          p1,
+          p2,
+          color: isMajor ? "rgba(63, 244, 213, 0.7)" : "rgba(63, 244, 213, 0.35)",
+          width: isMajor ? 1.6 : 1,
+          z: (p1.z + p2.z) * 0.5
+        });
+      }
+
+      // --- Partículas de Fluxo ao Longo do Eixo ---
+      for (const fp of this.fluxParticles) {
+        fp.z += fp.speed;
+        if (fp.z > 315) fp.z = -270;
+        fp.theta += 0.02;
+        const p = project(fp.r * Math.cos(fp.theta), fp.r * Math.sin(fp.theta), fp.z);
+        renderables.push({
+          type: "dot",
+          p,
+          r: 1.5 * p.scale,
+          color: fp.color,
+          z: p.z
+        });
+      }
+
+      // Ordenação de Profundidade (Z-Buffer: menor Z = trás, maior Z = frente)
+      renderables.sort((a, b) => a.z - b.z);
+
+      // Renderização com Efeitos de Brilho
+      for (const item of renderables) {
+        if (item.type === "line") {
+          ctx.beginPath();
+          ctx.moveTo(item.p1.px, item.p1.py);
+          ctx.lineTo(item.p2.px, item.p2.py);
+          ctx.strokeStyle = item.color;
+          ctx.lineWidth = item.width;
+          ctx.stroke();
+        } else if (item.type === "dot") {
+          ctx.beginPath();
+          ctx.arc(item.p.px, item.p.py, item.r, 0, Math.PI * 2);
+          ctx.fillStyle = item.color;
+          ctx.fill();
+        }
+      }
+
+      // Faíscas Quânticas de Descarga (Sparks)
+      for (let s = this.sparks.length - 1; s >= 0; s--) {
+        const sp = this.sparks[s];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.life -= 0.035;
+        if (sp.life <= 0) {
+          this.sparks.splice(s, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, 1.4 * sp.life, 0, Math.PI * 2);
+        ctx.fillStyle = sp.color === "#ffffff" ? `rgba(255, 255, 255, ${sp.life})` : `rgba(255, 209, 92, ${sp.life})`;
+        ctx.fill();
+      }
+
+      this._animId = requestAnimationFrame(renderFrame);
+    };
+
+    this._animId = requestAnimationFrame(renderFrame);
+  }
+
+  _initAtomCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#reactor-atom-canvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const nodes = [
+      { x: -35, y: 25, z: 0 },
+      { x: -15, y: 5, z: 12 },
+      { x: 5, y: -10, z: -10 },
+      { x: 18, y: -28, z: 15 },
+      { x: 40, y: -45, z: -8 },
+      { x: 55, y: -40, z: 10 }
+    ];
+
+    const renderAtom = () => {
+      if (!this.element || !canvas.isConnected) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      this.atomAngle += 0.015;
+      const cosA = Math.cos(this.atomAngle);
+      const sinA = Math.sin(this.atomAngle);
+
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.5;
+
+      // Anel orbital de fundo
+      ctx.beginPath();
+      ctx.arc(cx + 10, cy + 5, 28, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.25)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      const proj = nodes.map(n => {
+        const x1 = n.x * cosA - n.z * sinA;
+        const z1 = n.x * sinA + n.z * cosA;
+        return { px: cx + x1, py: cy + n.y, z: z1 };
+      });
+
+      // Ligações
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.65)";
+      for (let i = 0; i < proj.length - 1; i++) {
+        ctx.beginPath();
+        ctx.moveTo(proj[i].px, proj[i].py);
+        ctx.lineTo(proj[i + 1].px, proj[i + 1].py);
+        ctx.stroke();
+      }
+
+      // Átomos
+      proj.sort((a, b) => a.z - b.z);
+      for (const p of proj) {
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, 5.5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(12, 50, 60, 0.9)";
+        ctx.strokeStyle = "rgba(63, 244, 213, 0.95)";
+        ctx.lineWidth = 1.2;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+      }
+
+      this._atomAnimId = requestAnimationFrame(renderAtom);
+    };
+
+    this._atomAnimId = requestAnimationFrame(renderAtom);
+  }
+
+  _initWaveform() {
+    if (!this.element) return;
+    const waveWrap = this.element.querySelector("#reactor-wave-col-bars");
+    if (!waveWrap) return;
+
+    waveWrap.innerHTML = "";
+    const numBars = 45;
+    for (let i = 0; i < numBars; i++) {
+      const bar = document.createElement("span");
+      bar.className = "wave-bar";
+      bar.style.setProperty("--h", `${Math.floor(3 + Math.random() * 8)}px`);
+      waveWrap.appendChild(bar);
+    }
+
+    if (this._waveformInterval) clearInterval(this._waveformInterval);
+    this._waveformInterval = setInterval(() => {
+      if (!this.element) return;
+      const bars = this.element.querySelectorAll(".wave-col-bars .wave-bar");
+      if (!bars || bars.length === 0) return;
+      bars.forEach(b => {
+        const h = Math.floor(2 + Math.random() * 12);
+        b.style.setProperty("--h", `${h}px`);
+      });
+    }, 120);
+
+    // Micro-variação realista da temperatura do núcleo
+    if (this._tempInterval) clearInterval(this._tempInterval);
+    this._tempInterval = setInterval(() => {
+      if (!this.element) return;
+      const tempElem = this.element.querySelector("#reactor-core-temp-val");
+      if (tempElem) {
+        const delta = (Math.random() - 0.48) * 0.04;
+        this.coreTemp = Math.max(82.80, Math.min(84.10, this.coreTemp + delta));
+        tempElem.textContent = `${this.coreTemp.toFixed(2)}°`;
+      }
+    }, 1800);
+  }
+
+  async close(options) {
+    if (this._animId) {
+      cancelAnimationFrame(this._animId);
+      this._animId = null;
+    }
+    if (this._atomAnimId) {
+      cancelAnimationFrame(this._atomAnimId);
+      this._atomAnimId = null;
+    }
+    if (this._waveformInterval) {
+      clearInterval(this._waveformInterval);
+      this._waveformInterval = null;
+    }
+    if (this._tempInterval) {
+      clearInterval(this._tempInterval);
+      this._tempInterval = null;
+    }
+    return super.close(options);
+  }
+
+  static #onCloseReactorWindow(event, target) {
+    soundFx.playRelayClick(false);
+    this.close();
+  }
+
+  static #onClickReticle(event, target) {
+    soundFx.playTargetLock();
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.info("SISTEMA DE CALIBRAÇÃO // RETÍCULO: Alinhamento óptico do núcleo ajustado.");
+    }
+  }
+
+  static #onClickAtom(event, target) {
+    soundFx.playAtomSpin();
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.warn("ANÁLISE MOLECULAR // ATOM_VIEW: Estrutura reticular do combustível escaneada.");
+    }
+  }
+}
+
 // Instâncias singleton para controle
 let oficinaAppInstance = null;
 let navegacaoAppInstance = null;
 let dnaAppInstance = null;
+let reactorAppInstance = null;
 
 export function getOficinaHudApp() {
   if (!oficinaAppInstance) {
@@ -1283,22 +1896,43 @@ export function toggleDnaHud() {
   return app.render(true);
 }
 
+export function getReactorHudApp() {
+  if (!reactorAppInstance) {
+    reactorAppInstance = new ReactorHudApp();
+  }
+  return reactorAppInstance;
+}
+
+export function openReactorHud() {
+  return getReactorHudApp().render(true);
+}
+
+export function closeReactorHud() {
+  return reactorAppInstance?.close();
+}
+
+export function toggleReactorHud() {
+  const app = getReactorHudApp();
+  if (app.rendered) return app.close();
+  return app.render(true);
+}
+
 // Aliases retrocompatíveis para chamadas anteriores
-export const getHudApp = getDnaHudApp;
-export const openHud = openDnaHud;
-export const closeHud = closeDnaHud;
-export const toggleHud = toggleDnaHud;
+export const getHudApp = getReactorHudApp;
+export const openHud = openReactorHud;
+export const closeHud = closeReactorHud;
+export const toggleHud = toggleReactorHud;
 
 // Inicialização de Hooks no Foundry VTT
 Hooks.once("init", () => {
-  console.log("Teste-Hud | Inicializando Trilogia Tática: Oficina, Navegação & Análise de DNA v1.3.3...");
+  console.log("Teste-Hud | Inicializando Tetralogia Tática: Oficina, Navegação, DNA & Núcleo do Reator v1.4.0...");
 
   game.modules.get("teste-hud").api = {
     // Atalhos Padrão (Abre o HUD mais recente ou configurado)
-    open: openDnaHud,
-    close: closeDnaHud,
-    toggle: toggleDnaHud,
-    getApp: getDnaHudApp,
+    open: openReactorHud,
+    close: closeReactorHud,
+    toggle: toggleReactorHud,
+    getApp: getReactorHudApp,
 
     // Tela 1: Oficina Tática [МАСТЕРСКАЯ]
     openOficina: openOficinaHud,
@@ -1317,6 +1951,15 @@ Hooks.once("init", () => {
     closeDna: closeDnaHud,
     toggleDna: toggleDnaHud,
     getDna: getDnaHudApp,
+
+    // Tela 4: Núcleo do Reator // Fusão Quântica [REACTOR CORE]
+    openReactor: openReactorHud,
+    closeReactor: closeReactorHud,
+    toggleReactor: toggleReactorHud,
+    getReactor: getReactorHudApp,
+    openCore: openReactorHud,
+    closeCore: closeReactorHud,
+    toggleCore: toggleReactorHud,
 
     // Motor de Áudio Procedural
     sound: soundFx

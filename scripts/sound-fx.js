@@ -263,6 +263,124 @@ export class TacticalAudioEngine {
     osc2.stop(now + 0.25);
   }
 
+  /**
+   * Pulso eletromagnético / disparo de contenção de plasma do reator
+   */
+  playPlasmaPulse() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const oscSub = ctx.createOscillator();
+    const oscChirp = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    // Grave de impacto eletromagnético
+    oscSub.type = "sine";
+    oscSub.frequency.setValueAtTime(140, now);
+    oscSub.frequency.exponentialRampToValueAtTime(35, now + 0.35);
+
+    // Chirp brilhante de ionização
+    oscChirp.type = "sawtooth";
+    oscChirp.frequency.setValueAtTime(1200, now);
+    oscChirp.frequency.exponentialRampToValueAtTime(320, now + 0.18);
+
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+    oscSub.connect(gain);
+    oscChirp.connect(gain);
+    gain.connect(ctx.destination);
+
+    oscSub.start();
+    oscChirp.start();
+    oscSub.stop(now + 0.38);
+    oscChirp.stop(now + 0.18);
+  }
+
+  /**
+   * Zumbido ressonante de turbina / confinamento magnético
+   */
+  playReactorHum() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = "triangle";
+    osc2.type = "sine";
+    osc1.frequency.setValueAtTime(65, now);
+    osc2.frequency.setValueAtTime(130, now);
+
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start();
+    osc2.start();
+    osc1.stop(now + 0.45);
+    osc2.stop(now + 0.45);
+  }
+
+  /**
+   * Clique estático de radiação / contador Geiger
+   */
+  playRadiationTick() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "square";
+    osc.frequency.setValueAtTime(2400 + Math.random() * 800, now);
+
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(now + 0.015);
+  }
+
+  /**
+   * Giro ressonante do visualizador atômico (ATOM_VIEW)
+   */
+  playAtomSpin() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+
+    gain.gain.setValueAtTime(0.07, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(now + 0.12);
+  }
+
   toggleMute() {
     this.isEnabled = !this.isEnabled;
     return this.isEnabled;

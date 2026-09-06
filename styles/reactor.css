@@ -1,0 +1,936 @@
+/* ==========================================================================
+   CONSOLE DE NÚCLEO DO REATOR // [REACTOR CORE HUD] v1.4.0
+   Alta Fidelidade Visual, Fusão Quântica & Telemetria Tática
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+
+.reactor-hud-window {
+  --r-bg-void: #020e12;
+  --r-bg-slate: #03181d;
+  --r-bg-panel: #041f26;
+  --r-border-dark: #073840;
+  --r-border-tech: #0d5661;
+  --r-border-bright: #1da3b0;
+  --r-cyan-neon: #3ff4d5;
+  --r-cyan-bright: #00e5c8;
+  --r-cyan-glow: rgba(63, 244, 213, 0.4);
+  --r-orange-fire: #ff9d20;
+  --r-gold-bright: #ffd15c;
+  --r-text-white: #f5fffd;
+  --r-text-main: #a2e3de;
+  --r-text-sec: #65a8a2;
+  --r-text-dim: #2e6669;
+
+  background: var(--r-bg-void) !important;
+  color: var(--r-text-main) !important;
+  font-family: "Share Tech Mono", "Rajdhani", monospace !important;
+  user-select: none;
+  overflow: hidden !important;
+  box-shadow: 0 0 60px rgba(63, 244, 213, 0.2), 0 0 120px rgba(0, 0, 0, 0.98) !important;
+  border: 1px solid var(--r-border-tech) !important;
+}
+
+/* Ocultação e Integração Total do Header Padrão do Foundry */
+.reactor-hud-window .window-header {
+  display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+.reactor-hud-window .window-content {
+  background: var(--r-bg-void) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Botão de Fechar Militar Integrado ao HUD */
+.reactor-hud-close-btn {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  background: rgba(4, 31, 38, 0.9);
+  border: 1px solid var(--r-border-dark);
+  color: var(--r-cyan-neon);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 200;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.reactor-hud-close-btn:hover {
+  background: var(--r-border-dark);
+  border-color: var(--r-cyan-neon);
+  color: #ffffff;
+  box-shadow: 0 0 10px var(--r-cyan-neon);
+}
+
+/* Base do Console */
+.reactor-console {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--r-bg-void);
+  background-image: 
+    radial-gradient(rgba(13, 86, 97, 0.3) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: 0 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Efeitos Ópticos CRT e Vinheta */
+.reactor-crt-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.22) 50%
+  );
+  background-size: 100% 3px;
+  z-index: 40;
+  opacity: 0.6;
+}
+
+.reactor-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 65%, rgba(1, 10, 13, 0.85) 100%);
+  z-index: 41;
+}
+
+/* ==================== FAIXA SUPERIOR (HEADER) ==================== */
+.reactor-top-bar {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 40px 0 16px;
+  background: rgba(3, 24, 29, 0.85);
+  border-bottom: 1px solid rgba(63, 244, 213, 0.35);
+  position: relative;
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+.top-badge-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 20px;
+}
+
+.top-cyan-sq {
+  width: 14px;
+  height: 14px;
+  background: var(--r-cyan-neon);
+  box-shadow: 0 0 8px var(--r-cyan-neon);
+}
+
+.top-dark-pill {
+  width: 55px;
+  height: 14px;
+  background: #083c47;
+  border: 1px solid #0d5661;
+}
+
+.top-serials-ticker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--r-text-sec);
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.serial-sep {
+  color: var(--r-border-tech);
+  opacity: 0.7;
+}
+
+.top-coords-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 9px;
+  color: var(--r-cyan-neon);
+  line-height: 1.1;
+  padding-left: 15px;
+  border-left: 1px solid var(--r-border-tech);
+}
+
+.top-coords-matrix .coord-row {
+  display: flex;
+  gap: 6px;
+}
+
+.top-coords-matrix .axis {
+  color: var(--r-text-dim);
+  font-weight: bold;
+}
+
+/* ==================== ÁREA PRINCIPAL ==================== */
+.reactor-main-frame {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+}
+
+/* ==================== COLUNA ESQUERDA ==================== */
+.reactor-left-col {
+  width: 255px;
+  min-width: 255px;
+  display: flex;
+  border-right: 1px solid rgba(63, 244, 213, 0.2);
+  background: rgba(2, 14, 18, 0.65);
+  box-sizing: border-box;
+  z-index: 20;
+}
+
+.reactor-left-indices {
+  width: 32px;
+  min-width: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 0 20px 8px;
+  border-right: 1px solid rgba(63, 244, 213, 0.1);
+  box-sizing: border-box;
+}
+
+.idx-tag {
+  font-size: 9px;
+  color: var(--r-text-dim);
+  font-weight: bold;
+}
+
+.reactor-left-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 12px 14px 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.reactor-block {
+  margin-bottom: 8px;
+}
+
+/* Bloco 001 */
+.block-001 .block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.tag-title {
+  font-size: 11px;
+  color: var(--r-cyan-neon);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.tag-val {
+  font-size: 9px;
+  color: var(--r-text-sec);
+}
+
+.seg-bars-micro {
+  display: flex;
+  gap: 3px;
+  margin: 3px 0 6px 0;
+}
+
+.seg-bars-micro .bar-sq {
+  width: 10px;
+  height: 3px;
+  background: rgba(13, 86, 97, 0.4);
+}
+
+.seg-bars-micro .bar-sq.active {
+  background: var(--r-cyan-neon);
+  box-shadow: 0 0 4px var(--r-cyan-neon);
+}
+
+.reticle-and-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reticle-triple {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+}
+
+.reticle-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.reticle-outer {
+  fill: none;
+  stroke: var(--r-cyan-neon);
+  stroke-width: 1;
+}
+
+.reticle-mid {
+  fill: none;
+  stroke: var(--r-text-sec);
+  stroke-width: 1;
+}
+
+.reticle-inner {
+  fill: none;
+  stroke: var(--r-cyan-neon);
+  stroke-width: 1.5;
+}
+
+.reticle-dot {
+  fill: var(--r-cyan-neon);
+}
+
+.instruction-text {
+  font-size: 8px;
+  color: var(--r-text-sec);
+  line-height: 1.25;
+  letter-spacing: 0.3px;
+}
+
+.instruction-text p {
+  margin: 0;
+}
+
+/* Bloco 002 */
+.pill-badge-gray {
+  display: inline-block;
+  background: rgba(12, 60, 75, 0.6);
+  border: 1px solid var(--r-border-tech);
+  padding: 1px 8px;
+  font-size: 8px;
+  color: var(--r-cyan-neon);
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+
+.matrix-and-dial {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.reticle-dial {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+}
+
+.dial-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dial-outer {
+  fill: none;
+  stroke: var(--r-cyan-neon);
+  stroke-width: 1;
+}
+
+.dial-needle {
+  stroke: var(--r-cyan-neon);
+  stroke-width: 1.2;
+}
+
+.coord-matrix-lines {
+  font-size: 7.5px;
+  color: var(--r-text-sec);
+  line-height: 1.25;
+}
+
+.coord-matrix-lines .c-line {
+  display: flex;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+/* Bloco 003: ATOM_VIEW */
+.block-003 {
+  background: rgba(3, 24, 29, 0.4);
+  border: 1px solid rgba(63, 244, 213, 0.15);
+  padding: 4px;
+  border-radius: 2px;
+}
+
+.atom-canvas-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 85px;
+}
+
+.atom-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.atom-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.atom-title:hover {
+  text-shadow: 0 0 8px var(--r-cyan-neon);
+}
+
+.atom-sub {
+  font-size: 7.5px;
+  color: var(--r-text-dim);
+  letter-spacing: 0.5px;
+}
+
+/* Bloco 004 */
+.reticle-and-battery {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.reticle-magenta {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+}
+
+.mag-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mag-outer {
+  fill: none;
+  stroke: var(--r-cyan-neon);
+  stroke-width: 1;
+}
+
+.mag-cross {
+  stroke: #ff5ebc;
+  stroke-width: 1.5;
+}
+
+.battery-meters {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bat-row {
+  display: flex;
+  gap: 3px;
+}
+
+.bat-cell {
+  width: 14px;
+  height: 5px;
+  background: rgba(13, 86, 97, 0.35);
+  border: 1px solid rgba(13, 86, 97, 0.6);
+}
+
+.bat-cell.on {
+  background: var(--r-cyan-neon);
+  box-shadow: 0 0 4px var(--r-cyan-neon);
+  border-color: var(--r-cyan-neon);
+}
+
+.study-labels {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+}
+
+.study-title {
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+}
+
+.study-sub {
+  font-size: 7px;
+  color: var(--r-text-dim);
+}
+
+.study-numbers {
+  font-size: 7.5px;
+  color: var(--r-text-sec);
+  line-height: 1.25;
+}
+
+.study-numbers .s-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* Bloco 005: CORE TEMP */
+.block-005 {
+  border-top: 1px solid rgba(63, 244, 213, 0.2);
+  padding-top: 6px;
+  margin-bottom: 0;
+}
+
+.core-temp-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.temp-label {
+  font-size: 9px;
+  color: var(--r-text-sec);
+  letter-spacing: 0.5px;
+}
+
+.temp-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+  text-shadow: 0 0 10px rgba(63, 244, 213, 0.7);
+  letter-spacing: 0.5px;
+}
+
+/* ==================== COLUNA CENTRAL ==================== */
+.reactor-center-col {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Painel Superior de Código C++ */
+.center-top-code-box {
+  position: absolute;
+  top: 12px;
+  left: 18px;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.analysing-banner {
+  display: inline-block;
+  background: rgba(11, 77, 90, 0.85);
+  border: 1px solid var(--r-cyan-neon);
+  padding: 3px 12px;
+  box-shadow: 0 0 10px rgba(63, 244, 213, 0.3);
+}
+
+.banner-text {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+  letter-spacing: 1.5px;
+}
+
+.analysing-sub {
+  display: block;
+  font-size: 7px;
+  color: var(--r-text-sec);
+  letter-spacing: 0.5px;
+  margin: 3px 0 5px 2px;
+}
+
+.mq-code-block {
+  margin: 0;
+  padding: 0;
+  font-size: 7.5px;
+  color: rgba(63, 244, 213, 0.65);
+  line-height: 1.25;
+  font-family: "Share Tech Mono", monospace;
+}
+
+/* Viewport do Canvas 3D Principal */
+.reactor-canvas-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.reactor-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+/* Painel Inferior: Estatísticas do Reator & Radiação */
+.center-bottom-stats {
+  position: absolute;
+  bottom: 34px;
+  left: 16px;
+  display: flex;
+  gap: 16px;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.stats-box {
+  background: rgba(3, 24, 29, 0.75);
+  border: 1px solid rgba(63, 244, 213, 0.25);
+  padding: 6px 10px;
+  border-radius: 2px;
+  backdrop-filter: blur(2px);
+}
+
+.stats-box .box-title-bar {
+  display: inline-block;
+  background: rgba(11, 77, 90, 0.9);
+  padding: 2px 8px;
+  margin-bottom: 4px;
+}
+
+.stats-box .box-title-bar span {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+  letter-spacing: 1px;
+}
+
+.sub-heading {
+  font-size: 8px;
+  color: var(--r-text-sec);
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.temp-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 8px;
+  margin-bottom: 4px;
+}
+
+.temp-entries .entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.temp-entries .lbl {
+  color: var(--r-text-sec);
+}
+
+.temp-entries .val {
+  color: var(--r-cyan-neon);
+  font-weight: bold;
+}
+
+.nuclear-formulas, .energy-formulas {
+  font-size: 6.5px;
+  color: var(--r-text-dim);
+  line-height: 1.2;
+}
+
+.nuclear-formulas p, .energy-formulas p {
+  margin: 0;
+}
+
+/* Checagem de Radiação */
+.radiation-check-box {
+  min-width: 250px;
+}
+
+.rad-badges-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.rad-badge {
+  display: flex;
+  flex-direction: column;
+}
+
+.rad-badge .pct {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+}
+
+.rad-badge .sub-val {
+  font-size: 6.5px;
+  color: var(--r-text-dim);
+}
+
+.rad-hash {
+  font-size: 6.5px;
+  color: var(--r-text-dim);
+  margin-left: auto;
+}
+
+.rad-level-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 3px 0 4px 0;
+}
+
+.rad-level-matrix .l-row {
+  display: flex;
+  gap: 3px;
+}
+
+.l-cell {
+  width: 16px;
+  height: 4px;
+  background: rgba(13, 86, 97, 0.3);
+  border: 1px solid rgba(13, 86, 97, 0.5);
+}
+
+.l-cell.on {
+  background: var(--r-cyan-neon);
+  box-shadow: 0 0 3px var(--r-cyan-neon);
+  border-color: var(--r-cyan-neon);
+}
+
+/* Barra de Rodapé: SECTION NAME & WAVEFORM */
+.reactor-footer-bar {
+  position: absolute;
+  bottom: 4px;
+  left: 16px;
+  right: 16px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 30;
+  border-top: 1px solid rgba(63, 244, 213, 0.2);
+}
+
+.section-name-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sec-lbl {
+  font-size: 8px;
+  color: var(--r-text-sec);
+  letter-spacing: 0.5px;
+}
+
+.sec-line {
+  width: 40px;
+  height: 1px;
+  background: rgba(63, 244, 213, 0.35);
+}
+
+.waveform-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.wave-lbl {
+  font-size: 8px;
+  color: var(--r-cyan-neon);
+  font-weight: bold;
+}
+
+.wave-scale {
+  display: flex;
+  gap: 4px;
+  font-size: 7px;
+  color: var(--r-text-dim);
+}
+
+.wave-canvas-wrap {
+  flex: 1;
+  height: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.wave-col-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.wave-col-bars .wave-bar {
+  width: 2px;
+  height: var(--h, 4px);
+  background: var(--r-cyan-neon);
+  opacity: 0.8;
+  transition: height 0.1s ease;
+}
+
+.pad-lbl {
+  font-size: 7.5px;
+  color: var(--r-text-dim);
+}
+
+/* ==================== COLUNA DIREITA ==================== */
+.reactor-right-col {
+  width: 220px;
+  min-width: 220px;
+  display: flex;
+  border-left: 1px solid rgba(63, 244, 213, 0.2);
+  background: rgba(2, 14, 18, 0.65);
+  box-sizing: border-box;
+  z-index: 20;
+}
+
+.reactor-status-ladder {
+  width: 16px;
+  min-width: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px 0;
+  border-right: 1px solid rgba(63, 244, 213, 0.1);
+}
+
+.ladder-pill {
+  width: 5px;
+  height: 8px;
+  background: rgba(13, 86, 97, 0.35);
+  border: 1px solid rgba(13, 86, 97, 0.6);
+}
+
+.ladder-pill.on {
+  background: var(--r-cyan-neon);
+  box-shadow: 0 0 4px var(--r-cyan-neon);
+  border-color: var(--r-cyan-neon);
+}
+
+.reactor-right-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 10px;
+  overflow-y: auto;
+}
+
+/* Código Superior GT_AC_5 */
+.right-code-block .r-title {
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+  letter-spacing: 0.5px;
+}
+
+.mq-open-code {
+  margin: 3px 0 6px 0;
+  padding: 0;
+  font-size: 6.5px;
+  color: rgba(63, 244, 213, 0.55);
+  line-height: 1.2;
+  font-family: "Share Tech Mono", monospace;
+}
+
+/* Tabelas de Dados */
+.right-tables-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.data-table-block {
+  border-top: 1px solid rgba(63, 244, 213, 0.15);
+  padding-top: 3px;
+}
+
+.tbl-head {
+  font-size: 8.5px;
+  font-weight: bold;
+  color: var(--r-cyan-neon);
+}
+
+.tbl-head.highlight {
+  color: #ffffff;
+  text-shadow: 0 0 6px var(--r-cyan-neon);
+}
+
+.tbl-cols {
+  display: flex;
+  justify-content: space-between;
+  font-size: 6.5px;
+  color: var(--r-text-dim);
+  margin-bottom: 2px;
+}
+
+.tbl-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: var(--r-text-sec);
+  line-height: 1.2;
+}
+
+/* DNA Cell Count */
+.right-dna-cell-count {
+  border-top: 1px solid rgba(63, 244, 213, 0.2);
+  padding-top: 5px;
+}
+
+.dna-title {
+  font-size: 8px;
+  color: var(--r-cyan-neon);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.dna-code {
+  display: block;
+  font-size: 7px;
+  color: var(--r-text-dim);
+  margin-bottom: 2px;
+}
+
+.dna-matrix-cols {
+  font-size: 6.5px;
+  color: var(--r-text-sec);
+  line-height: 1.2;
+}
+
+.dna-matrix-cols .d-row {
+  display: flex;
+  justify-content: space-between;
+}

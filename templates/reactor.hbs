@@ -1,0 +1,391 @@
+<div class="reactor-console">
+  <!-- Efeitos Ópticos Analógicos CRT e Vinheta Sci-Fi -->
+  <div class="reactor-crt-overlay"></div>
+  <div class="reactor-vignette"></div>
+
+  <!-- Botão Militar Integrado de Fechar HUD -->
+  <button type="button" class="reactor-hud-close-btn" data-action="closeReactorWindow" title="Encerrar Análise do Reator">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+  <!-- ==================== FAIXA SUPERIOR (TOP STATUS BAR) ==================== -->
+  <header class="reactor-top-bar">
+    <div class="top-badge-box">
+      <span class="top-cyan-sq"></span>
+      <span class="top-dark-pill"></span>
+    </div>
+
+    <div class="top-serials-ticker">
+      <span class="serial-item">236540</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">963803492</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">0re:nv:s9r:s054</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">893495390130684644683</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">xpe rdpin we gl x.vs yx0872t</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">236540</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">970803982</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">0re:nv:s9r:s054</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">893495390130684644683</span>
+    </div>
+
+    <div class="top-coords-matrix">
+      <div class="coord-row"><span class="axis">X</span> <span>01</span> <span>02</span> <span>03</span></div>
+      <div class="coord-row"><span class="axis">Y</span> <span>04</span> <span>05</span> <span>06</span></div>
+    </div>
+  </header>
+
+  <!-- ==================== ÁREA PRINCIPAL DO CONSOLE ==================== -->
+  <div class="reactor-main-frame">
+
+    <!-- ==================== COLUNA ESQUERDA (TELEMETRIA & ATOM VIEW) ==================== -->
+    <aside class="reactor-left-col">
+      <!-- Rastreio Vertical de Índices 001 - 005 -->
+      <div class="reactor-left-indices">
+        <span class="idx-tag">001</span>
+        <span class="idx-tag">002</span>
+        <span class="idx-tag">003</span>
+        <span class="idx-tag">004</span>
+        <span class="idx-tag">005</span>
+      </div>
+
+      <div class="reactor-left-content">
+        <!-- Bloco 001: 88_X:98S & Retículo 1 -->
+        <section class="reactor-block block-001">
+          <div class="block-header">
+            <span class="tag-title">88_X:98S</span>
+            <span class="tag-val">3.984</span>
+          </div>
+          <div class="seg-bars-micro">
+            <span class="bar-sq active"></span>
+            <span class="bar-sq active"></span>
+            <span class="bar-sq"></span>
+            <span class="bar-sq active"></span>
+            <span class="bar-sq"></span>
+          </div>
+          <div class="reticle-and-text">
+            <div class="reticle-triple" data-action="clickReticle" title="Retículo de Calibração">
+              <svg viewBox="0 0 44 44" class="reticle-svg">
+                <circle cx="22" cy="22" r="19" class="reticle-outer" />
+                <circle cx="22" cy="22" r="14" class="reticle-mid" />
+                <circle cx="22" cy="22" r="5" class="reticle-inner" />
+                <circle cx="22" cy="11" r="1.2" class="reticle-dot" />
+                <circle cx="22" cy="33" r="1.2" class="reticle-dot" />
+                <circle cx="11" cy="22" r="1.2" class="reticle-dot" />
+                <circle cx="33" cy="22" r="1.2" class="reticle-dot" />
+              </svg>
+            </div>
+            <div class="instruction-text">
+              <p>THIS IS NO TIME TO BITE THE BULLET</p>
+              <p>WITH OUR FACILITATING STRATEGIC</p>
+              <p>CONSULTING</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloco 002: Random Gray & Matriz de Coordenadas -->
+        <section class="reactor-block block-002">
+          <div class="pill-badge-gray">
+            <span>RANDOM GRAY</span>
+          </div>
+          <div class="matrix-and-dial">
+            <div class="reticle-dial">
+              <svg viewBox="0 0 36 36" class="dial-svg">
+                <circle cx="18" cy="18" r="15" class="dial-outer" />
+                <line x1="10" y1="26" x2="26" y2="10" class="dial-needle" />
+              </svg>
+            </div>
+            <div class="coord-matrix-lines">
+              <div class="c-line"><span>36427</span> <span>364</span> <span>12608</span> <span>462</span> <span>92</span></div>
+              <div class="c-line"><span>2324</span> <span>6568</span> <span>630</span> <span>705</span></div>
+              <div class="c-line"><span>390248</span> <span>84734091</span> <span>12608</span></div>
+              <div class="c-line"><span>470958</span> <span>47493.24</span> <span>881947</span></div>
+              <div class="c-line"><span>7493</span> <span>7482</span> <span>3859</span></div>
+              <div class="c-line"><span>8348752</span> <span>462</span></div>
+              <div class="c-line"><span>36427</span> <span>364</span> <span>12608</span> <span>462</span> <span>92</span></div>
+              <div class="c-line"><span>2324</span> <span>6568</span> <span>630</span> <span>705</span></div>
+              <div class="c-line"><span>390248</span> <span>84734091</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloco 003: ATOM_VIEW (Modelo Molecular 3D) -->
+        <section class="reactor-block block-003">
+          <div class="atom-canvas-wrap">
+            <canvas id="reactor-atom-canvas" width="160" height="120"></canvas>
+          </div>
+          <div class="atom-labels">
+            <span class="atom-title" data-action="clickAtom" title="Visualizador Molecular">ATOM_VIEW</span>
+            <span class="atom-sub">MORE STUFF TO SAY</span>
+          </div>
+        </section>
+
+        <!-- Bloco 004: We Study Things & Retículo Magenta -->
+        <section class="reactor-block block-004">
+          <div class="reticle-and-battery">
+            <div class="reticle-magenta">
+              <svg viewBox="0 0 36 36" class="mag-svg">
+                <circle cx="18" cy="18" r="14" class="mag-outer" />
+                <line x1="12" y1="18" x2="24" y2="18" class="mag-cross" />
+                <line x1="18" y1="12" x2="18" y2="24" class="mag-cross" />
+              </svg>
+            </div>
+            <div class="battery-meters">
+              <div class="bat-row">
+                <span class="bat-cell on"></span>
+                <span class="bat-cell on"></span>
+                <span class="bat-cell on"></span>
+                <span class="bat-cell"></span>
+                <span class="bat-cell on"></span>
+                <span class="bat-cell"></span>
+              </div>
+              <div class="bat-row">
+                <span class="bat-cell on"></span>
+                <span class="bat-cell"></span>
+                <span class="bat-cell on"></span>
+                <span class="bat-cell on"></span>
+                <span class="bat-cell"></span>
+                <span class="bat-cell on"></span>
+              </div>
+            </div>
+          </div>
+          <div class="study-labels">
+            <span class="study-title">WE STUDY THINGS</span>
+            <span class="study-sub">TODAY IS THE DAY THAT PEOPLE CRY.</span>
+          </div>
+          <div class="study-numbers">
+            <div class="s-row"><span>79861</span> <span>78855</span> <span>6372</span> <span>826</span> <span>38</span></div>
+            <div class="s-row"><span>8768</span> <span>454</span> <span>873</span> <span>177</span></div>
+            <div class="s-row"><span>734684</span> <span>28164</span> <span>442</span> <span>72735</span></div>
+          </div>
+        </section>
+
+        <!-- Bloco 005: CORE TEMP -->
+        <section class="reactor-block block-005">
+          <div class="core-temp-row">
+            <span class="temp-label">CORE TEMP.</span>
+            <span class="temp-value" id="reactor-core-temp-val">83.29°</span>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- ==================== COLUNA CENTRAL (VIEWPORT 3D & TELEMETRIA) ==================== -->
+    <main class="reactor-center-col">
+      
+      <!-- Painel Superior: ANALYSING DATA & Bloco de Código C++ -->
+      <div class="center-top-code-box">
+        <div class="analysing-banner">
+          <span class="banner-text">ANALYSING DATA</span>
+        </div>
+        <span class="analysing-sub">SOME NUMBERS THAT MEAN NOTHING ALL</span>
+        <pre class="mq-code-block"><code>// CALL MQGETMACHINEPROPERTIES TO RETRIEVE THE
+// GUID OF THE COMPUTER WHERE THE QUEUE IS REGISTERED.
+HR = MQGETMACHINEPROPERTIES(NULL,
+                             NULL,
+                             &amp;QMPROPS);
+IF (FAILED(HR))
+{
+  FPRINTF(STDERR, "AN ERROR OCCURRED IN MQGETMACHINEPROPERTIES (ERROR 0X%08X)\N", HR);
+  RETURN HR;
+}
+// CONSTRUCT THE FORMAT NA</code></pre>
+      </div>
+
+      <!-- Viewport Principal do Canvas 3D do Reator -->
+      <div class="reactor-canvas-container">
+        <canvas id="reactor-3d-canvas" class="reactor-canvas"></canvas>
+      </div>
+
+      <!-- Painel Inferior: REACTOR CORE & RADAIATION_SYSTEM_CHECK -->
+      <div class="center-bottom-stats">
+        <!-- Caixa de Temperatura do Reator -->
+        <div class="stats-box reactor-temp-box">
+          <div class="box-title-bar">
+            <span>REACTOR CORE</span>
+          </div>
+          <div class="sub-heading">TEMPERATURES</div>
+          <div class="temp-entries">
+            <div class="entry"><span class="lbl">REACTOR</span> <span class="val">234</span></div>
+            <div class="entry"><span class="lbl">HEAT EXCHANGE</span> <span class="val">280</span></div>
+            <div class="entry"><span class="lbl">COOLING TOWER</span> <span class="val">289</span></div>
+          </div>
+          <div class="nuclear-formulas">
+            <p>M'NUC - MASS OF NUCLEUS, BOUND NUCLEONS</p>
+            <p>M1 - SUM OF MASSES FOR ISOLATED NUCLEONS</p>
+            <p>MP - PROTON REST MASS</p>
+            <p>MN - NEUTRON REST MASS</p>
+          </div>
+        </div>
+
+        <!-- Caixa de Checagem do Sistema de Radiação -->
+        <div class="stats-box radiation-check-box">
+          <div class="box-title-bar">
+            <span>RADAIATION_SYSTEM_CHECK</span>
+          </div>
+          <div class="rad-badges-row">
+            <div class="rad-badge"><span class="pct">77%</span> <span class="sub-val">234</span></div>
+            <div class="rad-badge"><span class="pct">70%</span> <span class="sub-val">520</span></div>
+            <div class="rad-badge"><span class="pct">62%</span> <span class="sub-val">2755</span></div>
+            <div class="rad-badge"><span class="pct">76%</span> <span class="sub-val">7281</span></div>
+            <span class="rad-hash">7782 02809876519 A</span>
+          </div>
+
+          <!-- Matriz de Barras Segmentadas de Nível -->
+          <div class="rad-level-matrix">
+            <div class="l-row">
+              <span class="l-cell on"></span><span class="l-cell"></span><span class="l-cell"></span>
+              <span class="l-cell on"></span><span class="l-cell on"></span><span class="l-cell"></span>
+            </div>
+            <div class="l-row">
+              <span class="l-cell"></span><span class="l-cell on"></span><span class="l-cell"></span>
+              <span class="l-cell on"></span><span class="l-cell"></span><span class="l-cell on"></span>
+            </div>
+            <div class="l-row">
+              <span class="l-cell on"></span><span class="l-cell on"></span><span class="l-cell"></span>
+              <span class="l-cell"></span><span class="l-cell on"></span><span class="l-cell on"></span>
+            </div>
+            <div class="l-row">
+              <span class="l-cell"></span><span class="l-cell"></span><span class="l-cell on"></span>
+              <span class="l-cell on"></span><span class="l-cell"></span><span class="l-cell"></span>
+            </div>
+          </div>
+
+          <div class="energy-formulas">
+            <p>E'NUC = MASS OF NUCLEUS, BOUND NUCLEONS</p>
+            <p>ME = SUM OF Zm(H) + (A-Z)mn</p>
+            <p>M1 = MASSES FOR ISOLATED NUCLEONS</p>
+            <p>MP = PROTON REST MASS / MN = NEUTRON REST MASS</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Linha de Base: SECTION NAME & WAVEFORM -->
+      <footer class="reactor-footer-bar">
+        <div class="section-name-item">
+          <span class="sec-lbl">SECTION NAME</span>
+          <span class="sec-line"></span>
+        </div>
+
+        <div class="waveform-meter">
+          <span class="wave-lbl">WAVEFORM</span>
+          <div class="wave-scale">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+          </div>
+          <div class="wave-canvas-wrap">
+            <div class="wave-col-bars" id="reactor-wave-col-bars">
+              <!-- Gerado proceduralmente -->
+            </div>
+          </div>
+          <span class="pad-lbl">PAD 18</span>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ==================== COLUNA DIREITA (DATA MATRICES & CODE) ==================== -->
+    <aside class="reactor-right-col">
+      <!-- Sinalizadores Luminosos Verticais (Status Indicator Ladder) -->
+      <div class="reactor-status-ladder">
+        <span class="ladder-pill on"></span>
+        <span class="ladder-pill"></span>
+        <span class="ladder-pill on"></span>
+        <span class="ladder-pill on"></span>
+        <span class="ladder-pill"></span>
+        <span class="ladder-pill on"></span>
+        <span class="ladder-pill"></span>
+        <span class="ladder-pill"></span>
+        <span class="ladder-pill on"></span>
+        <span class="ladder-pill on"></span>
+      </div>
+
+      <div class="reactor-right-content">
+        <!-- Código Superior GT_AC_5 -->
+        <div class="right-code-block">
+          <span class="r-title">GT_AC_5</span>
+          <pre class="mq-open-code"><code>// WSZFORMATNAME = DIRECT=OS: + WSZPATHNAME
+// IF THE FORMAT NAME IS TOO LONG FOR THE BUFFER
+// *******************************************
+// CALL MQOPENQUEUE TO OPEN THE QUEUE WITH THE
+// SHARE MODE PROVIDED BY THE CALLER
+HR = MQOPENQUEUE(
+                 WSZFORMATNAME,
+                 DWACCESS,
+                 DWSHAREMODE,
+                 PHQUEUE
+                 );
+DELETE [] WSZFORMATNAME;
+IF (FAILED(HR))
+{
+  FPRINTF(STDERR, "AN ERROR OCCURRED IN MQOPENQUEUE\N");
+  RETURN HR;
+}
+RETURN HR;</code></pre>
+        </div>
+
+        <!-- Matrizes de Dados Numéricos -->
+        <div class="right-tables-container">
+          <!-- Tabela 1: GT_AC_5 -->
+          <div class="data-table-block">
+            <span class="tbl-head">GT_AC_5</span>
+            <div class="tbl-cols"><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span></div>
+            <div class="tbl-row"><span>28F90CF9</span><span>8587</span><span>38269</span><span>392694</span></div>
+            <div class="tbl-row"><span>0BF90DF9</span><span>8687</span><span>92015</span><span>484552</span></div>
+            <div class="tbl-row"><span>1902CF02</span><span>7859</span><span>10383</span><span>437299</span></div>
+            <div class="tbl-row"><span>08C23FB1</span><span>8378</span><span>38269</span><span>382694</span></div>
+          </div>
+
+          <!-- Tabela 2: GT_AC_5 -->
+          <div class="data-table-block">
+            <span class="tbl-head">GT_AC_5</span>
+            <div class="tbl-cols"><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span></div>
+            <div class="tbl-row"><span>78019120</span><span>4780</span><span>08F175</span><span>823122</span></div>
+            <div class="tbl-row"><span>1402CF06</span><span>52479</span><span>8F7182</span><span>823122</span></div>
+            <div class="tbl-row"><span>90141207</span><span>8247</span><span>F71428</span><span>237239</span></div>
+            <div class="tbl-row"><span>12019018</span><span>7504</span><span>08F17</span><span>237239</span></div>
+          </div>
+
+          <!-- Tabela 3: JS_05_5 -->
+          <div class="data-table-block">
+            <span class="tbl-head highlight">JS_05_5</span>
+            <div class="tbl-cols"><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span></div>
+            <div class="tbl-row"><span>0352C0A1</span><span>15142</span><span>0B 32A525</span><span>647748</span></div>
+            <div class="tbl-row"><span>8005A10E</span><span>0514</span><span>0B 351425</span><span>547748</span></div>
+            <div class="tbl-row"><span>FDE0000A</span><span>1820</span><span>0B 107A10</span><span>485407</span></div>
+            <div class="tbl-row"><span>FAC04A10</span><span>0514</span><span>0B 1710A0</span><span>647748</span></div>
+          </div>
+
+          <!-- Tabela 4: GT_AC_5 -->
+          <div class="data-table-block">
+            <span class="tbl-head">GT_AC_5</span>
+            <div class="tbl-cols"><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span><span>MODE/A</span></div>
+            <div class="tbl-row"><span>4E470008</span><span>9002</span><span>01 0F1A12</span><span>056485</span></div>
+            <div class="tbl-row"><span>7E004C47</span><span>2100</span><span>01 2003F</span><span>040184</span></div>
+            <div class="tbl-row"><span>7E004C47</span><span>9002</span><span>10 E0F581</span><span>1400039</span></div>
+            <div class="tbl-row"><span>7E004C47</span><span>0220</span><span>10 10E512</span><span>040039</span></div>
+          </div>
+        </div>
+
+        <!-- Bloco Inferior: DNA CELL COUNT // 34.2 -->
+        <div class="right-dna-cell-count">
+          <span class="dna-title">DNA CELL COUNT // 34.2</span>
+          <span class="dna-code">234_A</span>
+          <div class="dna-matrix-cols">
+            <div class="d-row"><span>234.341</span><span>234.370121</span><span>381900</span></div>
+            <div class="d-row"><span>47468304</span><span>474589042</span><span>504931</span></div>
+            <div class="d-row"><span>25460845</span><span>2546098276</span><span>260117</span></div>
+            <div class="d-row"><span>234568904</span><span>2345656341</span><span>421803</span></div>
+            <div class="d-row"><span>32456482034</span><span>32451455324</span><span>381142</span></div>
+            <div class="d-row"><span>32854628428</span><span>32854214428</span><span>751300</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
