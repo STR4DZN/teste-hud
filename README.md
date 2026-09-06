@@ -36,7 +36,7 @@ game.modules.get("teste-hud").api.openOficina();
 
 ```
 teste-hud/
-├── module.json            # Manifesto v13 (v1.3.2)
+├── module.json            # Manifesto v13 (v1.3.3)
 ├── package-zip.ps1        # Script para gerar os pacotes .zip
 ├── scripts/
 │   ├── main.js            # Aplicações ApplicationV2 (Oficina, Navegação, DNA)

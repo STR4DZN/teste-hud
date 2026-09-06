@@ -590,6 +590,8 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.rotSpeed = 0.012;
     this.angle = 0;
     this.laserPhase = 0;
+    this.baseTiltX = -0.05;
+    this.baseTiltY = 0.02;
     this.tiltX = 0;
     this.tiltY = 0;
     this.targetTiltX = 0;
@@ -652,8 +654,8 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const rect = canvas.getBoundingClientRect();
       const mx = (e.clientX - rect.left) / rect.width - 0.5;
       const my = (e.clientY - rect.top) / rect.height - 0.5;
-      this.targetTiltY = mx * 0.15;
-      this.targetTiltX = -my * 0.12;
+      this.targetTiltY = mx * 0.12;
+      this.targetTiltX = -my * 0.10;
     };
     const onMouseLeave = () => {
       this.targetTiltX = 0;
@@ -662,16 +664,18 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     canvas.addEventListener("mousemove", onMouseMove);
     canvas.addEventListener("mouseleave", onMouseLeave);
 
-    const onClick = () => {
+    const onClick = (e) => {
       soundFx.playCodonBeep(Math.floor(Math.random() * 8));
       this.rotSpeed = this.rotSpeed === 0.012 ? 0.026 : (this.rotSpeed === 0.026 ? 0.004 : 0.012);
-      const laserPx = width * 0.065;
-      for (let k = 0; k < 22; k++) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      for (let k = 0; k < 24; k++) {
         this.sparks.push({
-          x: laserPx + (Math.random() - 0.5) * 14,
-          y: height * 0.52 + (Math.random() - 0.5) * 90,
-          vx: (Math.random() - 0.5) * 3.5,
-          vy: (Math.random() - 0.5) * 3.5 - 1.5,
+          x: clickX + (Math.random() - 0.5) * 14,
+          y: clickY + (Math.random() - 0.5) * 14,
+          vx: (Math.random() - 0.5) * 3.8,
+          vy: (Math.random() - 0.5) * 3.8 - 1.2,
           life: 1.0,
           color: Math.random() > 0.35 ? "#ffffff" : "#ffd15c"
         });
@@ -695,27 +699,36 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       this.tiltX += (this.targetTiltX - this.tiltX) * 0.08;
       this.tiltY += (this.targetTiltY - this.tiltY) * 0.08;
       this.angle += this.rotSpeed;
-      this.laserPhase += 0.025;
+      this.laserPhase += 0.018; // Varredura contínua cinematográfica
 
-      const cosTx = Math.cos(this.tiltX);
-      const sinTx = Math.sin(this.tiltX);
-      const cosTy = Math.cos(this.tiltY);
-      const sinTy = Math.sin(this.tiltY);
+      const currentTiltX = this.baseTiltX + this.tiltX;
+      const currentTiltY = this.baseTiltY + this.tiltY;
+      const cosTx = Math.cos(currentTiltX);
+      const sinTx = Math.sin(currentTiltX);
+      const cosTy = Math.cos(currentTiltY);
+      const sinTy = Math.sin(currentTiltY);
 
-      const fov = 520;
+      const centerY = height * 0.52;
+      const R = Math.min(94, height * 0.25);
+      const startX = width * 0.045;
+      const endHelixX = width * 0.82;
+      const loopWidth = (endHelixX - startX) / 4.0; // Exatamente 4 loops como na referência
+      const tailEndX = width * 0.95;
+
       const project = (x, y, z) => {
         const rx = x - width * 0.5;
-        const ry = y - height * 0.52;
+        const ry = y - centerY;
         const rz = z;
 
         const x1 = rx * cosTy + rz * sinTy;
         const z1 = -rx * sinTy + rz * cosTy;
         const y2 = ry * cosTx - z1 * sinTx;
         const z2 = ry * sinTx + z1 * cosTx;
-        const scale = fov / (fov + z2 + 300);
+
+        const scale = 1.0 + z2 * 0.0008;
         return {
-          px: width * 0.5 + x1 * scale,
-          py: height * 0.52 + y2 * scale,
+          px: width * 0.5 + x1 + z2 * 0.035,
+          py: centerY + y2,
           scale,
           z: z2
         };
@@ -742,7 +755,7 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         if (n.z < -100 || n.z > 100) n.vz *= -1;
       }
 
-      const projMesh = meshNodes.map(n => project(width * 0.5 + n.x, height * 0.52 + n.y, n.z));
+      const projMesh = meshNodes.map(n => project(width * 0.5 + n.x, centerY + n.y, n.z));
 
       ctx.lineWidth = 0.5;
       for (let i = 0; i < projMesh.length; i++) {
@@ -767,138 +780,236 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         }
       }
 
-      // 3. Geometria da Dupla-Hélice Hiper-Fiel
-      const centerY = height * 0.52;
-      const R = Math.min(102, height * 0.26);
-      const startX = width * 0.065;
-      const endX = width * 0.94;
-      const loopWidth = (endX - startX) / 4.55;
-      const crossover1X = startX + loopWidth * 0.67;
-      const laserX = width * (0.065 + 0.008 * Math.sin(this.laserPhase));
+      // 3. Scanner Dourado Ativo: Varredura horizontal contínua de ponta a ponta
+      const laserX = startX + (0.5 + 0.5 * Math.sin(this.laserPhase)) * (endHelixX - startX);
 
       const renderables = [];
 
-      const numRungs = 84;
+      // 4. Filamento de Contorno da Hélice (Backbone Curving Filaments)
+      const numBbSamples = 120;
+      const s1Pts = [];
+      const s2Pts = [];
+      for (let s = 0; s < numBbSamples; s++) {
+        const t = s / (numBbSamples - 1);
+        const x = startX + t * (endHelixX - startX);
+        const theta = ((x - startX) / loopWidth) * Math.PI + this.angle;
+        const y1 = centerY + R * Math.sin(theta);
+        const z1 = R * Math.cos(theta);
+        const y2 = centerY - R * Math.sin(theta);
+        const z2 = -R * Math.cos(theta);
+
+        s1Pts.push(project(x, y1, z1));
+        s2Pts.push(project(x, y2, z2));
+      }
+
+      for (let s = 0; s < numBbSamples - 1; s++) {
+        const p1a = s1Pts[s];
+        const p1b = s1Pts[s + 1];
+        const avgZ1 = (p1a.z + p1b.z) * 0.5;
+        const d1 = Math.abs((p1a.px + p1b.px) * 0.5 - laserX);
+        const h1 = d1 < 26;
+        const int1 = h1 ? 1.0 - d1 / 26.0 : 0.0;
+        renderables.push({
+          type: "backbone_seg",
+          p1: p1a,
+          p2: p1b,
+          z: avgZ1,
+          isHit: h1,
+          hitIntensity: int1
+        });
+
+        const p2a = s2Pts[s];
+        const p2b = s2Pts[s + 1];
+        const avgZ2 = (p2a.z + p2b.z) * 0.5;
+        const d2 = Math.abs((p2a.px + p2b.px) * 0.5 - laserX);
+        const h2 = d2 < 26;
+        const int2 = h2 ? 1.0 - d2 / 26.0 : 0.0;
+        renderables.push({
+          type: "backbone_seg",
+          p1: p2a,
+          p2: p2b,
+          z: avgZ2,
+          isHit: h2,
+          hitIntensity: int2
+        });
+      }
+
+      // 5. Degraus de Pares de Base Espaçados e Nítidos (38 degraus, ~9.5 por volta)
+      const numRungs = 38;
       for (let i = 0; i < numRungs; i++) {
         const t = i / (numRungs - 1);
-        const x = startX + t * (endX - startX);
-        const theta = ((x - crossover1X) / loopWidth) * Math.PI + this.angle;
+        const x = startX + t * (endHelixX - startX);
+        const theta = ((x - startX) / loopWidth) * Math.PI + this.angle;
 
-        // Posições helicoidais das fitas
         const y1_3d = centerY + R * Math.sin(theta);
         const z1_3d = R * Math.cos(theta);
-
         const y2_3d = centerY - R * Math.sin(theta);
         const z2_3d = -R * Math.cos(theta);
-
-        const isHit = Math.abs(x - laserX) < 16;
-
-        // Coluna vertical de contas (rungs)
-        const yMin = Math.min(y1_3d, y2_3d);
-        const yMax = Math.max(y1_3d, y2_3d);
-        const zMin = y1_3d < y2_3d ? z1_3d : z2_3d;
-        const zMax = y1_3d < y2_3d ? z2_3d : z1_3d;
-
-        const numBeads = Math.max(3, Math.floor(Math.abs(y2_3d - y1_3d) / 10.5));
-        for (let b = 1; b < numBeads; b++) {
-          const u = b / numBeads;
-          const by_3d = yMin + (yMax - yMin) * u;
-          const bz_3d = zMin + (zMax - zMin) * u;
-          const bp = project(x, by_3d, bz_3d);
-
-          renderables.push({
-            type: "bead",
-            x: bp.px,
-            y: bp.py,
-            z: bp.z,
-            scale: bp.scale,
-            isHit
-          });
-        }
 
         const p1 = project(x, y1_3d, z1_3d);
         const p2 = project(x, y2_3d, z2_3d);
 
-        // Nós principais e anéis vazados nas cristas
-        const crestFactor = Math.abs(Math.sin(theta));
-        const isRing = (i % 2 === 0) && (crestFactor > 0.35);
+        const distLaser = Math.abs((p1.px + p2.px) * 0.5 - laserX);
+        const isHit = distLaser < 26;
+        const hitIntensity = isHit ? 1.0 - distLaser / 26.0 : 0.0;
+
+        // Linha de ligação do par de bases
+        renderables.push({
+          type: "rung_line",
+          p1,
+          p2,
+          z: 0,
+          isHit,
+          hitIntensity
+        });
+
+        // Contas ao longo do degrau
+        const rungLen = Math.hypot(p2.px - p1.px, p2.py - p1.py);
+        const numBeads = Math.max(4, Math.min(10, Math.floor(rungLen / 15.0) * 2));
+        for (let b = 1; b < numBeads; b++) {
+          const u = b / numBeads;
+          const by_3d = y1_3d + (y2_3d - y1_3d) * u;
+          const bz_3d = z1_3d + (z2_3d - z1_3d) * u;
+          const bp = project(x, by_3d, bz_3d);
+
+          const bDist = Math.abs(bp.px - laserX);
+          const bHit = bDist < 24;
+          const bInt = bHit ? 1.0 - bDist / 24.0 : 0.0;
+
+          renderables.push({
+            type: "rung_bead",
+            p: bp,
+            z: bp.z,
+            scale: bp.scale,
+            isHit: bHit,
+            hitIntensity: bInt
+          });
+        }
+
+        // Nós principais da fita (strand nodes)
+        const crest1 = Math.abs(Math.sin(theta));
+        const isRing1 = (crest1 > 0.35) && (p1.z > 5);
+        const s1Dist = Math.abs(p1.px - laserX);
+        const s1Hit = s1Dist < 26;
+        const s1Int = s1Hit ? 1.0 - s1Dist / 26.0 : 0.0;
 
         renderables.push({
           type: "strand_node",
-          isRing,
-          strand: 1,
-          x: p1.px,
-          y: p1.py,
+          p: p1,
           z: p1.z,
           scale: p1.scale,
+          isRing: isRing1,
+          strand: 1,
           theta,
-          origX: x,
-          origY: y1_3d,
-          isHit
+          isHit: s1Hit,
+          hitIntensity: s1Int
         });
+
+        const crest2 = Math.abs(Math.sin(theta + Math.PI));
+        const isRing2 = (crest2 > 0.35) && (p2.z > 5);
+        const s2Dist = Math.abs(p2.px - laserX);
+        const s2Hit = s2Dist < 26;
+        const s2Int = s2Hit ? 1.0 - s2Dist / 26.0 : 0.0;
 
         renderables.push({
           type: "strand_node",
-          isRing,
-          strand: 2,
-          x: p2.px,
-          y: p2.py,
+          p: p2,
           z: p2.z,
           scale: p2.scale,
+          isRing: isRing2,
+          strand: 2,
           theta: theta + Math.PI,
-          origX: x,
-          origY: y2_3d,
-          isHit
+          isHit: s2Hit,
+          hitIntensity: s2Int
         });
 
-        // Faíscas dinâmicas ao atingir o laser
-        if (isHit && Math.random() < 0.3) {
+        // Faíscas dinâmicas ao atingir o feixe laser
+        if ((s1Hit || s2Hit) && Math.random() < 0.28) {
+          const hitNode = s1Hit ? p1 : p2;
           this.sparks.push({
-            x: p1.px + (Math.random() - 0.5) * 6,
-            y: p1.py + (Math.random() - 0.5) * 6,
+            x: hitNode.px + (Math.random() - 0.5) * 6,
+            y: hitNode.py + (Math.random() - 0.5) * 6,
             vx: (Math.random() - 0.5) * 2.2,
             vy: (Math.random() - 0.5) * 2.5 - 1.2,
             life: 1.0,
-            color: Math.random() > 0.3 ? "#ffffff" : "#ffd15c"
+            color: Math.random() > 0.35 ? "#ffffff" : "#ffd15c"
           });
         }
       }
 
-      // Ramificações em tridente na cauda à direita (x > 0.94)
-      const tailX = endX;
+      // 6. Ramificações em tridente na cauda à direita
       const tailOffsets = [
         { dy: -18, dtheta: -0.25 },
         { dy: 0, dtheta: 0 },
         { dy: 18, dtheta: 0.25 }
       ];
       for (const tDef of tailOffsets) {
-        for (let step = 1; step <= 5; step++) {
-          const fx = tailX + step * 9;
-          const fy = centerY + tDef.dy * (step * 0.45);
+        for (let step = 1; step <= 7; step++) {
+          const fx = endHelixX + step * 14;
+          const fy = centerY + tDef.dy * (step * 0.48);
           const fz = Math.sin(this.angle + tDef.dtheta) * 15;
           const fp = project(fx, fy, fz);
           renderables.push({
             type: "tail_bead",
-            x: fp.px,
-            y: fp.py,
+            p: fp,
             z: fp.z,
             scale: fp.scale,
-            isHit: false
+            isHit: false,
+            hitIntensity: 0.0
           });
         }
       }
 
-      // 4. Z-Buffer: Ordenação de Profundidade
+      // 7. Z-Buffer: Ordenação de Profundidade
       renderables.sort((a, b) => a.z - b.z);
 
-      // 5. Desenho dos Elementos em Profundidade
+      // 8. Desenho dos Elementos em Profundidade
       for (const item of renderables) {
-        const normZ = Math.max(0.0, Math.min(1.0, (item.z + 120) / 240.0));
+        const normZ = Math.max(0.0, Math.min(1.0, (item.z + R) / (2.0 * R)));
 
-        if (item.type === "bead") {
-          const r = (1.5 + normZ * 1.4) * item.scale;
+        if (item.type === "backbone_seg") {
           ctx.beginPath();
-          ctx.arc(item.x, item.y, r, 0, Math.PI * 2);
+          ctx.moveTo(item.p1.px, item.p1.py);
+          ctx.lineTo(item.p2.px, item.p2.py);
+          if (item.isHit) {
+            ctx.strokeStyle = `rgba(255, 235, 170, ${(0.55 + item.hitIntensity * 0.45).toFixed(2)})`;
+            ctx.lineWidth = normZ > 0.5 ? 2.2 : 1.4;
+            ctx.shadowColor = "#ffd15c";
+            ctx.shadowBlur = 8;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          } else {
+            if (normZ > 0.5) {
+              ctx.strokeStyle = `rgba(63, 244, 213, ${(0.35 + normZ * 0.45).toFixed(2)})`;
+              ctx.lineWidth = 1.8;
+            } else {
+              ctx.strokeStyle = `rgba(20, 115, 120, ${(0.15 + normZ * 0.25).toFixed(2)})`;
+              ctx.lineWidth = 1.0;
+            }
+            ctx.stroke();
+          }
+
+        } else if (item.type === "rung_line") {
+          ctx.beginPath();
+          ctx.moveTo(item.p1.px, item.p1.py);
+          ctx.lineTo(item.p2.px, item.p2.py);
+          if (item.isHit) {
+            ctx.strokeStyle = `rgba(255, 230, 160, ${(0.45 + item.hitIntensity * 0.55).toFixed(2)})`;
+            ctx.lineWidth = 1.4;
+            ctx.shadowColor = "#ffd15c";
+            ctx.shadowBlur = 6;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.strokeStyle = "rgba(63, 244, 213, 0.22)";
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+
+        } else if (item.type === "rung_bead") {
+          const r = (1.1 + normZ * 1.5) * item.scale;
+          ctx.beginPath();
+          ctx.arc(item.p.px, item.p.py, r, 0, Math.PI * 2);
 
           if (item.isHit) {
             ctx.fillStyle = "#ffffff";
@@ -908,33 +1019,30 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
             ctx.shadowBlur = 0;
           } else {
             if (normZ > 0.45) {
-              const alpha = 0.65 + normZ * 0.35;
+              const alpha = 0.55 + normZ * 0.45;
               ctx.fillStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
-              ctx.shadowColor = "rgba(63, 244, 213, 0.6)";
-              ctx.shadowBlur = 4 * normZ;
               ctx.fill();
-              ctx.shadowBlur = 0;
             } else {
-              const alpha = 0.25 + normZ * 0.4;
-              ctx.fillStyle = `rgba(20, 115, 120, ${alpha.toFixed(3)})`;
+              const alpha = 0.2 + normZ * 0.35;
+              ctx.fillStyle = `rgba(16, 110, 115, ${alpha.toFixed(3)})`;
               ctx.fill();
             }
           }
 
         } else if (item.type === "tail_bead") {
           ctx.beginPath();
-          ctx.arc(item.x, item.y, 2.0 * item.scale, 0, Math.PI * 2);
+          ctx.arc(item.p.px, item.p.py, 1.8 * item.scale, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(63, 244, 213, 0.85)";
           ctx.fill();
 
         } else if (item.type === "strand_node") {
-          if (item.isRing && normZ > 0.15) {
+          if (item.isRing && normZ > 0.2) {
             // Grande anel vazado brilhante (Vesícula / Donut)
-            const ringR = (5.2 + normZ * 3.4) * item.scale;
-            const strokeW = normZ < 0.6 ? 2.0 : 2.8;
+            const ringR = (5.0 + normZ * 3.2) * item.scale;
+            const strokeW = normZ < 0.65 ? 2.0 : 2.8;
 
             ctx.beginPath();
-            ctx.arc(item.x, item.y, ringR, 0, Math.PI * 2);
+            ctx.arc(item.p.px, item.p.py, ringR, 0, Math.PI * 2);
 
             if (item.isHit) {
               ctx.strokeStyle = "#ffffff";
@@ -946,10 +1054,10 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
               ctx.fillStyle = "#ffffff";
               ctx.beginPath();
-              ctx.arc(item.x, item.y, 1.6 * item.scale, 0, Math.PI * 2);
+              ctx.arc(item.p.px, item.p.py, 1.8 * item.scale, 0, Math.PI * 2);
               ctx.fill();
             } else {
-              const alpha = 0.6 + normZ * 0.4;
+              const alpha = 0.65 + normZ * 0.35;
               ctx.strokeStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
               ctx.lineWidth = strokeW;
 
@@ -963,7 +1071,7 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
               // Anel concêntrico interno fino
               if (normZ > 0.45) {
                 ctx.beginPath();
-                ctx.arc(item.x, item.y, ringR * 0.45, 0, Math.PI * 2);
+                ctx.arc(item.p.px, item.p.py, ringR * 0.45, 0, Math.PI * 2);
                 ctx.strokeStyle = `rgba(200, 255, 245, ${(0.4 + normZ * 0.4).toFixed(3)})`;
                 ctx.lineWidth = 0.8;
                 ctx.stroke();
@@ -971,39 +1079,44 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
               // Anel satélite companheiro
               const crestFactor = Math.abs(Math.sin(item.theta));
-              if (crestFactor > 0.65 && normZ > 0.45 && (Math.floor(item.origX) % 22 < 11)) {
+              if (crestFactor > 0.65 && normZ > 0.45) {
                 const satR = 3.2 * item.scale;
-                const offsetY = (item.origY < centerY ? -6.5 : 6.5) * item.scale;
+                const offsetY = (item.p.py < centerY ? -7.5 : 7.5) * item.scale;
                 const offsetX = (item.strand === 1 ? 4.5 : -4.5) * item.scale;
                 ctx.beginPath();
-                ctx.arc(item.x + offsetX, item.y + offsetY, satR, 0, Math.PI * 2);
+                ctx.arc(item.p.px + offsetX, item.p.py + offsetY, satR, 0, Math.PI * 2);
                 ctx.strokeStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
                 ctx.lineWidth = 1.8;
                 ctx.stroke();
               }
             }
           } else {
-            // Conta sólida intermediária / nó de cruzamento
-            const dotR = (1.8 + normZ * 1.6) * item.scale;
+            // Conta sólida intermediária / nó
+            const dotR = (1.6 + normZ * 2.0) * item.scale;
             ctx.beginPath();
-            ctx.arc(item.x, item.y, dotR, 0, Math.PI * 2);
+            ctx.arc(item.p.px, item.p.py, dotR, 0, Math.PI * 2);
 
             if (item.isHit) {
               ctx.fillStyle = "#ffffff";
               ctx.shadowColor = "#ffd15c";
-              ctx.shadowBlur = 9;
+              ctx.shadowBlur = 10;
               ctx.fill();
               ctx.shadowBlur = 0;
             } else {
-              const alpha = 0.4 + normZ * 0.55;
-              ctx.fillStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
+              if (normZ > 0.45) {
+                const alpha = 0.5 + normZ * 0.5;
+                ctx.fillStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
+              } else {
+                const alpha = 0.2 + normZ * 0.35;
+                ctx.fillStyle = `rgba(16, 110, 115, ${alpha.toFixed(3)})`;
+              }
               ctx.fill();
             }
           }
         }
       }
 
-      // 6. Faíscas Quânticas de Excitação (Sparks)
+      // 9. Faíscas Quânticas de Excitação (Sparks)
       for (let s = this.sparks.length - 1; s >= 0; s--) {
         const sp = this.sparks[s];
         sp.x += sp.vx;
@@ -1020,44 +1133,52 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ctx.fill();
       }
 
-      // 7. Feixe Laser Dourado na Origem Esquerda (x ≈ laserX)
-      const laserTop = height * 0.22;
-      const laserBottom = height * 0.90;
+      // 10. Feixe Laser Dourado de Varredura Ativa (Active Golden Scanner Beam)
+      const laserTop = height * 0.18;
+      const laserBottom = height * 0.88;
 
-      // Brilho difuso suave
-      ctx.strokeStyle = "rgba(255, 209, 92, 0.16)";
-      ctx.lineWidth = 7;
+      // Brilho difuso âmbar externo
+      ctx.strokeStyle = "rgba(255, 190, 60, 0.18)";
+      ctx.lineWidth = 10;
       ctx.beginPath();
       ctx.moveTo(laserX, laserTop);
       ctx.lineTo(laserX, laserBottom);
       ctx.stroke();
 
-      // Feixe gradiente central
+      // Feixe gradiente dourado
       const laserGrad = ctx.createLinearGradient(0, laserTop, 0, laserBottom);
       laserGrad.addColorStop(0, "rgba(255, 209, 92, 0)");
-      laserGrad.addColorStop(0.2, "rgba(255, 209, 92, 0.75)");
-      laserGrad.addColorStop(0.5, "rgba(255, 255, 255, 1.0)");
-      laserGrad.addColorStop(0.8, "rgba(255, 209, 92, 0.75)");
+      laserGrad.addColorStop(0.15, "rgba(255, 209, 92, 0.75)");
+      laserGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.95)");
+      laserGrad.addColorStop(0.85, "rgba(255, 209, 92, 0.75)");
       laserGrad.addColorStop(1, "rgba(255, 209, 92, 0)");
 
       ctx.strokeStyle = laserGrad;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 2.4;
       ctx.shadowColor = "#ffd15c";
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.beginPath();
       ctx.moveTo(laserX, laserTop);
       ctx.lineTo(laserX, laserBottom);
       ctx.stroke();
       ctx.shadowBlur = 0;
 
+      // Núcleo branco puro de alta precisão
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(laserX, laserTop + 10);
+      ctx.lineTo(laserX, laserBottom - 10);
+      ctx.stroke();
+
       // Travas horizontais de cabeçalho e base
       ctx.strokeStyle = "#ffd15c";
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = 1.4;
       ctx.beginPath();
-      ctx.moveTo(laserX - 5, laserTop);
-      ctx.lineTo(laserX + 5, laserTop);
-      ctx.moveTo(laserX - 5, laserBottom);
-      ctx.lineTo(laserX + 5, laserBottom);
+      ctx.moveTo(laserX - 6, laserTop);
+      ctx.lineTo(laserX + 6, laserTop);
+      ctx.moveTo(laserX - 6, laserBottom);
+      ctx.lineTo(laserX + 6, laserBottom);
       ctx.stroke();
 
       this._animId = requestAnimationFrame(renderFrame);
@@ -1170,7 +1291,7 @@ export const toggleHud = toggleDnaHud;
 
 // Inicialização de Hooks no Foundry VTT
 Hooks.once("init", () => {
-  console.log("Teste-Hud | Inicializando Trilogia Tática: Oficina, Navegação & Análise de DNA v1.3.2...");
+  console.log("Teste-Hud | Inicializando Trilogia Tática: Oficina, Navegação & Análise de DNA v1.3.3...");
 
   game.modules.get("teste-hud").api = {
     // Atalhos Padrão (Abre o HUD mais recente ou configurado)
