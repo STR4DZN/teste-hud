@@ -4,7 +4,7 @@ Módulo de alta fidelidade visual e imersão militar contendo 3 consoles de bord
 
 1. **Oficina Tática [МАСТЕРСКАЯ]:** Console de bancada e manutenção com matriz de 15 dials de telemetria, circuito de relés interativos, analisador de espectro de áudio e 8 retículos giroscópicos.
 2. **Navegação Marciana [火星 NAVIGATION]:** Central cartográfica e topográfica em octógono com 14 curvas de nível em relevo, radar polar, rastreamento de vetor do Rover em direção ao alvo `WORKSHOP` (54.3 KM), matriz de diagnóstico, sistema de coordenadas e radar tático secundário.
-3. **Análise Genômica e DNA [DNA ANALYSIS]:** Laboratório de biotecnologia com simulação 3D procedural da dupla-hélice em Canvas a 60 FPS, partículas com profundidade Z, feixe laser dourado de varredura ativa, malha neural de fundo, matrizes de códons e contagem celular.
+3. **Análise Genômica e DNA [DNA ANALYSIS]:** Laboratório de biotecnologia militar com simulação 3D procedural da dupla-hélice em Canvas a 60 FPS com anéis vazados (vesículas/donuts), degraus em colunas de micro-beads, cauda com desbobinamento molecular, feixe laser dourado de varredura com emissão de faíscas quânticas, malha neural 3D em wireframe, matrizes de códons e contagem celular de alta densidade.
 
 ---
 
@@ -36,7 +36,7 @@ game.modules.get("teste-hud").api.openOficina();
 
 ```
 teste-hud/
-├── module.json            # Manifesto v13 (v1.3.0)
+├── module.json            # Manifesto v13 (v1.3.1)
 ├── package-zip.ps1        # Script para gerar os pacotes .zip
 ├── scripts/
 │   ├── main.js            # Aplicações ApplicationV2 (Oficina, Navegação, DNA)

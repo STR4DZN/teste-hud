@@ -1,29 +1,33 @@
 /* ==========================================================================
-   CONSOLE DE ANÁLISE GENÔMICA // [DNA ANALYSIS HUD] v1.3.0
-   Ciber-Biotecnologia Tática Militar de Alta Fidelidade
+   CONSOLE DE ANÁLISE GENÔMICA // [DNA ANALYSIS HUD] v1.3.1
+   Alta Fidelidade Visual & Imersão Militar Ciber-Biológica
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
 
 .dna-hud-window {
   --dna-bg-void: #011316;
-  --dna-bg-slate: #041c20;
-  --dna-border-dark: #0a4147;
-  --dna-border-tech: #0e565f;
+  --dna-bg-slate: #03181c;
+  --dna-bg-panel: #041f23;
+  --dna-border-dark: #093c42;
+  --dna-border-tech: #0d535b;
+  --dna-border-bright: #1da3b0;
   --dna-cyan-neon: #3ff4d5;
   --dna-cyan-bright: #00e5c8;
+  --dna-cyan-glow: rgba(63, 244, 213, 0.4);
   --dna-gold-laser: #ffd15c;
+  --dna-gold-glow: rgba(255, 209, 92, 0.85);
   --dna-text-white: #f5fffd;
   --dna-text-main: #a2e3de;
-  --dna-text-sec: #76b8b2;
-  --dna-text-dim: #367774;
+  --dna-text-sec: #65a8a2;
+  --dna-text-dim: #2e6669;
 
   background: var(--dna-bg-void) !important;
   color: var(--dna-text-main) !important;
   font-family: "Share Tech Mono", "Rajdhani", monospace !important;
   user-select: none;
   overflow: hidden !important;
-  box-shadow: 0 0 50px rgba(63, 244, 213, 0.2), 0 0 120px rgba(0, 0, 0, 0.95) !important;
+  box-shadow: 0 0 60px rgba(63, 244, 213, 0.25), 0 0 120px rgba(0, 0, 0, 0.98) !important;
   border: 1px solid var(--dna-border-tech) !important;
 }
 
@@ -49,11 +53,11 @@
 /* Botão de Fechar Militar Integrado ao HUD */
 .dna-hud-close-btn {
   position: absolute;
-  top: 6px;
-  right: 10px;
+  top: 5px;
+  right: 8px;
   width: 22px;
   height: 22px;
-  background: rgba(4, 28, 32, 0.85);
+  background: rgba(4, 31, 35, 0.9);
   border: 1px solid var(--dna-border-dark);
   color: var(--dna-cyan-neon);
   font-size: 11px;
@@ -61,7 +65,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 150;
+  z-index: 200;
   transition: all 0.2s ease;
   padding: 0;
   line-height: 1;
@@ -74,14 +78,14 @@
   box-shadow: 0 0 10px var(--dna-cyan-neon);
 }
 
-/* Base do Console */
+/* Base do Console com Malha de Fundo Ciber-Teal */
 .dna-console {
   position: relative;
   width: 100%;
   height: 100%;
   background-color: var(--dna-bg-void);
   background-image: 
-    radial-gradient(rgba(10, 65, 71, 0.4) 1px, transparent 1px);
+    radial-gradient(rgba(13, 83, 91, 0.35) 1px, transparent 1px);
   background-size: 24px 24px;
   background-position: 0 0;
   display: flex;
@@ -89,7 +93,7 @@
   box-sizing: border-box;
 }
 
-/* Efeitos Ópticos Analógicos CRT Ciber-Teal */
+/* Efeitos Ópticos Analógicos CRT */
 .dna-crt-overlay {
   position: absolute;
   inset: 0;
@@ -107,16 +111,16 @@
   background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.85) 100%);
 }
 
-/* ==================== FAIXA SUPERIOR ==================== */
+/* ==================== FAIXA SUPERIOR (TOP BAR) ==================== */
 .dna-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 12px;
-  background: rgba(4, 28, 32, 0.9);
+  padding: 3px 10px;
+  background: rgba(3, 24, 28, 0.95);
   border-bottom: 1px solid var(--dna-border-dark);
   z-index: 10;
-  height: 28px;
+  height: 26px;
   box-sizing: border-box;
 }
 
@@ -124,21 +128,21 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(1, 19, 22, 0.8);
+  background: rgba(1, 19, 22, 0.85);
   border: 1px solid var(--dna-border-dark);
-  padding: 2px 8px;
+  padding: 1px 7px;
 }
 
 .top-cyan-sq {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   background: var(--dna-cyan-neon);
   box-shadow: 0 0 6px var(--dna-cyan-neon);
 }
 
 .top-badge-text {
   font-family: "Share Tech Mono", monospace;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: bold;
   color: var(--dna-text-white);
   letter-spacing: 0.1em;
@@ -157,7 +161,7 @@
 }
 
 .serial-sep {
-  color: var(--dna-border-tech);
+  color: var(--dna-border-dark);
 }
 
 .top-coords-matrix {
@@ -167,22 +171,22 @@
   font-size: 7px;
   color: var(--dna-text-sec);
   line-height: 1.1;
-  margin-right: 28px;
+  margin-right: 26px;
 }
 
 .top-coords-matrix .axis {
   color: var(--dna-cyan-neon);
   font-weight: bold;
-  margin-right: 3px;
+  margin-right: 2px;
 }
 
-/* ==================== CORPO PRINCIPAL ==================== */
-.dna-main-area {
+/* ==================== ÁREA CENTRAL ==================== */
+.dna-main-frame {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 175px 1fr;
   flex: 1;
-  padding: 8px 12px;
-  gap: 10px;
+  padding: 6px 10px;
+  gap: 8px;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -191,14 +195,14 @@
 .dna-left-col {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   height: 100%;
 }
 
 .dna-block {
-  background: rgba(4, 28, 32, 0.85);
+  background: rgba(4, 28, 32, 0.9);
   border: 1px solid var(--dna-border-dark);
-  padding: 6px 8px;
+  padding: 5px 7px;
   box-sizing: border-box;
   backdrop-filter: blur(4px);
 }
@@ -207,7 +211,7 @@
 .dna-dials-panel {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .dials-header {
@@ -216,7 +220,7 @@
   align-items: center;
   font-family: "Rajdhani", sans-serif;
   font-weight: 700;
-  border-bottom: 1px solid rgba(14, 86, 95, 0.4);
+  border-bottom: 1px solid rgba(13, 83, 91, 0.4);
   padding-bottom: 2px;
 }
 
@@ -253,7 +257,7 @@
 
 .dial-bg {
   fill: none;
-  stroke: rgba(10, 65, 71, 0.5);
+  stroke: rgba(9, 60, 66, 0.6);
   stroke-width: 2.5;
 }
 
@@ -265,6 +269,18 @@
   filter: drop-shadow(0 0 3px rgba(63, 244, 213, 0.6));
 }
 
+.dial-inner-ring {
+  fill: none;
+  stroke: rgba(63, 244, 213, 0.4);
+  stroke-width: 1.5;
+}
+
+.dial-needle {
+  stroke: var(--dna-cyan-neon);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
 .dial-lbl {
   font-size: 7px;
   color: var(--dna-text-sec);
@@ -274,7 +290,7 @@
 .dna-telem-matrix {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .matrix-grid {
@@ -294,12 +310,12 @@
 .dna-pill-badges {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 2px;
+  gap: 3px;
+  margin-top: 1px;
 }
 
 .dna-pill {
-  height: 18px;
+  height: 17px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,13 +329,13 @@
 
 .dna-pill.outlined {
   border: 1px solid var(--dna-cyan-neon);
-  background: rgba(1, 19, 22, 0.8);
+  background: rgba(1, 19, 22, 0.85);
   color: var(--dna-cyan-neon);
   box-shadow: 0 0 6px rgba(63, 244, 213, 0.25);
 }
 
 .dna-pill.outlined:hover {
-  background: rgba(63, 244, 213, 0.15);
+  background: rgba(63, 244, 213, 0.18);
   color: #ffffff;
 }
 
@@ -347,8 +363,8 @@
 
 .reticle-viewport {
   position: relative;
-  width: 70px;
-  height: 70px;
+  width: 68px;
+  height: 68px;
   margin: auto 0;
 }
 
@@ -361,10 +377,17 @@
   box-shadow: 0 0 6px rgba(63, 244, 213, 0.3);
 }
 
+.reticle-degree-ticks {
+  position: absolute;
+  inset: 5px;
+  border: 0.5px solid rgba(13, 83, 91, 0.7);
+  border-radius: 50%;
+}
+
 .reticle-ring-mid {
   position: absolute;
-  inset: 10px;
-  border: 1px solid rgba(14, 86, 95, 0.8);
+  inset: 12px;
+  border: 1px solid rgba(13, 83, 91, 0.85);
   border-radius: 50%;
 }
 
@@ -373,8 +396,8 @@
   inset: 20px;
   border: 1.5px solid var(--dna-cyan-neon);
   border-radius: 50%;
-  clip-path: polygon(0 0, 100% 0, 100% 70%, 0 70%);
-  animation: reticleSpinReverse 8s infinite linear;
+  clip-path: polygon(0 0, 100% 0, 100% 65%, 0 65%);
+  animation: reticleSpinReverse 9s infinite linear;
 }
 
 .reticle-center-cross {
@@ -389,23 +412,13 @@
   box-shadow: 0 0 6px #ffffff;
 }
 
-@keyframes reticleSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes reticleSpinReverse {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
 .reticle-footer {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  border-top: 1px solid rgba(14, 86, 95, 0.4);
-  padding-top: 4px;
+  gap: 2.5px;
+  border-top: 1px solid rgba(13, 83, 91, 0.4);
+  padding-top: 3px;
 }
 
 .mini-eq-bars {
@@ -440,7 +453,35 @@
   color: var(--dna-text-dim);
 }
 
-/* ==================== CENTRO: VIEWPORT DA DUPLA-HÉLICE ==================== */
+/* Registradores Inferiores */
+.dna-bottom-registers {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 6px;
+}
+
+.reg-bar {
+  height: 4px;
+  background: rgba(9, 60, 66, 0.5);
+  border: 1px solid rgba(13, 83, 91, 0.7);
+  position: relative;
+}
+
+.reg-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--dna-cyan-neon);
+}
+
+.reg-bar.bar-wide::after { width: 85%; }
+.reg-bar.bar-mid::after { width: 60%; }
+.reg-bar.bar-narrow::after { width: 40%; }
+
+/* ==================== CENTRO: VIEWPORT PRINCIPAL ==================== */
 .dna-center-col {
   display: flex;
   flex-direction: column;
@@ -453,23 +494,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(4, 28, 32, 0.7);
+  background: rgba(3, 24, 28, 0.85);
   border: 1px solid var(--dna-border-dark);
   padding: 3px 8px;
   z-index: 10;
+  height: 32px;
+  box-sizing: border-box;
 }
 
 .dna-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.vp-bracket-corner, .vp-bracket-corner-right {
+  color: var(--dna-cyan-neon);
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .vp-bracket-code {
   font-size: 8.5px;
   color: var(--dna-cyan-neon);
-  border-left: 2px solid var(--dna-cyan-neon);
-  padding-left: 4px;
   font-weight: bold;
 }
 
@@ -481,16 +528,17 @@
 .vp-title-box {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 5px;
+  margin-left: 6px;
 }
 
 .vp-title {
   font-family: "Rajdhani", sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.18em;
-  text-shadow: 0 0 8px rgba(63, 244, 213, 0.7);
+  text-shadow: 0 0 8px rgba(63, 244, 213, 0.75);
 }
 
 .vp-en {
@@ -504,35 +552,92 @@
   color: var(--dna-text-sec);
 }
 
-.dna-header-bar-segment {
-  width: 140px;
-  height: 12px;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(14, 86, 95, 0.4) 0px,
-    rgba(14, 86, 95, 0.4) 4px,
-    transparent 4px,
-    transparent 6px
-  );
-  border: 1px solid rgba(14, 86, 95, 0.6);
+.dna-header-monitor-screen {
+  flex: 1;
+  max-width: 380px;
+  height: 22px;
+  background: rgba(1, 19, 22, 0.9);
+  border: 1px solid var(--dna-border-dark);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  margin-left: 12px;
 }
 
-/* Container do Canvas e Réguas Y */
+.monitor-inner-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.monitor-status-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--dna-cyan-neon);
+  border-radius: 50%;
+  box-shadow: 0 0 5px var(--dna-cyan-neon);
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.status-txt {
+  font-size: 7px;
+  color: var(--dna-text-sec);
+  letter-spacing: 0.08em;
+}
+
+.monitor-hash-bars {
+  display: flex;
+  gap: 2px;
+}
+
+.monitor-hash-bars span {
+  width: 3px;
+  height: 8px;
+  background: var(--dna-border-tech);
+}
+
+/* Container do Canvas 3D */
 .dna-canvas-container {
   position: relative;
   flex: 1;
   width: 100%;
-  background: radial-gradient(ellipse at center, rgba(4, 38, 44, 0.4) 0%, rgba(1, 19, 22, 0.95) 75%);
+  background: radial-gradient(ellipse at center, rgba(3, 38, 44, 0.45) 0%, rgba(1, 19, 22, 0.98) 80%);
   border: 1px solid var(--dna-border-dark);
   overflow: hidden;
   margin-top: 4px;
 }
 
+.vp-corner-tick {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--dna-cyan-neon);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.vp-corner-tick.tl { top: 4px; left: 4px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.vp-corner-tick.tr { top: 4px; right: 4px; border-top: 1.5px solid; border-right: 1.5px solid; }
+.vp-corner-tick.bl { bottom: 4px; left: 4px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+.vp-corner-tick.br { bottom: 4px; right: 4px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
 /* Réguas Y */
 .dna-y-scale {
   position: absolute;
-  top: 10px;
-  bottom: 10px;
+  top: 12px;
+  bottom: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -544,7 +649,17 @@
 }
 
 .dna-y-scale.left { left: 8px; }
-.dna-y-scale.right { right: 8px; text-align: right; }
+.dna-y-scale.right { right: 8px; }
+
+.scale-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.scale-item .tick {
+  color: var(--dna-border-tech);
+}
 
 /* O Canvas 3D */
 .dna-helix-canvas {
@@ -563,14 +678,14 @@
 /* Bloco de Ressequenciamento */
 .dna-resequence-box {
   position: absolute;
-  bottom: 10px;
+  bottom: 8px;
   left: 36px;
-  background: rgba(1, 19, 22, 0.85);
+  background: rgba(1, 19, 22, 0.88);
   border: 1px solid var(--dna-border-dark);
   padding: 4px 8px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2.5px;
   z-index: 15;
   pointer-events: none;
 }
@@ -599,8 +714,8 @@
 .resequence-progress {
   width: 100%;
   height: 4px;
-  background: rgba(10, 65, 71, 0.4);
-  border: 1px solid rgba(14, 86, 95, 0.6);
+  background: rgba(9, 60, 66, 0.5);
+  border: 1px solid rgba(13, 83, 91, 0.7);
   margin-top: 2px;
 }
 
@@ -613,12 +728,12 @@
 /* Telemetria Flutuante Direita */
 .dna-floating-telem-right {
   position: absolute;
-  bottom: 10px;
+  bottom: 8px;
   right: 36px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 5px;
   z-index: 15;
   pointer-events: none;
   font-size: 7px;
@@ -630,6 +745,11 @@
   flex-direction: column;
   align-items: flex-end;
   line-height: 1.15;
+}
+
+.rnd-block .r-val.bold {
+  font-weight: bold;
+  color: #ffffff;
 }
 
 .rnd-block .w-data {
@@ -654,12 +774,12 @@
 /* ==================== PAINEL INFERIOR ==================== */
 .dna-bottom-panel {
   display: grid;
-  grid-template-columns: 140px 1fr 220px;
-  height: 130px;
-  background: rgba(4, 28, 32, 0.95);
+  grid-template-columns: 130px 1fr 220px;
+  height: 125px;
+  background: rgba(3, 24, 28, 0.95);
   border-top: 1px solid var(--dna-border-dark);
-  padding: 6px 12px;
-  gap: 12px;
+  padding: 5px 10px;
+  gap: 10px;
   box-sizing: border-box;
   z-index: 10;
 }
@@ -669,16 +789,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 3px;
+  gap: 2.5px;
   font-size: 7.5px;
   color: var(--dna-text-sec);
-  border-right: 1px solid rgba(14, 86, 95, 0.4);
-  padding-right: 8px;
+  border-right: 1px solid rgba(13, 83, 91, 0.4);
+  padding-right: 6px;
 }
 
-.telem-line {
-  white-space: nowrap;
-}
+.telem-line.bold { color: #ffffff; font-weight: bold; }
+.telem-line.dim { color: var(--dna-text-dim); }
 
 /* Coluna 2: Tabelas de Códons */
 .dna-bot-codon-tables {
@@ -705,7 +824,7 @@
   font-size: 8.5px;
   font-weight: 700;
   color: var(--dna-cyan-neon);
-  border-bottom: 1px solid rgba(14, 86, 95, 0.5);
+  border-bottom: 1px solid rgba(13, 83, 91, 0.6);
   padding-bottom: 1px;
 }
 
@@ -726,10 +845,10 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  background: rgba(1, 19, 22, 0.9);
+  background: rgba(1, 19, 22, 0.92);
   border: 1px solid var(--dna-cyan-neon);
   padding: 1px 6px;
-  box-shadow: 0 0 6px rgba(63, 244, 213, 0.3);
+  box-shadow: 0 0 6px rgba(63, 244, 213, 0.35);
 }
 
 .codon-timecode-badge span {
@@ -744,7 +863,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-left: 1px solid rgba(14, 86, 95, 0.4);
+  border-left: 1px solid rgba(13, 83, 91, 0.4);
   padding-left: 8px;
 }
 
@@ -789,27 +908,19 @@
 .cell-bars-container {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 2.5px;
 }
 
-.c-bar {
-  height: 4px;
-  background: rgba(10, 65, 71, 0.4);
-  border: 1px solid rgba(14, 86, 95, 0.6);
+.c-bar-wrapper {
+  height: 5px;
+  background: rgba(9, 60, 66, 0.45);
+  border: 1px solid rgba(13, 83, 91, 0.7);
   position: relative;
   overflow: hidden;
 }
 
-.c-bar::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+.c-bar-meter {
+  height: 100%;
   background: var(--dna-cyan-neon);
-  box-shadow: 0 0 4px var(--dna-cyan-neon);
+  box-shadow: 0 0 5px var(--dna-cyan-neon);
 }
-
-.c-bar.bar-1::after { width: 75%; }
-.c-bar.bar-2::after { width: 45%; }
-.c-bar.bar-3::after { width: 90%; }

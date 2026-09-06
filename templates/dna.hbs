@@ -1,5 +1,5 @@
 <div class="dna-console">
-  <!-- Efeitos Ópticos Analógicos e Scanlines CRT Ciber-Teal -->
+  <!-- Efeitos Ópticos Analógicos CRT Ciber-Teal -->
   <div class="dna-crt-overlay"></div>
   <div class="dna-vignette"></div>
 
@@ -41,13 +41,13 @@
     </div>
   </header>
 
-  <!-- ==================== CORPO PRINCIPAL ==================== -->
-  <div class="dna-main-area">
+  <!-- ==================== ÁREA CENTRAL COM MOLDURA INTEGRADA ==================== -->
+  <div class="dna-main-frame">
     
     <!-- ==================== COLUNA ESQUERDA ==================== -->
     <aside class="dna-left-col">
       
-      <!-- Bloco de Dials 08_X:98S -->
+      <!-- Bloco Superior: 08_X:98S com 3 Dials Circulares Analógicos -->
       <div class="dna-block dna-dials-panel">
         <div class="dials-header">
           <span class="dials-tag">08_X:98S</span>
@@ -55,30 +55,33 @@
         </div>
         <div class="dials-row">
           <div class="dna-dial-item">
-            <svg class="dna-dial-svg" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="14" class="dial-bg" />
-              <circle cx="20" cy="20" r="14" class="dial-arc" style="stroke-dasharray: 88; stroke-dashoffset: 57;" />
+            <svg class="dna-dial-svg" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="15" class="dial-bg" />
+              <circle cx="22" cy="22" r="15" class="dial-arc" style="stroke-dasharray: 94; stroke-dashoffset: 60;" />
+              <line x1="22" y1="22" x2="22" y2="9" class="dial-needle" transform="rotate(45 22 22)" />
             </svg>
             <span class="dial-lbl">35.03</span>
           </div>
           <div class="dna-dial-item">
-            <svg class="dna-dial-svg" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="14" class="dial-bg" />
-              <circle cx="20" cy="20" r="14" class="dial-arc" style="stroke-dasharray: 88; stroke-dashoffset: 22;" />
+            <svg class="dna-dial-svg" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="15" class="dial-bg" />
+              <circle cx="22" cy="22" r="15" class="dial-arc" style="stroke-dasharray: 94; stroke-dashoffset: 25;" />
+              <circle cx="22" cy="22" r="10" class="dial-inner-ring" />
             </svg>
             <span class="dial-lbl">38.03</span>
           </div>
           <div class="dna-dial-item">
-            <svg class="dna-dial-svg" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="14" class="dial-bg" />
-              <circle cx="20" cy="20" r="14" class="dial-arc" style="stroke-dasharray: 88; stroke-dashoffset: 35;" />
+            <svg class="dna-dial-svg" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="15" class="dial-bg" />
+              <circle cx="22" cy="22" r="15" class="dial-arc" style="stroke-dasharray: 94; stroke-dashoffset: 38;" />
+              <circle cx="22" cy="22" r="11" class="dial-inner-ring" style="stroke-dasharray: 69; stroke-dashoffset: 20;" />
             </svg>
             <span class="dial-lbl">39.03</span>
           </div>
         </div>
       </div>
 
-      <!-- Matriz de Telemetria Numérica -->
+      <!-- Matriz de Telemetria Numérica em Colunas -->
       <div class="dna-block dna-telem-matrix">
         <div class="matrix-grid">
           <div class="m-row"><span>572924</span> <span>734354</span> <span>572924</span></div>
@@ -89,7 +92,7 @@
           <div class="m-row"><span>394205</span> <span>394205</span> <span>394205</span></div>
         </div>
 
-        <!-- Badges Pílulas Ciano -->
+        <!-- Badges Pílulas Ciano (Delineada e Preenchida) -->
         <div class="dna-pill-badges">
           <div class="dna-pill outlined" data-action="clickBadge">
             <span>X-71_001.4 AD</span>
@@ -100,10 +103,11 @@
         </div>
       </div>
 
-      <!-- Retículo Gimbal Circular Tático -->
-      <div class="dna-block dna-reticle-box" data-action="clickReticle" title="Gimbal de Foco Molecular">
+      <!-- Retículo Gimbal Tático Circular Multi-Anéis -->
+      <div class="dna-block dna-reticle-box" data-action="clickReticle" title="Gimbal de Foco Molecular: Clique para calibrar">
         <div class="reticle-viewport">
           <div class="reticle-ring-outer"></div>
+          <div class="reticle-degree-ticks"></div>
           <div class="reticle-ring-mid"></div>
           <div class="reticle-ring-inner"></div>
           <div class="reticle-center-cross"></div>
@@ -115,6 +119,8 @@
             <span class="eq-b" style="height: 6px;"></span>
             <span class="eq-b" style="height: 12px;"></span>
             <span class="eq-b" style="height: 8px;"></span>
+            <span class="eq-b" style="height: 14px;"></span>
+            <span class="eq-b" style="height: 10px;"></span>
           </div>
           <div class="reticle-codes">
             <span class="c-code">34//562</span>
@@ -123,14 +129,22 @@
         </div>
       </div>
 
+      <!-- Registradores de Memória e Barras em Bloco no Canto Inferior Esquerdo -->
+      <div class="dna-block dna-bottom-registers">
+        <div class="reg-bar bar-wide"></div>
+        <div class="reg-bar bar-mid"></div>
+        <div class="reg-bar bar-narrow"></div>
+      </div>
+
     </aside>
 
-    <!-- ==================== CENTRO: VIEWPORT DA DUPLA-HÉLICE 3D ==================== -->
+    <!-- ==================== CENTRO: VIEWPORT PRINCIPAL DA DUPLA-HÉLICE ==================== -->
     <main class="dna-center-col">
       
-      <!-- Cabeçalho do Viewport Central -->
+      <!-- Cabeçalho Técnico do Domo de Análise -->
       <div class="dna-viewport-header">
         <div class="dna-header-left">
+          <span class="vp-bracket-corner">┌</span>
           <span class="vp-bracket-code">572924</span>
           <span class="vp-sub-num">34 083 843152</span>
           <div class="vp-title-box">
@@ -138,35 +152,53 @@
             <span class="vp-sub">23.491.33</span>
           </div>
         </div>
-        <div class="dna-header-bar-segment"></div>
+        <!-- Painel Técnico de Monitoramento Secundário à Direita -->
+        <div class="dna-header-monitor-screen">
+          <div class="monitor-inner-grid">
+            <div class="monitor-status-line">
+              <span class="status-dot"></span>
+              <span class="status-txt">SISTEMA ATIVO // SEQUENCIAMENTO MOLECULAR CONTÍNUO</span>
+            </div>
+            <div class="monitor-hash-bars">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+        <span class="vp-bracket-corner-right">┐</span>
       </div>
 
-      <!-- Container do Canvas 3D e Réguas do Eixo Y -->
+      <!-- Container Gráfico com Réguas Laterais e Canvas 3D -->
       <div class="dna-canvas-container">
         
+        <!-- Cantoneiras Técnicas do Viewport -->
+        <div class="vp-corner-tick tl"></div>
+        <div class="vp-corner-tick tr"></div>
+        <div class="vp-corner-tick bl"></div>
+        <div class="vp-corner-tick br"></div>
+
         <!-- Régua Lateral Esquerda do Eixo Y -->
         <div class="dna-y-scale left">
-          <span>572924</span>
-          <span>24214</span>
-          <span>121245</span>
-          <span>73 292</span>
-          <span>823</span>
-          <span>56564</span>
-          <span>394205</span>
+          <div class="scale-item"><span>572924</span><span class="tick">—</span></div>
+          <div class="scale-item"><span>24214</span><span class="tick">—</span></div>
+          <div class="scale-item"><span>121245</span><span class="tick">—</span></div>
+          <div class="scale-item"><span>73 292</span><span class="tick">—</span></div>
+          <div class="scale-item"><span>823</span><span class="tick">—</span></div>
+          <div class="scale-item"><span>56564</span><span class="tick">—</span></div>
+          <div class="scale-item"><span>394205</span><span class="tick">—</span></div>
         </div>
 
-        <!-- CANVAS 3D INTERATIVO (DUPLA-HÉLICE + PLEXO + FEIXE LASER) -->
-        <canvas id="dna-helix-canvas" class="dna-helix-canvas" title="Simulação Molecular: Clique para pausar ou acelerar a rotação"></canvas>
+        <!-- CANVAS 3D INTERATIVO: DUPLA-HÉLICE COM ANÉIS + LADDER DE BASES + PLEXO NEURAL + FEIXE LASER DOURADO -->
+        <canvas id="dna-helix-canvas" class="dna-helix-canvas" title="Simulação 3D de Dupla-Hélice: Clique para alternar velocidade de rotação"></canvas>
 
         <!-- Régua Lateral Direita do Eixo Y -->
         <div class="dna-y-scale right">
-          <span>572924</span>
-          <span>24214</span>
-          <span>121245</span>
-          <span>73 292</span>
-          <span>823</span>
-          <span>56564</span>
-          <span>394205</span>
+          <div class="scale-item"><span class="tick">—</span><span>572924</span></div>
+          <div class="scale-item"><span class="tick">—</span><span>24214</span></div>
+          <div class="scale-item"><span class="tick">—</span><span>121245</span></div>
+          <div class="scale-item"><span class="tick">—</span><span>73 292</span></div>
+          <div class="scale-item"><span class="tick">—</span><span>823</span></div>
+          <div class="scale-item"><span class="tick">—</span><span>56564</span></div>
+          <div class="scale-item"><span class="tick">—</span><span>394205</span></div>
         </div>
 
         <!-- Bloco de Ressequenciamento (Inferior Esquerdo da Área Gráfica) -->
@@ -179,16 +211,16 @@
             <div class="r-row"><span>72 232</span></div>
           </div>
           <div class="resequence-progress">
-            <div class="r-bar-fill" style="width: 68%;"></div>
+            <div class="r-bar-fill" style="width: 72%;"></div>
           </div>
         </div>
 
         <!-- Telemetria Flutuante Inferior Direita -->
         <div class="dna-floating-telem-right">
           <div class="rnd-block">
-            <span>RND 85 01</span>
-            <span>NAN AZ *</span>
-            <span>1983</span>
+            <span class="r-val">RND 85 01</span>
+            <span class="r-val">NAN AZ *</span>
+            <span class="r-val bold">1983</span>
             <span class="w-data">WAVEFORM_DATA</span>
             <span class="w-num">00.893</span>
           </div>
@@ -203,16 +235,16 @@
 
   </div>
 
-  <!-- ==================== PAINEL INFERIOR (TABELAS DE CÓDONS E CONTAGEM) ==================== -->
+  <!-- ==================== PAINEL INFERIOR: MATRIZES DE CÓDONS E CONTAGEM ==================== -->
   <footer class="dna-bottom-panel">
     
     <!-- Coluna 1: Telemetria Técnica Esquerda -->
     <div class="dna-bot-col-left">
-      <div class="telem-line">57395</div>
+      <div class="telem-line bold">57395</div>
       <div class="telem-line">23 0450 234 A</div>
       <div class="telem-line">23 0450 234 A</div>
       <div class="telem-line">475 2954 //38302</div>
-      <div class="telem-line">234 45562 2</div>
+      <div class="telem-line dim">234 45562 2</div>
     </div>
 
     <!-- Coluna 2: As 8 Matrizes de Códons (2 Fileiras x 4 Grupos) -->
@@ -289,20 +321,20 @@
         </div>
       </div>
 
-      <!-- Status Timecode -->
+      <!-- Timecode Verde/Ciano em Destaque -->
       <div class="codon-timecode-badge">
         <span>6:0281</span>
       </div>
     </div>
 
-    <!-- Coluna 3: Contagem Celular de DNA e Gráficos -->
+    <!-- Coluna 3: Contagem Celular de DNA e Gráficos Escalonados -->
     <div class="dna-bot-col-right">
       <div class="cell-count-header">
         <span class="cc-title">CONTAGEM CELULAR <span class="cc-sub">// DNA CELL COUNT // 34.2</span></span>
         <span class="cc-code">294.A</span>
       </div>
 
-      <!-- Tabela 4x5 de Nucleotídeos -->
+      <!-- Matriz 4x5 de Nucleotídeos -->
       <div class="nucleotide-matrix">
         <div class="n-row"><span>0011-0004</span> <span>0</span> <span>0011-0004</span> <span>0</span></div>
         <div class="n-row"><span>013074014</span> <span>98</span> <span>013074014</span> <span>98</span></div>
@@ -311,11 +343,17 @@
         <div class="n-row"><span>430121004</span> <span>29</span> <span>430121004</span> <span>29</span></div>
       </div>
 
-      <!-- Barras Gráficas Ciano Horizontais -->
+      <!-- Medidores Gráficos Escalonados em 3 Níveis -->
       <div class="cell-bars-container">
-        <div class="c-bar bar-1"></div>
-        <div class="c-bar bar-2"></div>
-        <div class="c-bar bar-3"></div>
+        <div class="c-bar-wrapper">
+          <div class="c-bar-meter bar-top" style="width: 82%;"></div>
+        </div>
+        <div class="c-bar-wrapper">
+          <div class="c-bar-meter bar-mid" style="width: 58%;"></div>
+        </div>
+        <div class="c-bar-wrapper">
+          <div class="c-bar-meter bar-bot" style="width: 94%;"></div>
+        </div>
       </div>
     </div>
 

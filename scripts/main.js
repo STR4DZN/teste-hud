@@ -587,10 +587,14 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
     this._animId = null;
-    this.rotSpeed = 0.015;
+    this.rotSpeed = 0.012;
     this.angle = 0;
-    this.laserX = 0.15;
-    this.laserDir = 1;
+    this.laserPhase = 0;
+    this.tiltX = 0;
+    this.tiltY = 0;
+    this.targetTiltX = 0;
+    this.targetTiltY = 0;
+    this.sparks = [];
   }
 
   async _prepareContext(options) {
@@ -610,233 +614,443 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let width = 0;
+    let height = 0;
+
     const resizeCanvas = () => {
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resizeCanvas();
 
-    // 35 nós de plexo neural flutuante
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => resizeCanvas());
+      ro.observe(canvas);
+    }
+
+    // 60 nós 3D do plexo molecular de fundo
     const meshNodes = [];
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 60; i++) {
       meshNodes.push({
-        x: Math.random(),
-        y: Math.random(),
-        vx: (Math.random() - 0.5) * 0.0008,
-        vy: (Math.random() - 0.5) * 0.0008,
-        z: Math.random() * 2 - 1
+        x: (Math.random() - 0.5) * 800,
+        y: (Math.random() - 0.5) * 350,
+        z: (Math.random() - 0.5) * 400,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.25,
+        vz: (Math.random() - 0.5) * 0.35
       });
     }
+
+    // Interatividade com o mouse para inclinação 3D sutil (holográfica)
+    const onMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / rect.width - 0.5;
+      const my = (e.clientY - rect.top) / rect.height - 0.5;
+      this.targetTiltY = mx * 0.22;
+      this.targetTiltX = -my * 0.18;
+    };
+    const onMouseLeave = () => {
+      this.targetTiltX = 0;
+      this.targetTiltY = 0;
+    };
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseleave", onMouseLeave);
+
+    const onClick = () => {
+      soundFx.playCodonBeep(Math.floor(Math.random() * 8));
+      this.rotSpeed = this.rotSpeed === 0.012 ? 0.028 : (this.rotSpeed === 0.028 ? 0.005 : 0.012);
+      const laserPx = (0.5 + 0.36 * Math.sin(this.laserPhase)) * width;
+      for (let k = 0; k < 20; k++) {
+        this.sparks.push({
+          x: laserPx + (Math.random() - 0.5) * 16,
+          y: height * 0.5 + (Math.random() - 0.5) * 60,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4 - 1.5,
+          life: 1.0,
+          color: Math.random() > 0.4 ? "#ffffff" : "#ffd15c"
+        });
+      }
+    };
+    canvas.addEventListener("click", onClick);
 
     let lastTime = performance.now();
 
     const renderFrame = (now) => {
-      if (!this.element || !canvas.isConnected) return;
+      if (!this.element || !canvas.isConnected) {
+        if (ro) ro.disconnect();
+        return;
+      }
       const dt = Math.min(50, now - lastTime);
       lastTime = now;
 
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
+      ctx.clearRect(0, 0, width, height);
 
-      ctx.clearRect(0, 0, w, h);
-
+      // Suavização da inclinação 3D
+      this.tiltX += (this.targetTiltX - this.tiltX) * 0.08;
+      this.tiltY += (this.targetTiltY - this.tiltY) * 0.08;
       this.angle += this.rotSpeed;
+      this.laserPhase += 0.014;
 
-      // Movimento do Laser Dourado
-      this.laserX += 0.0035 * this.laserDir;
-      if (this.laserX > 0.88) this.laserDir = -1;
-      if (this.laserX < 0.12) this.laserDir = 1;
-      const laserPx = this.laserX * w;
+      const cosTx = Math.cos(this.tiltX);
+      const sinTx = Math.sin(this.tiltX);
+      const cosTy = Math.cos(this.tiltY);
+      const sinTy = Math.sin(this.tiltY);
 
-      // 1. Plexo Neural ao Fundo
-      ctx.lineWidth = 0.5;
+      const fov = 450;
+      const project = (x, y, z) => {
+        const x1 = x * cosTy + z * sinTy;
+        const z1 = -x * sinTy + z * cosTy;
+        const y2 = y * cosTx - z1 * sinTx;
+        const z2 = y * sinTx + z1 * cosTx;
+        const scale = fov / (fov + z2 + 300);
+        return {
+          px: width * 0.5 + x1 * scale,
+          py: height * 0.5 + y2 * scale,
+          scale,
+          z: z2
+        };
+      };
+
+      // 1. PLEXO MOLECULAR 3D DE FUNDO (Constelação com Micro-Triângulos)
       for (let i = 0; i < meshNodes.length; i++) {
         const n = meshNodes[i];
         n.x += n.vx;
         n.y += n.vy;
-        if (n.x < 0 || n.x > 1) n.vx *= -1;
-        if (n.y < 0 || n.y > 1) n.vy *= -1;
-
-        const nx = n.x * w;
-        const ny = n.y * h;
-
-        for (let j = i + 1; j < meshNodes.length; j++) {
-          const n2 = meshNodes[j];
-          const dist = Math.hypot(nx - n2.x * w, ny - n2.y * h);
-          if (dist < 110) {
-            const alpha = (1 - dist / 110) * 0.12;
-            ctx.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
-            ctx.beginPath();
-            ctx.moveTo(nx, ny);
-            ctx.lineTo(n2.x * w, n2.y * h);
-            ctx.stroke();
-          }
-        }
+        n.z += n.vz;
+        if (n.x < -400 || n.x > 400) n.vx *= -1;
+        if (n.y < -170 || n.y > 170) n.vy *= -1;
+        if (n.z < -200 || n.z > 200) n.vz *= -1;
       }
 
-      // 2. Parâmetros da Dupla Hélice
-      const numBases = 58;
-      const marginX = w * 0.08;
-      const usableW = w - marginX * 2;
-      const centerY = h * 0.5;
-      const helixRadius = Math.min(85, h * 0.28);
-      const cycles = 3.6;
+      const projMesh = meshNodes.map(n => project(n.x, n.y, n.z));
 
-      const particles = [];
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < projMesh.length; i++) {
+        const p1 = projMesh[i];
+        if (p1.z < -280) continue;
 
-      for (let i = 0; i < numBases; i++) {
-        const t = i / (numBases - 1);
-        const x = marginX + t * usableW;
-        const theta = t * Math.PI * 2 * cycles + this.angle;
+        ctx.fillStyle = "rgba(63, 244, 213, 0.4)";
+        ctx.beginPath();
+        ctx.arc(p1.px, p1.py, 1.2 * p1.scale, 0, Math.PI * 2);
+        ctx.fill();
 
-        const y1 = centerY + Math.sin(theta) * helixRadius;
-        const z1 = Math.cos(theta) * helixRadius;
-
-        const y2 = centerY + Math.sin(theta + Math.PI) * helixRadius;
-        const z2 = Math.cos(theta + Math.PI) * helixRadius;
-
-        const isHitByLaser = Math.abs(x - laserPx) < 22;
-
-        particles.push({
-          type: "rung",
-          x,
-          y1,
-          z1,
-          y2,
-          z2,
-          avgZ: (z1 + z2) / 2,
-          isHitByLaser
-        });
-
-        particles.push({
-          type: "node",
-          strand: 1,
-          x,
-          y: y1,
-          z: z1,
-          isHitByLaser
-        });
-
-        particles.push({
-          type: "node",
-          strand: 2,
-          x,
-          y: y2,
-          z: z2,
-          isHitByLaser
-        });
-      }
-
-      // Z-Buffer: Ordena por profundidade
-      particles.sort((a, b) => {
-        const zA = a.type === "rung" ? a.avgZ : a.z;
-        const zB = b.type === "rung" ? b.avgZ : b.z;
-        return zA - zB;
-      });
-
-      // 3. Renderiza Dupla Hélice
-      for (const p of particles) {
-        if (p.type === "rung") {
-          ctx.beginPath();
-          ctx.setLineDash([2, 3]);
-          if (p.isHitByLaser) {
-            ctx.strokeStyle = "rgba(255, 209, 92, 0.85)";
-            ctx.lineWidth = 1.2;
-          } else {
-            const alpha = 0.15 + 0.35 * ((p.avgZ + helixRadius) / (helixRadius * 2));
-            ctx.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
-            ctx.lineWidth = 0.8;
-          }
-          ctx.moveTo(p.x, p.y1);
-          ctx.lineTo(p.x, p.y2);
-          ctx.stroke();
-          ctx.setLineDash([]);
-
-          // 2 mini nós de bases (A-T ou C-G)
-          const my1 = p.y1 + (p.y2 - p.y1) * 0.35;
-          const my2 = p.y1 + (p.y2 - p.y1) * 0.65;
-          ctx.fillStyle = p.isHitByLaser ? "#ffffff" : "rgba(63, 244, 213, 0.6)";
-          ctx.beginPath();
-          ctx.arc(p.x, my1, 1.2, 0, Math.PI * 2);
-          ctx.arc(p.x, my2, 1.2, 0, Math.PI * 2);
-          ctx.fill();
-
-        } else if (p.type === "node") {
-          const normZ = (p.z + helixRadius) / (helixRadius * 2);
-          const radius = 2.5 + normZ * 3.5;
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-
-          if (p.isHitByLaser) {
-            ctx.fillStyle = "#ffffff";
-            ctx.shadowColor = "#ffd15c";
-            ctx.shadowBlur = 12;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
+        for (let j = i + 1; j < projMesh.length; j++) {
+          const p2 = projMesh[j];
+          const distSq = (p1.px - p2.px) ** 2 + (p1.py - p2.py) ** 2;
+          if (distSq < 6400) {
+            const dist = Math.sqrt(distSq);
+            const alpha = (1 - dist / 80) * 0.14 * Math.min(1, p1.scale);
+            ctx.strokeStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, radius + 2, 0, Math.PI * 2);
-            ctx.strokeStyle = "rgba(255, 209, 92, 0.8)";
-            ctx.lineWidth = 1;
+            ctx.moveTo(p1.px, p1.py);
+            ctx.lineTo(p2.px, p2.py);
             ctx.stroke();
-          } else {
-            if (normZ > 0.5) {
-              ctx.fillStyle = "#3ff4d5";
-              ctx.shadowColor = "rgba(63, 244, 213, 0.7)";
-              ctx.shadowBlur = 8 * normZ;
-              ctx.fill();
-              ctx.shadowBlur = 0;
 
-              ctx.beginPath();
-              ctx.arc(p.x, p.y, radius + 1.2, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(200, 255, 245, ${0.4 + 0.4 * normZ})`;
-              ctx.lineWidth = 0.75;
-              ctx.stroke();
-            } else {
-              ctx.fillStyle = `rgba(20, 99, 102, ${0.35 + 0.45 * normZ})`;
-              ctx.fill();
+            for (let k = j + 1; k < Math.min(projMesh.length, j + 3); k++) {
+              const p3 = projMesh[k];
+              const d31 = (p1.px - p3.px) ** 2 + (p1.py - p3.py) ** 2;
+              const d32 = (p2.px - p3.px) ** 2 + (p2.py - p3.py) ** 2;
+              if (d31 < 4900 && d32 < 4900) {
+                ctx.fillStyle = "rgba(63, 244, 213, 0.02)";
+                ctx.beginPath();
+                ctx.moveTo(p1.px, p1.py);
+                ctx.lineTo(p2.px, p2.py);
+                ctx.lineTo(p3.px, p3.py);
+                ctx.closePath();
+                ctx.fill();
+              }
             }
           }
         }
       }
 
-      // 4. Linha de Varredura Laser Dourada
-      const laserGrad = ctx.createLinearGradient(0, centerY - helixRadius * 1.3, 0, centerY + helixRadius * 1.3);
+      // 2. CÁLCULO E GEOMETRIA DA DUPLA-HÉLICE 3D
+      const numBases = 110;
+      const usableW = width * 0.88;
+      const startX = -usableW * 0.5;
+      const baseRadius = Math.min(84, height * 0.28);
+      const cycles = 3.6;
+      const laserPx = width * (0.5 + 0.36 * Math.sin(this.laserPhase));
+
+      const renderables = [];
+
+      for (let i = 0; i < numBases; i++) {
+        const t = i / (numBases - 1);
+        const lx = startX + t * usableW;
+
+        // Desbobinamento e dispersão no terço direito (t > 0.72)
+        const uncoil = t > 0.72 ? (t - 0.72) / 0.28 : 0;
+        const radius = baseRadius * (1.0 + uncoil * 1.5);
+        const theta = t * Math.PI * 2 * cycles * (1.0 - uncoil * 0.45) + this.angle;
+
+        const ly1 = Math.sin(theta) * radius + (uncoil > 0 ? (Math.random() - 0.5) * 4 * uncoil : 0);
+        const lz1 = Math.cos(theta) * radius;
+
+        const ly2 = Math.sin(theta + Math.PI) * radius + (uncoil > 0 ? (Math.random() - 0.5) * 4 * uncoil : 0);
+        const lz2 = Math.cos(theta + Math.PI) * radius;
+
+        const p1 = project(lx, ly1, lz1);
+        const p2 = project(lx, ly2, lz2);
+
+        const isLaserHit = Math.abs(p1.px - laserPx) < 22 || Math.abs(p2.px - laserPx) < 22;
+
+        // 2.1 Degrau de Pares de Bases (Ladder de Micro-Beads)
+        if (uncoil < 0.65) {
+          const beadsCount = 6;
+          const rungBeads = [];
+          for (let b = 0; b <= beadsCount; b++) {
+            const bt = b / beadsCount;
+            const bx = p1.px + (p2.px - p1.px) * bt;
+            const by = p1.py + (p2.py - p1.py) * bt;
+            const bz = p1.z + (p2.z - p1.z) * bt;
+            const bScale = p1.scale + (p2.scale - p1.scale) * bt;
+            const isBeadLaser = Math.abs(bx - laserPx) < 20;
+            rungBeads.push({ x: bx, y: by, z: bz, scale: bScale, isHit: isBeadLaser });
+          }
+
+          renderables.push({
+            type: "rung",
+            z: (p1.z + p2.z) * 0.5,
+            p1,
+            p2,
+            beads: rungBeads,
+            uncoil,
+            isHit: isLaserHit
+          });
+        } else {
+          renderables.push({
+            type: "tail_filament",
+            z: p1.z,
+            x: p1.px,
+            y: p1.py + (uncoil * 28),
+            scale: p1.scale,
+            isHit: isLaserHit
+          });
+          renderables.push({
+            type: "tail_filament",
+            z: p2.z,
+            x: p2.px,
+            y: p2.py - (uncoil * 28),
+            scale: p2.scale,
+            isHit: isLaserHit
+          });
+        }
+
+        // 2.2 Nós das Fitas: Anéis Vazados e Micro-contas
+        const isMajorNode = i % 3 === 0;
+
+        renderables.push({
+          type: "backbone_node",
+          isMajor: isMajorNode,
+          strand: 1,
+          x: p1.px,
+          y: p1.py,
+          z: p1.z,
+          scale: p1.scale,
+          isHit: Math.abs(p1.px - laserPx) < 22
+        });
+
+        renderables.push({
+          type: "backbone_node",
+          isMajor: isMajorNode,
+          strand: 2,
+          x: p2.px,
+          y: p2.py,
+          z: p2.z,
+          scale: p2.scale,
+          isHit: Math.abs(p2.px - laserPx) < 22
+        });
+
+        if (isLaserHit && Math.random() < 0.25) {
+          this.sparks.push({
+            x: p1.px + (Math.random() - 0.5) * 8,
+            y: p1.py + (Math.random() - 0.5) * 8,
+            vx: (Math.random() - 0.5) * 2.2,
+            vy: (Math.random() - 0.5) * 2.5 - 1.2,
+            life: 1.0,
+            color: Math.random() > 0.3 ? "#ffffff" : "#ffd15c"
+          });
+        }
+      }
+
+      // 3. ORDENAÇÃO DE PROFUNDIDADE (Z-Buffer)
+      renderables.sort((a, b) => a.z - b.z);
+
+      // 4. DESENHO DOS ELEMENTOS DA DUPLA-HÉLICE
+      for (const item of renderables) {
+        if (item.type === "rung") {
+          const alphaBase = (0.12 + 0.3 * Math.min(1, Math.max(0, (item.z + 120) / 240))) * (1 - item.uncoil * 0.8);
+          ctx.strokeStyle = item.isHit ? "rgba(255, 209, 92, 0.45)" : `rgba(63, 244, 213, ${alphaBase.toFixed(3)})`;
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(item.p1.px, item.p1.py);
+          ctx.lineTo(item.p2.px, item.p2.py);
+          ctx.stroke();
+
+          for (const b of item.beads) {
+            const beadRadius = (b.isHit ? 1.8 : 1.3) * b.scale;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, beadRadius, 0, Math.PI * 2);
+            if (b.isHit) {
+              ctx.fillStyle = "#ffffff";
+              ctx.shadowColor = "#ffd15c";
+              ctx.shadowBlur = 8;
+              ctx.fill();
+              ctx.shadowBlur = 0;
+            } else {
+              const bAlpha = 0.25 + 0.6 * Math.min(1, Math.max(0, (b.z + 120) / 240));
+              ctx.fillStyle = `rgba(63, 244, 213, ${bAlpha.toFixed(3)})`;
+              ctx.fill();
+            }
+          }
+
+        } else if (item.type === "backbone_node") {
+          const depthNorm = Math.min(1, Math.max(0, (item.z + 120) / 240));
+
+          if (item.isMajor) {
+            // ANEL VAZADO GLOWING (Vesícula/Donut)
+            const ringRadius = (3.2 + depthNorm * 4.2) * item.scale;
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, ringRadius, 0, Math.PI * 2);
+
+            if (item.isHit) {
+              ctx.strokeStyle = "#ffffff";
+              ctx.lineWidth = 2.0;
+              ctx.shadowColor = "#ffd15c";
+              ctx.shadowBlur = 14;
+              ctx.stroke();
+              ctx.shadowBlur = 0;
+
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(item.x, item.y, 1.8 * item.scale, 0, Math.PI * 2);
+              ctx.fill();
+            } else {
+              const strokeAlpha = 0.35 + depthNorm * 0.6;
+              ctx.strokeStyle = `rgba(63, 244, 213, ${strokeAlpha.toFixed(3)})`;
+              ctx.lineWidth = 1.4 * item.scale;
+
+              if (depthNorm > 0.5) {
+                ctx.shadowColor = "rgba(63, 244, 213, 0.75)";
+                ctx.shadowBlur = 7 * depthNorm;
+              }
+              ctx.stroke();
+              ctx.shadowBlur = 0;
+
+              ctx.fillStyle = `rgba(63, 244, 213, ${(0.05 + depthNorm * 0.15).toFixed(3)})`;
+              ctx.fill();
+
+              if (depthNorm > 0.4) {
+                ctx.beginPath();
+                ctx.arc(item.x, item.y, ringRadius * 0.45, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(200, 255, 245, ${(0.3 + depthNorm * 0.4).toFixed(3)})`;
+                ctx.lineWidth = 0.7;
+                ctx.stroke();
+              }
+            }
+          } else {
+            const dotRadius = (1.2 + depthNorm * 1.6) * item.scale;
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, dotRadius, 0, Math.PI * 2);
+            if (item.isHit) {
+              ctx.fillStyle = "#ffffff";
+              ctx.shadowColor = "#ffd15c";
+              ctx.shadowBlur = 9;
+              ctx.fill();
+              ctx.shadowBlur = 0;
+            } else {
+              const dotAlpha = 0.2 + depthNorm * 0.65;
+              ctx.fillStyle = `rgba(63, 244, 213, ${dotAlpha.toFixed(3)})`;
+              ctx.fill();
+            }
+          }
+
+        } else if (item.type === "tail_filament") {
+          ctx.beginPath();
+          ctx.arc(item.x, item.y, 1.4 * item.scale, 0, Math.PI * 2);
+          ctx.fillStyle = item.isHit ? "#ffffff" : "rgba(63, 244, 213, 0.55)";
+          ctx.fill();
+        }
+      }
+
+      // 5. ATUALIZAÇÃO E DESENHO DE FAÍSCAS (EXCITATION SPARKS)
+      for (let s = this.sparks.length - 1; s >= 0; s--) {
+        const sp = this.sparks[s];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.life -= 0.032;
+        if (sp.life <= 0) {
+          this.sparks.splice(s, 1);
+          continue;
+        }
+
+        ctx.fillStyle = sp.color === "#ffffff" ? `rgba(255, 255, 255, ${sp.life})` : `rgba(255, 209, 92, ${sp.life})`;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, 1.2 * sp.life, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 6. FEIXE LASER DE VARREDURA DOURADO (GOLD SCANNING LASER)
+      const laserTop = height * 0.12;
+      const laserBottom = height * 0.88;
+
+      ctx.strokeStyle = "rgba(255, 209, 92, 0.14)";
+      ctx.lineWidth = 9;
+      ctx.beginPath();
+      ctx.moveTo(laserPx, laserTop);
+      ctx.lineTo(laserPx, laserBottom);
+      ctx.stroke();
+
+      const laserGrad = ctx.createLinearGradient(0, laserTop, 0, laserBottom);
       laserGrad.addColorStop(0, "rgba(255, 209, 92, 0)");
-      laserGrad.addColorStop(0.3, "rgba(255, 209, 92, 0.6)");
-      laserGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.95)");
-      laserGrad.addColorStop(0.7, "rgba(255, 209, 92, 0.6)");
+      laserGrad.addColorStop(0.2, "rgba(255, 209, 92, 0.7)");
+      laserGrad.addColorStop(0.5, "rgba(255, 255, 255, 1.0)");
+      laserGrad.addColorStop(0.8, "rgba(255, 209, 92, 0.7)");
       laserGrad.addColorStop(1, "rgba(255, 209, 92, 0)");
 
-      ctx.beginPath();
       ctx.strokeStyle = laserGrad;
-      ctx.lineWidth = 1.8;
-      ctx.shadowColor = "#ffb833";
-      ctx.shadowBlur = 10;
-      ctx.moveTo(laserPx, centerY - helixRadius * 1.4);
-      ctx.lineTo(laserPx, centerY + helixRadius * 1.4);
+      ctx.lineWidth = 2.0;
+      ctx.shadowColor = "#ffd15c";
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.moveTo(laserPx, laserTop);
+      ctx.lineTo(laserPx, laserBottom);
       ctx.stroke();
       ctx.shadowBlur = 0;
 
+      // Travas do laser
+      ctx.strokeStyle = "#ffd15c";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(laserPx - 7, laserTop);
+      ctx.lineTo(laserPx + 7, laserTop);
+      ctx.moveTo(laserPx - 7, laserBottom);
+      ctx.lineTo(laserPx + 7, laserBottom);
+      ctx.stroke();
+
+      // Retículo central
+      const midY = height * 0.5;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(laserPx, midY, 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.arc(laserPx, centerY, 3, 0, Math.PI * 2);
+      ctx.arc(laserPx, midY, 1.2, 0, Math.PI * 2);
       ctx.fill();
 
       this._animId = requestAnimationFrame(renderFrame);
     };
 
     this._animId = requestAnimationFrame(renderFrame);
-
-    canvas.addEventListener("click", () => {
-      soundFx.playCodonBeep(Math.floor(Math.random() * 8));
-      this.rotSpeed = this.rotSpeed === 0.015 ? 0.035 : 0.015;
-    });
   }
 
   async close(options) {
@@ -943,7 +1157,7 @@ export const toggleHud = toggleDnaHud;
 
 // Inicialização de Hooks no Foundry VTT
 Hooks.once("init", () => {
-  console.log("Teste-Hud | Inicializando Trilogia Tática: Oficina, Navegação & Análise de DNA v1.3.0...");
+  console.log("Teste-Hud | Inicializando Trilogia Tática: Oficina, Navegação & Análise de DNA v1.3.1...");
 
   game.modules.get("teste-hud").api = {
     // Atalhos Padrão (Abre o HUD mais recente ou configurado)
