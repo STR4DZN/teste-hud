@@ -409,10 +409,10 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["nav-hud-window"],
     position: {
       width: 1280,
-      height: 760
+      height: 800
     },
     window: {
-      title: "NAVEGAÇÃO MARCIANA // CARTOGRAFIA TOPOGRÁFICA [火星 NAVIGATION]",
+      title: "NAVEGAÇÃO MARCIANA // [火星 NAVIGATION]",
       icon: "fa-solid fa-compass",
       resizable: true
     },
@@ -420,7 +420,8 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       openWorkshop: NavegacaoHudApp.#onOpenWorkshop,
       menuAction: NavegacaoHudApp.#onMenuAction,
       clickWaypoint: NavegacaoHudApp.#onClickWaypoint,
-      pingWaveform: NavegacaoHudApp.#onPingWaveform
+      pingWaveform: NavegacaoHudApp.#onPingWaveform,
+      closeNavWindow: NavegacaoHudApp.#onCloseNavWindow
     }
   };
 
@@ -455,9 +456,17 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       };
     });
 
+    const gridLinesX = [];
+    for (let x = 25; x < 600; x += 25) gridLinesX.push(x);
+
+    const gridLinesY = [];
+    for (let y = 25; y < 600; y += 25) gridLinesY.push(y);
+
     return {
       distanceKm: this.distanceKm.toFixed(1),
       waveformBars,
+      gridLinesX,
+      gridLinesY,
       activeMenu: this.activeMenu
     };
   }
@@ -472,7 +481,7 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     this._waveformInterval = setInterval(() => {
       if (!this.element) return;
-      const bars = this.element.querySelectorAll(".nav-wave-bar");
+      const bars = this.element.querySelectorAll(".nav-wave-col");
       if (!bars || bars.length === 0) return;
 
       bars.forEach((bar, idx) => {
@@ -490,6 +499,11 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       this._waveformInterval = null;
     }
     return super.close(options);
+  }
+
+  static #onCloseNavWindow(event, target) {
+    soundFx.playRelayClick(false);
+    this.close();
   }
 
   static #onOpenWorkshop(event, target) {
@@ -535,7 +549,7 @@ export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static #onPingWaveform(event, target) {
     soundFx.playTelemetryBeep(true);
     if (typeof ui !== "undefined" && ui.notifications) {
-      ui.notifications.info("ESPECTRO DE RÁDIO: Varredura de sinal 0.10.XX executada.");
+      ui.notifications.info("ESPECTRO DE RÁDIO: Varredura de sinal executada.");
     }
   }
 }
