@@ -399,43 +399,226 @@ export class TesteHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
-// Instância singleton para controle
-let hudAppInstance = null;
+/**
+ * NavegacaoHudApp — Console de Navegação Marciana [火星 NAVIGATION]
+ * Reconstrução em 5 etapas da cartografia topográfica e telemetria de superfície.
+ */
+export class NavegacaoHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "nav-hud-app",
+    classes: ["nav-hud-window"],
+    position: {
+      width: 1280,
+      height: 760
+    },
+    window: {
+      title: "NAVEGAÇÃO MARCIANA // CARTOGRAFIA TOPOGRÁFICA [火星 NAVIGATION]",
+      icon: "fa-solid fa-compass",
+      resizable: true
+    },
+    actions: {
+      openWorkshop: NavegacaoHudApp.#onOpenWorkshop,
+      menuAction: NavegacaoHudApp.#onMenuAction,
+      clickWaypoint: NavegacaoHudApp.#onClickWaypoint,
+      pingWaveform: NavegacaoHudApp.#onPingWaveform
+    }
+  };
 
-export function getHudApp() {
-  if (!hudAppInstance) {
-    hudAppInstance = new TesteHudApp();
+  static PARTS = {
+    main: {
+      template: "modules/teste-hud/templates/navigation.hbs"
+    }
+  };
+
+  constructor(options = {}) {
+    super(options);
+
+    this.distanceKm = 54.3;
+    this.activeMenu = "nav";
+    this._waveformInterval = null;
+
+    // 42 barras senoidais com dois picos principais fiéis ao Crop 1
+    this.waveformHeights = [
+      4, 6, 8, 12, 16, 20, 24, 22, 18, 14,
+      10, 15, 22, 26, 28, 25, 20, 16, 12, 9,
+      7, 10, 14, 19, 23, 27, 24, 18, 13, 10,
+      8, 12, 17, 21, 23, 19, 15, 11, 8, 6, 5, 4
+    ];
   }
-  return hudAppInstance;
-}
 
-export function openHud() {
-  return getHudApp().render(true);
-}
+  async _prepareContext(options) {
+    const waveformBars = this.waveformHeights.map((h, i) => {
+      const isPeak = h >= 22;
+      return {
+        height: h,
+        glow: isPeak ? "6px" : "2px"
+      };
+    });
 
-export function closeHud() {
-  return hudAppInstance?.close();
-}
-
-export function toggleHud() {
-  const app = getHudApp();
-  if (app.rendered) {
-    return app.close();
+    return {
+      distanceKm: this.distanceKm.toFixed(1),
+      waveformBars,
+      activeMenu: this.activeMenu
+    };
   }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    this._startWaveformAnimation();
+  }
+
+  _startWaveformAnimation() {
+    if (this._waveformInterval) clearInterval(this._waveformInterval);
+
+    this._waveformInterval = setInterval(() => {
+      if (!this.element) return;
+      const bars = this.element.querySelectorAll(".nav-wave-bar");
+      if (!bars || bars.length === 0) return;
+
+      bars.forEach((bar, idx) => {
+        const baseH = this.waveformHeights[idx] || 12;
+        const delta = (Math.random() - 0.48) * 5;
+        const newH = Math.max(3, Math.min(28, baseH + delta));
+        bar.style.setProperty("--h", `${newH.toFixed(1)}px`);
+      });
+    }, 180);
+  }
+
+  async close(options) {
+    if (this._waveformInterval) {
+      clearInterval(this._waveformInterval);
+      this._waveformInterval = null;
+    }
+    return super.close(options);
+  }
+
+  static #onOpenWorkshop(event, target) {
+    soundFx.playTargetLock();
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.info("ROVER // LINK: Sincronizando com a OFICINA TÁTICA [МАСТЕРСКАЯ]...");
+    }
+    openOficinaHud();
+  }
+
+  static #onMenuAction(event, target) {
+    soundFx.playRelayClick(true);
+    const menuType = target.dataset.menu;
+    if (menuType === "system") {
+      openOficinaHud();
+      return;
+    }
+
+    if (this.element) {
+      const allBtns = this.element.querySelectorAll(".nav-menu-btn");
+      allBtns.forEach(b => b.classList.remove("is-active"));
+      target.classList.add("is-active");
+    }
+
+    if (typeof ui !== "undefined" && ui.notifications) {
+      const names = {
+        comms: "COMUNICAÇÕES MARCIANAS: Canal aberto com orbitador.",
+        rover: "STATUS DO VEÍCULO: Propulsão nominal, esteiras 100%.",
+        nav: "CARTOGRAFIA: Trajetória para WORKSHOP calculada (54.3 KM)."
+      };
+      if (names[menuType]) ui.notifications.info(names[menuType]);
+    }
+  }
+
+  static #onClickWaypoint(event, target) {
+    soundFx.playRadarPing();
+    const wp = target.dataset.wp;
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.warn(`SENSOR // WAYPOINT: Sinal captado no ponto [${wp}]. Distância confirmada.`);
+    }
+  }
+
+  static #onPingWaveform(event, target) {
+    soundFx.playTelemetryBeep(true);
+    if (typeof ui !== "undefined" && ui.notifications) {
+      ui.notifications.info("ESPECTRO DE RÁDIO: Varredura de sinal 0.10.XX executada.");
+    }
+  }
+}
+
+// Instâncias singleton para controle
+let oficinaAppInstance = null;
+let navegacaoAppInstance = null;
+
+export function getOficinaHudApp() {
+  if (!oficinaAppInstance) {
+    oficinaAppInstance = new TesteHudApp();
+  }
+  return oficinaAppInstance;
+}
+
+export function openOficinaHud() {
+  return getOficinaHudApp().render(true);
+}
+
+export function closeOficinaHud() {
+  return oficinaAppInstance?.close();
+}
+
+export function toggleOficinaHud() {
+  const app = getOficinaHudApp();
+  if (app.rendered) return app.close();
   return app.render(true);
 }
 
+export function getNavegacaoHudApp() {
+  if (!navegacaoAppInstance) {
+    navegacaoAppInstance = new NavegacaoHudApp();
+  }
+  return navegacaoAppInstance;
+}
+
+export function openNavegacaoHud() {
+  return getNavegacaoHudApp().render(true);
+}
+
+export function closeNavegacaoHud() {
+  return navegacaoAppInstance?.close();
+}
+
+export function toggleNavegacaoHud() {
+  const app = getNavegacaoHudApp();
+  if (app.rendered) return app.close();
+  return app.render(true);
+}
+
+// Aliases retrocompatíveis para chamadas anteriores
+export const getHudApp = getOficinaHudApp;
+export const openHud = openOficinaHud;
+export const closeHud = closeOficinaHud;
+export const toggleHud = toggleOficinaHud;
+
 // Inicialização de Hooks no Foundry VTT
 Hooks.once("init", () => {
-  console.log("Teste-Hud | Inicializando Console da Oficina Tática [МАСТЕРСКАЯ] v1.1.0...");
+  console.log("Teste-Hud | Inicializando Console Tático & Navegação Marciana v1.2.0...");
 
   game.modules.get("teste-hud").api = {
-    open: openHud,
-    close: closeHud,
-    toggle: toggleHud,
-    getApp: getHudApp,
+    // Atalhos Padrão (Retrocompatíveis)
+    open: openNavegacaoHud,
+    close: closeNavegacaoHud,
+    toggle: toggleNavegacaoHud,
+    getApp: getNavegacaoHudApp,
+
+    // Tela 1: Oficina Tática
+    openOficina: openOficinaHud,
+    closeOficina: closeOficinaHud,
+    toggleOficina: toggleOficinaHud,
+    getOficina: getOficinaHudApp,
+
+    // Tela 2: Navegação Marciana
+    openNavegacao: openNavegacaoHud,
+    closeNavegacao: closeNavegacaoHud,
+    toggleNavegacao: toggleNavegacaoHud,
+    getNavegacao: getNavegacaoHudApp,
+
+    // Motor de Áudio Procedural
     sound: soundFx
   };
 });
+
 
 

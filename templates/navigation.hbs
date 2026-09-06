@@ -1,0 +1,514 @@
+<div class="nav-console">
+  <!-- Efeito CRT Scanlines e Vinheta Óptica -->
+  <div class="nav-crt-overlay"></div>
+  <div class="nav-grid-overlay"></div>
+
+  <div class="nav-layout">
+    <!-- ==================== COLUNA ESQUERDA ==================== -->
+    <aside class="nav-col nav-col-left">
+      
+      <!-- 2.1 MATRIZ DE DIAGNÓSTICO -->
+      <section class="nav-block nav-diag-matrix">
+        <div class="nav-block-header">
+          <span class="nav-title">MATRIZ DE DIAGNÓSTICO <span class="nav-sub">// DIAGNOSTIC MATRIX</span></span>
+        </div>
+        
+        <div class="nav-comms-log">
+          <div class="comms-line">
+            <span class="comms-route">/MARS.COMMS:0.10.63/</span>
+            <span class="comms-id">[70096]</span>
+            <span class="comms-time">HÁ 2 MINUTOS</span>
+          </div>
+          <div class="comms-line">
+            <span class="comms-route">/MARS.COMMS:0.10.98/</span>
+            <span class="comms-id">[70024]</span>
+            <span class="comms-time">HÁ 2 MINUTOS</span>
+          </div>
+          <div class="comms-line is-active-pill">
+            <span class="comms-route">/MARS.COMMS:0.10.53/</span>
+            <span class="comms-id">[70076]</span>
+            <span class="comms-time">HÁ 2 MINUTOS</span>
+          </div>
+          <div class="comms-line">
+            <span class="comms-route">/MARS.COMMS:0.10.36/</span>
+            <span class="comms-id">[70098]</span>
+            <span class="comms-time">HÁ 2 MINUTOS</span>
+          </div>
+          <div class="comms-line">
+            <span class="comms-route">/MARS.COMMS:0.10.37/</span>
+            <span class="comms-id">[70077]</span>
+            <span class="comms-time">HÁ 2 MINUTOS</span>
+          </div>
+          <div class="comms-line dim">
+            <span class="comms-route">/MARS.COMMS:0.10.58/</span>
+            <span class="comms-id">[70054]</span>
+            <span class="comms-time">HÁ 2 MINUTOS</span>
+          </div>
+        </div>
+
+        <!-- Forma de Onda de Áudio / Sinal (42 Colunas) -->
+        <div class="nav-waveform-container" data-action="pingWaveform" title="Analisador de Frequência de Sinal de Rádio">
+          <div class="nav-waveform-bars" id="nav-waveform-bars">
+            {{#each waveformBars}}
+              <div class="nav-wave-bar" style="--h: {{this.height}}px; --glow: {{this.glow}}"></div>
+            {{/each}}
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.2 SISTEMA DE COORDENADAS -->
+      <section class="nav-block nav-coord-system">
+        <div class="nav-stepped-header">
+          <span class="nav-anchor-dot"></span>
+          <span class="nav-title">SISTEMA DE COORDENADAS <span class="nav-sub">// COORD SYSTEM</span></span>
+        </div>
+
+        <div class="nav-table-wrapper">
+          <table class="nav-data-table">
+            <tbody>
+              <tr class="table-row">
+                <td class="col-code">F6</td>
+                <td class="col-val">190.72</td>
+                <td class="col-volt">904.08V</td>
+                <td class="col-sector">YC/58 MAR-ER</td>
+                <td class="col-stat">.9.3</td>
+                <td class="col-idx">24</td>
+                <td class="col-tag">MHB</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">B4</td>
+                <td class="col-val">199.75</td>
+                <td class="col-volt">293.92V</td>
+                <td class="col-sector">JW/96 MAR-GG</td>
+                <td class="col-stat">9</td>
+                <td class="col-idx">28</td>
+                <td class="col-tag">PKU</td>
+              </tr>
+              <tr class="table-row is-pill-highlight">
+                <td class="col-code">ND</td>
+                <td class="col-val">10.51</td>
+                <td class="col-volt">853.97V</td>
+                <td class="col-sector">LA/54 MAR-MX</td>
+                <td class="col-stat">8.3</td>
+                <td class="col-idx">31</td>
+                <td class="col-tag">DMB</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">BD</td>
+                <td class="col-val">182.48</td>
+                <td class="col-volt">622.23V</td>
+                <td class="col-sector">9X/94 MAR-DP</td>
+                <td class="col-stat">78</td>
+                <td class="col-idx">38</td>
+                <td class="col-tag">FUJ</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">S0</td>
+                <td class="col-val">154.91</td>
+                <td class="col-volt">732.45V</td>
+                <td class="col-sector">ML/36 MAR-MD</td>
+                <td class="col-stat">.5.9</td>
+                <td class="col-idx">22</td>
+                <td class="col-tag">JPM</td>
+              </tr>
+              <tr class="table-row is-soft-highlight">
+                <td class="col-code">C7</td>
+                <td class="col-val">25.65</td>
+                <td class="col-volt">824.89V</td>
+                <td class="col-sector">MK/24 MAR-YZ</td>
+                <td class="col-stat">2.5</td>
+                <td class="col-idx">5</td>
+                <td class="col-tag">RPC</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">B3</td>
+                <td class="col-val">26.94</td>
+                <td class="col-volt">488.48V</td>
+                <td class="col-sector">2Y/54 MAR-QJ</td>
+                <td class="col-stat">1.9</td>
+                <td class="col-idx">24</td>
+                <td class="col-tag">WMQ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="nav-stepped-footer">
+          <span class="nav-anchor-dot"></span>
+        </div>
+      </section>
+
+      <!-- 2.3 TRILATERAÇÃO -->
+      <section class="nav-block nav-trilateration">
+        <div class="nav-trilat-header">
+          <span>TRILATERAÇÃO <span class="nav-sub">// TRILATERATION</span></span>
+        </div>
+        <div class="nav-trilat-grid">
+          <div class="trilat-col">
+            <div class="trilat-label">
+              <span>SONDAGEM</span>
+              <span class="sub">SURVEY APP</span>
+            </div>
+            <div class="trilat-sep"></div>
+            <div class="trilat-values">
+              <span class="val-top">342</span>
+              <span class="val-bot">834</span>
+            </div>
+          </div>
+          <div class="trilat-col">
+            <div class="trilat-label">
+              <span>VEL. ONDA</span>
+              <span class="sub">WAVE SPEED</span>
+            </div>
+            <div class="trilat-sep"></div>
+            <div class="trilat-values">
+              <span class="val-top">21.</span>
+              <span class="val-bot">8261</span>
+            </div>
+          </div>
+          <div class="trilat-col">
+            <div class="trilat-label">
+              <span>ALCANCE ACÚSTICO</span>
+              <span class="sub">SOUND RANGE</span>
+            </div>
+            <div class="trilat-sep"></div>
+            <div class="trilat-values">
+              <span class="val-top">82740</span>
+              <span class="val-bot">12483</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ==================== NÚCLEO CENTRAL (OCTÓGONO) ==================== -->
+    <main class="nav-col nav-col-center">
+      
+      <!-- Kanji e Título Superior -->
+      <div class="nav-top-header">
+        <div class="nav-kanji-banner" title="Marte">火星</div>
+        <div class="nav-trapezoid-title">
+          <span>NAVEGAÇÃO <span class="nav-sub">// NAVIGATION</span></span>
+        </div>
+      </div>
+
+      <!-- Domo Octogonal Principal -->
+      <div class="nav-octagon-viewport">
+        <div class="nav-octagon-frame">
+          
+          <!-- Camada Cartográfica SVG -->
+          <svg class="nav-map-svg" viewBox="0 0 540 540" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <!-- Gradiente de Brilho Âmbar -->
+              <radialGradient id="amberCoreGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ff962a" stop-opacity="0.12" />
+                <stop offset="70%" stop-color="#e69133" stop-opacity="0.04" />
+                <stop offset="100%" stop-color="#070503" stop-opacity="0" />
+              </radialGradient>
+              <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Preenchimento com Brilho do Núcleo -->
+            <rect width="100%" height="100%" fill="url(#amberCoreGlow)" />
+
+            <!-- Grade Cartesiana Central -->
+            <g class="svg-grid" stroke="#16181b" stroke-width="0.75">
+              <line x1="27" y1="0" x2="27" y2="540" />
+              <line x1="54" y1="0" x2="54" y2="540" />
+              <line x1="81" y1="0" x2="81" y2="540" />
+              <line x1="108" y1="0" x2="108" y2="540" />
+              <line x1="135" y1="0" x2="135" y2="540" />
+              <line x1="162" y1="0" x2="162" y2="540" />
+              <line x1="189" y1="0" x2="189" y2="540" />
+              <line x1="216" y1="0" x2="216" y2="540" />
+              <line x1="243" y1="0" x2="243" y2="540" />
+              <line x1="270" y1="0" x2="270" y2="540" stroke="#252119" />
+              <line x1="297" y1="0" x2="297" y2="540" />
+              <line x1="324" y1="0" x2="324" y2="540" />
+              <line x1="351" y1="0" x2="351" y2="540" />
+              <line x1="378" y1="0" x2="378" y2="540" />
+              <line x1="405" y1="0" x2="405" y2="540" />
+              <line x1="432" y1="0" x2="432" y2="540" />
+              <line x1="459" y1="0" x2="459" y2="540" />
+              <line x1="486" y1="0" x2="486" y2="540" />
+              <line x1="513" y1="0" x2="513" y2="540" />
+
+              <line x1="0" y1="27" x2="540" y2="27" />
+              <line x1="0" y1="54" x2="540" y2="54" />
+              <line x1="0" y1="81" x2="540" y2="81" />
+              <line x1="0" y1="108" x2="540" y2="108" />
+              <line x1="0" y1="135" x2="540" y2="135" />
+              <line x1="0" y1="162" x2="540" y2="162" />
+              <line x1="0" y1="189" x2="540" y2="189" />
+              <line x1="0" y1="216" x2="540" y2="216" />
+              <line x1="0" y1="243" x2="540" y2="243" />
+              <line x1="0" y1="270" x2="540" y2="270" stroke="#252119" />
+              <line x1="0" y1="297" x2="540" y2="297" />
+              <line x1="0" y1="324" x2="540" y2="324" />
+              <line x1="0" y1="351" x2="540" y2="351" />
+              <line x1="0" y1="378" x2="540" y2="378" />
+              <line x1="0" y1="405" x2="540" y2="405" />
+              <line x1="0" y1="432" x2="540" y2="432" />
+              <line x1="0" y1="459" x2="540" y2="459" />
+              <line x1="0" y1="486" x2="540" y2="486" />
+              <line x1="0" y1="513" x2="540" y2="513" />
+            </g>
+
+            <!-- Arcos Polares de Radar e Eixos Diagonais -->
+            <g class="svg-radar-rings" stroke="#482501" stroke-width="0.9" fill="none">
+              <circle cx="270" cy="270" r="100" stroke-dasharray="3 3" />
+              <circle cx="270" cy="270" r="180" stroke-dasharray="4 4" />
+              <circle cx="270" cy="270" r="250" stroke-dasharray="2 4" stroke-opacity="0.5" />
+              
+              <!-- Eixo tracejado do vetor do Rover ao Alvo -->
+              <line x1="285" y1="400" x2="310" y2="210" stroke="#ffa831" stroke-width="1.2" stroke-dasharray="4 3" filter="url(#neonGlow)" />
+
+              <!-- Linhas polares diagonais 45° -->
+              <line x1="80" y1="80" x2="460" y2="460" stroke="#2b1a0e" stroke-dasharray="2 3" />
+              <line x1="460" y1="80" x2="80" y2="460" stroke="#2b1a0e" stroke-dasharray="2 3" />
+            </g>
+
+            <!-- CURVAS DE NÍVEL TOPOGRÁFICAS (RELEVO DE MARTE) -->
+            <g class="svg-contours" stroke="#e69133" stroke-width="1.2" fill="none" opacity="0.92">
+              <!-- Relevo Ocidental (Montanhas/Cratera à Esquerda) -->
+              <path d="M 30,120 Q 90,140 140,110 T 220,130 T 260,180" />
+              <path d="M 25,150 Q 100,170 150,140 T 230,165 T 255,220" />
+              <path d="M 20,180 Q 95,200 160,175 T 220,210 T 240,260" />
+              <path d="M 18,210 Q 90,230 150,210 T 205,250 T 225,300" stroke-dasharray="3 2" />
+              <path d="M 15,240 Q 80,260 140,245 T 195,290 T 210,340" />
+              <path d="M 12,270 Q 75,290 130,280 T 180,330 T 195,380" />
+              <path d="M 10,300 Q 70,320 120,315 T 165,365 T 180,420" />
+              <path d="M 10,330 Q 65,350 110,350 T 150,405 T 165,460" />
+              <path d="M 15,360 Q 60,380 100,385 T 135,445 T 150,490" />
+              <path d="M 25,390 Q 55,410 90,420 T 120,480" />
+              <path d="M 40,420 Q 70,440 105,470" />
+              <path d="M 50,70 Q 120,90 170,60 T 260,80" />
+              <path d="M 80,45 Q 150,60 200,30 T 290,50" />
+              <path d="M 120,25 Q 180,40 230,15 T 320,30" />
+
+              <!-- Relevo Oriental (Garganta e Encosta Leste) -->
+              <path d="M 360,70 Q 420,100 480,85 T 530,110" />
+              <path d="M 375,110 Q 430,140 475,130 T 525,160" />
+              <path d="M 390,150 Q 440,180 470,175 T 520,210" />
+              <path d="M 405,190 Q 450,220 475,225 T 515,260" stroke-dasharray="4 2" />
+              <path d="M 420,230 Q 460,260 480,275 T 510,310" />
+              <path d="M 410,280 Q 455,310 475,325 T 505,370" />
+              <path d="M 395,330 Q 440,360 465,385 T 500,430" />
+              <path d="M 380,380 Q 425,410 450,440 T 490,480" />
+            </g>
+
+            <!-- Textos de Elevação Gravados nas Curvas -->
+            <g class="svg-elevation-labels" fill="#e69133" font-family="'Courier New', monospace" font-size="6.5" font-weight="bold" opacity="0.85">
+              <text x="35" y="112">27.170 35.29.8 903   47.535 B</text>
+              <text x="32" y="142">92.837 51.88.5 134   38.242 B</text>
+              <text x="28" y="172">35.166 05.30.0 576   43.224 B</text>
+              <text x="25" y="202">86.438 05.77.4 431   42.204 B</text>
+              <text x="22" y="232">17.501 07.61.0 702   83.955 B</text>
+              <text x="20" y="262">00.544 17.70.0 856   92.768 B</text>
+              <text x="18" y="292">36.195 06.03.2 145   66.943 B</text>
+              <text x="16" y="322">22.843 46.24.2 874   87.554 B</text>
+              <text x="20" y="352">42.193 08.89.3 406   48.579 B</text>
+            </g>
+
+            <!-- Escala Altimétrica Vertical na Margem Direita -->
+            <g class="svg-alt-ladder" fill="#e69133" font-family="'Courier New', monospace" font-size="7" font-weight="bold" opacity="0.9">
+              <text x="495" y="80">94</text>
+              <text x="495" y="105">78</text>
+              <text x="495" y="130">62</text>
+              <text x="495" y="155">99</text>
+              <text x="495" y="180">81</text>
+              <text x="495" y="205">84</text>
+              <text x="495" y="230">48</text>
+              <text x="495" y="255">69</text>
+              <text x="495" y="280">56</text>
+              <text x="495" y="305">64</text>
+              <text x="495" y="330">27</text>
+              <text x="495" y="355">48</text>
+              <text x="495" y="380">59</text>
+            </g>
+          </svg>
+
+          <!-- 3.4 ALVO DE DESTINO: WORKSHOP (A OFICINA TÁTICA) -->
+          <div class="nav-target-workshop" data-action="openWorkshop" title="Alvo de Destino: Clique para conectar com a Oficina Tática">
+            <div class="target-bracket-tl"></div>
+            <div class="target-bracket-tr"></div>
+            <div class="target-bracket-bl"></div>
+            <div class="target-bracket-br"></div>
+            <div class="target-dot-center"></div>
+
+            <div class="target-label-box">
+              <div class="target-title">
+                <i class="fa-solid fa-crosshairs"></i> OFICINA <span class="sub">// WORKSHOP</span>
+              </div>
+              <div class="target-coords">
+                <span class="coord-dec-lat">54.715131</span>
+                <span class="coord-dec-lon">-1.74354500000004</span>
+                <span class="coord-dms-lat">54° 42' 54.472"</span>
+                <span class="coord-dms-lon">1° 44' 36.762"</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3.5 VETOR DE POSIÇÃO DO ROVER -->
+          <div class="nav-rover-indicator" title="Posição Atual do Rover-04 em Trânsito">
+            <div class="rover-glyph">▲</div>
+            <div class="rover-base-dot"></div>
+            <div class="rover-callout">ROVER-04 [ATIVO]</div>
+          </div>
+
+          <!-- 3.6 DISTÂNCIA RESTANTE (MONUMENTAL) -->
+          <div class="nav-distance-container">
+            <div class="distance-title">DISTÂNCIA RESTANTE <span class="sub">// DISTANCE REMAINING</span></div>
+            <div class="distance-value-row">
+              <span class="distance-number" id="nav-dist-val">54.3</span>
+              <span class="distance-unit">KM</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== COLUNA DIREITA ==================== -->
+    <aside class="nav-col nav-col-right">
+      
+      <!-- 4.1 MENU DE CONTROLE -->
+      <section class="nav-block nav-menu">
+        <div class="nav-menu-header">
+          <span class="nav-title">MENU</span>
+        </div>
+        <div class="nav-menu-grid">
+          <button type="button" class="nav-menu-btn" data-action="menuAction" data-menu="comms">
+            <span class="btn-corner tl"></span><span class="btn-corner tr"></span>
+            <span class="btn-label">COMS</span>
+            <span class="btn-corner bl"></span><span class="btn-corner br"></span>
+          </button>
+          <button type="button" class="nav-menu-btn" data-action="menuAction" data-menu="rover">
+            <span class="btn-corner tl"></span><span class="btn-corner tr"></span>
+            <span class="btn-label">ROVER</span>
+            <span class="btn-corner bl"></span><span class="btn-corner br"></span>
+          </button>
+          <button type="button" class="nav-menu-btn is-active" data-action="menuAction" data-menu="nav">
+            <span class="btn-corner tl"></span><span class="btn-corner tr"></span>
+            <span class="btn-label">NAVEGAÇÃO</span>
+            <span class="btn-corner bl"></span><span class="btn-corner br"></span>
+          </button>
+          <button type="button" class="nav-menu-btn" data-action="openWorkshop" data-menu="system" title="Abrir Console da Oficina">
+            <span class="btn-corner tl"></span><span class="btn-corner tr"></span>
+            <span class="btn-label">SISTEMA</span>
+            <span class="btn-corner bl"></span><span class="btn-corner br"></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4.2 INSTRUMENTOS -->
+      <section class="nav-block nav-instruments">
+        <div class="nav-stepped-header right-aligned">
+          <span class="nav-anchor-dot"></span>
+          <span class="nav-title">INSTRUMENTAÇÃO <span class="nav-sub">// INSTRUMENTS</span></span>
+        </div>
+
+        <div class="nav-table-wrapper">
+          <table class="nav-data-table">
+            <tbody>
+              <tr class="table-row">
+                <td class="col-code">CF-950</td>
+                <td class="col-val">6.20</td>
+                <td class="col-ip">10.46.96.47</td>
+                <td class="col-dev">D-025</td>
+                <td class="col-seq">A-R-24-K</td>
+                <td class="col-ip2">10.65.57.83</td>
+              </tr>
+              <tr class="table-row is-soft-highlight">
+                <td class="col-code">RH-674</td>
+                <td class="col-val">34.09</td>
+                <td class="col-ip">10.39.88.33</td>
+                <td class="col-dev">D-852</td>
+                <td class="col-seq">B-A-89-2</td>
+                <td class="col-ip2">10.86.33.56</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">IU-329</td>
+                <td class="col-val">9.30</td>
+                <td class="col-ip">10.63.39.79</td>
+                <td class="col-dev">D-888</td>
+                <td class="col-seq">N-W-46-E</td>
+                <td class="col-ip2">10.83.46.34</td>
+              </tr>
+              <tr class="table-row is-pill-highlight">
+                <td class="col-code">GN-364</td>
+                <td class="col-val">68.51</td>
+                <td class="col-ip">10.85.77.53</td>
+                <td class="col-dev">D-423</td>
+                <td class="col-seq">N-P-87-Y</td>
+                <td class="col-ip2">10.26.96.58</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">QT-463</td>
+                <td class="col-val">70.75</td>
+                <td class="col-ip">10.24.84.64</td>
+                <td class="col-dev">D-355</td>
+                <td class="col-seq">R-H-38-Z</td>
+                <td class="col-ip2">10.46.96.47</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">WJ-039</td>
+                <td class="col-val">73.89</td>
+                <td class="col-ip">10.35.76.85</td>
+                <td class="col-dev">D-463</td>
+                <td class="col-seq">N-Z-76-X</td>
+                <td class="col-ip2">10.39.88.33</td>
+              </tr>
+              <tr class="table-row">
+                <td class="col-code">JS-862</td>
+                <td class="col-val">24.85</td>
+                <td class="col-ip">10.97.92.43</td>
+                <td class="col-dev">D-386</td>
+                <td class="col-seq">A-P-82-V</td>
+                <td class="col-ip2">10.63.39.79</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4.3 RADAR SECUNDÁRIO DE SUPERFÍCIE -->
+      <section class="nav-block nav-secondary-radar">
+        <div class="radar-viewport">
+          <div class="radar-grid-bg"></div>
+          <div class="radar-range-circle"></div>
+          <div class="radar-crosshair-x"></div>
+          <div class="radar-crosshair-y"></div>
+
+          <div class="radar-node node-1" data-action="clickWaypoint" data-wp="7292-491" title="Ponto de Apoio 7292-491">
+            <span class="node-icon circle"></span>
+            <span class="node-tag">[7292-491]</span>
+          </div>
+
+          <div class="radar-node node-2" data-action="clickWaypoint" data-wp="2728-267191" title="Sensor Geodésico 2728-267191">
+            <span class="node-icon hex"></span>
+            <span class="node-tag">[2728-267191]</span>
+          </div>
+
+          <div class="radar-node node-3" data-action="clickWaypoint" data-wp="719-10101" title="Baliza de Rádio 719-10101">
+            <span class="node-icon hex"></span>
+            <span class="node-tag">[719-10101]</span>
+          </div>
+
+          <div class="radar-footer-telemetry">
+            <span>X1.438.77.4</span>
+            <span>SYS-01-3RC-383</span>
+            <span>SYSTEM-DM-56909Y</span>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+  </div>
+</div>

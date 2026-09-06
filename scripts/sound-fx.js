@@ -124,6 +124,58 @@ export class TacticalAudioEngine {
     osc.stop(ctx.currentTime + 0.03);
   }
 
+  /**
+   * Ping de Sonar/Radar de varredura topográfica
+   */
+  playRadarPing() {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1400, now);
+    osc.frequency.exponentialRampToValueAtTime(320, now + 0.35);
+
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(now + 0.35);
+  }
+
+  /**
+   * Bipe de telemetria e recepção de pacote marciano
+   */
+  playTelemetryBeep(highPitch = false) {
+    if (!this.isEnabled) return;
+    const ctx = this._ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(highPitch ? 2200 : 1250, now);
+    osc.frequency.exponentialRampToValueAtTime(highPitch ? 1800 : 950, now + 0.05);
+
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(now + 0.05);
+  }
+
   toggleMute() {
     this.isEnabled = !this.isEnabled;
     return this.isEnabled;
