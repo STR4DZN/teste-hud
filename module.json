@@ -2,7 +2,7 @@
   "id": "teste-hud",
   "title": "Teste-Hud // Tetralogia Tática: Oficina, Navegação, DNA & Núcleo do Reator",
   "description": "Consoles táticos de bancada [МАСТЕРСКАЯ], navegação marciana [火星 NAVIGATION], análise genômica 3D de DNA [DNA ANALYSIS] e núcleo de fusão [REACTOR CORE] para Foundry VTT v13.",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "authors": [
     {
       "name": "Fusion",
@@ -11,7 +11,7 @@
   ],
   "url": "https://github.com/STR4DZN/teste-hud",
   "manifest": "https://raw.githubusercontent.com/STR4DZN/teste-hud/main/module.json",
-  "download": "https://github.com/STR4DZN/teste-hud/releases/download/v1.4.1/teste-hud.zip",
+  "download": "https://github.com/STR4DZN/teste-hud/releases/download/v1.4.2/teste-hud.zip",
   "compatibility": {
     "minimum": "13.341",
     "verified": "13.351"

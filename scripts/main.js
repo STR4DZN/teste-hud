@@ -636,13 +636,13 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ro.observe(canvas);
     }
 
-    // 65 nós 3D do plexo molecular de fundo
+    // 140 nós 3D do plexo molecular de fundo
     const meshNodes = [];
-    for (let i = 0; i < 65; i++) {
+    for (let i = 0; i < 140; i++) {
       meshNodes.push({
-        x: (Math.random() - 0.5) * 850,
-        y: (Math.random() - 0.5) * 320,
-        z: (Math.random() - 0.5) * 180,
+        x: (Math.random() - 0.5) * 940,
+        y: (Math.random() - 0.5) * 360,
+        z: (Math.random() - 0.5) * 200,
         vx: (Math.random() - 0.5) * 0.25,
         vy: (Math.random() - 0.5) * 0.2,
         vz: (Math.random() - 0.5) * 0.25
@@ -768,9 +768,9 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         for (let j = i + 1; j < projMesh.length; j++) {
           const p2 = projMesh[j];
           const distSq = (p1.px - p2.px) ** 2 + (p1.py - p2.py) ** 2;
-          if (distSq < 2700) { // dist < 52px
+          if (distSq < 4225) { // dist < 65px
             const dist = Math.sqrt(distSq);
-            const alpha = (1 - dist / 52) * 0.16 * p1.scale;
+            const alpha = (1 - dist / 65) * 0.22 * p1.scale;
             ctx.strokeStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
             ctx.beginPath();
             ctx.moveTo(p1.px, p1.py);
@@ -834,38 +834,40 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         });
       }
 
-      // 5. Degraus de Pares de Base Espaçados e Nítidos (38 degraus, ~9.5 por volta)
-      const numRungs = 38;
+      // 5. Degraus de Pares de Base de Alta Densidade (64 degraus com micro-pérolas volumétricas)
+      const numRungs = 64;
       for (let i = 0; i < numRungs; i++) {
         const t = i / (numRungs - 1);
         const x = startX + t * (endHelixX - startX);
         const theta = ((x - startX) / loopWidth) * Math.PI + this.angle;
+        const sinTh = Math.sin(theta);
+        const cosTh = Math.cos(theta);
+        const absSin = Math.abs(sinTh);
 
-        const y1_3d = centerY + R * Math.sin(theta);
-        const z1_3d = R * Math.cos(theta);
-        const y2_3d = centerY - R * Math.sin(theta);
-        const z2_3d = -R * Math.cos(theta);
+        const y1_3d = centerY + R * sinTh;
+        const z1_3d = R * cosTh;
+        const y2_3d = centerY - R * sinTh;
+        const z2_3d = -R * cosTh;
 
         const p1 = project(x, y1_3d, z1_3d);
         const p2 = project(x, y2_3d, z2_3d);
 
         const distLaser = Math.abs((p1.px + p2.px) * 0.5 - laserX);
-        const isHit = distLaser < 26;
-        const hitIntensity = isHit ? 1.0 - distLaser / 26.0 : 0.0;
+        const isHit = distLaser < 28;
+        const hitIntensity = isHit ? 1.0 - distLaser / 28.0 : 0.0;
 
         // Linha de ligação do par de bases
         renderables.push({
           type: "rung_line",
           p1,
           p2,
-          z: 0,
+          z: (p1.z + p2.z) * 0.5 - 5,
           isHit,
           hitIntensity
         });
 
-        // Contas ao longo do degrau
-        const rungLen = Math.hypot(p2.px - p1.px, p2.py - p1.py);
-        const numBeads = Math.max(4, Math.min(10, Math.floor(rungLen / 15.0) * 2));
+        // Contas micro-pérolas ao longo do degrau (13 contas por coluna)
+        const numBeads = 13;
         for (let b = 1; b < numBeads; b++) {
           const u = b / numBeads;
           const by_3d = y1_3d + (y2_3d - y1_3d) * u;
@@ -873,8 +875,8 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
           const bp = project(x, by_3d, bz_3d);
 
           const bDist = Math.abs(bp.px - laserX);
-          const bHit = bDist < 24;
-          const bInt = bHit ? 1.0 - bDist / 24.0 : 0.0;
+          const bHit = bDist < 26;
+          const bInt = bHit ? 1.0 - bDist / 26.0 : 0.0;
 
           renderables.push({
             type: "rung_bead",
@@ -886,9 +888,11 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
           });
         }
 
-        // Nós principais da fita (strand nodes)
-        const crest1 = Math.abs(Math.sin(theta));
-        const isRing1 = (crest1 > 0.35) && (p1.z > 5);
+        // Nós principais e Coroa de Anéis Vesiculares (Donuts com miolo)
+        // Ambas as cristas (superior e inferior) recebem anéis quando absSin > 0.52
+        const isCrest = absSin > 0.52;
+        const peakFrac = isCrest ? (absSin - 0.52) / 0.48 : 0.0;
+
         const s1Dist = Math.abs(p1.px - laserX);
         const s1Hit = s1Dist < 26;
         const s1Int = s1Hit ? 1.0 - s1Dist / 26.0 : 0.0;
@@ -898,15 +902,14 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
           p: p1,
           z: p1.z,
           scale: p1.scale,
-          isRing: isRing1,
+          isRing: isCrest,
+          peakFrac,
           strand: 1,
           theta,
           isHit: s1Hit,
           hitIntensity: s1Int
         });
 
-        const crest2 = Math.abs(Math.sin(theta + Math.PI));
-        const isRing2 = (crest2 > 0.35) && (p2.z > 5);
         const s2Dist = Math.abs(p2.px - laserX);
         const s2Hit = s2Dist < 26;
         const s2Int = s2Hit ? 1.0 - s2Dist / 26.0 : 0.0;
@@ -916,48 +919,136 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
           p: p2,
           z: p2.z,
           scale: p2.scale,
-          isRing: isRing2,
+          isRing: isCrest,
+          peakFrac,
           strand: 2,
           theta: theta + Math.PI,
           isHit: s2Hit,
           hitIntensity: s2Int
         });
 
+        // Anel satélite companheiro nas cristas de pico
+        if (peakFrac > 0.82 && i % 2 === 0) {
+          const offY1 = (p1.py < centerY ? -9 : 9) * p1.scale;
+          const satP1 = { px: p1.px + (i % 4 - 2) * 3, py: p1.py + offY1, scale: p1.scale, z: p1.z + 10 };
+          renderables.push({
+            type: "satellite_ring",
+            p: satP1,
+            z: satP1.z,
+            scale: satP1.scale,
+            isHit: s1Hit
+          });
+        }
+
+        // Constrição nodal nos pontos de cruzamento (absSin < 0.22)
+        if (absSin < 0.22) {
+          const crossP = project(x, centerY, 0);
+          renderables.push({
+            type: "twist_node",
+            p: crossP,
+            z: crossP.z,
+            scale: crossP.scale,
+            isHit
+          });
+        }
+
         // Faíscas dinâmicas ao atingir o feixe laser
-        if ((s1Hit || s2Hit) && Math.random() < 0.28) {
+        if ((s1Hit || s2Hit) && Math.random() < 0.35) {
           const hitNode = s1Hit ? p1 : p2;
           this.sparks.push({
-            x: hitNode.px + (Math.random() - 0.5) * 6,
-            y: hitNode.py + (Math.random() - 0.5) * 6,
-            vx: (Math.random() - 0.5) * 2.2,
-            vy: (Math.random() - 0.5) * 2.5 - 1.2,
+            x: hitNode.px + (Math.random() - 0.5) * 8,
+            y: hitNode.py + (Math.random() - 0.5) * 8,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: (Math.random() - 0.5) * 2.8 - 1.2,
             life: 1.0,
             color: Math.random() > 0.35 ? "#ffffff" : "#ffd15c"
           });
         }
       }
 
-      // 6. Ramificações em tridente na cauda à direita
-      const tailOffsets = [
-        { dy: -18, dtheta: -0.25 },
-        { dy: 0, dtheta: 0 },
-        { dy: 18, dtheta: 0.25 }
-      ];
-      for (const tDef of tailOffsets) {
-        for (let step = 1; step <= 7; step++) {
-          const fx = endHelixX + step * 14;
-          const fy = centerY + tDef.dy * (step * 0.48);
-          const fz = Math.sin(this.angle + tDef.dtheta) * 15;
-          const fp = project(fx, fy, fz);
-          renderables.push({
-            type: "tail_bead",
-            p: fp,
-            z: fp.z,
-            scale: fp.scale,
-            isHit: false,
-            hitIntensity: 0.0
-          });
-        }
+      // 6. Extremidade Final do DNA: Cauda Fractal com Ramificações Orgânicas
+      // Branch 1: Filamento Principal Superior
+      const b1Pts = [];
+      for (let step = 0; step < 26; step++) {
+        const frac = step / 25.0;
+        const bx = endHelixX + frac * 105;
+        const by = centerY - 28 * Math.sin(frac * Math.PI * 0.5) + Math.pow(frac, 1.5) * 8;
+        const bz = 15 * Math.cos(frac * Math.PI + this.angle);
+        b1Pts.push(project(bx, by, bz));
+      }
+      for (let step = 0; step < b1Pts.length - 1; step++) {
+        const p1 = b1Pts[step];
+        const p2 = b1Pts[step + 1];
+        renderables.push({
+          type: "tail_filament",
+          p1,
+          p2,
+          z: (p1.z + p2.z) * 0.5,
+          width: Math.max(0.8, 2.0 * (1 - step / 28.0))
+        });
+        renderables.push({
+          type: "tail_bead",
+          p: p1,
+          z: p1.z,
+          scale: p1.scale,
+          radius: Math.max(0.8, (2.4 - step * 0.08))
+        });
+      }
+
+      // Branch 2: Sub-ramificação Superior
+      const b2Pts = [];
+      for (let step = 0; step < 16; step++) {
+        const frac = step / 15.0;
+        const bx = endHelixX + 35 + frac * 68;
+        const by = centerY - 20 - frac * 26;
+        const bz = 18 - frac * 15;
+        b2Pts.push(project(bx, by, bz));
+      }
+      for (let step = 0; step < b2Pts.length - 1; step++) {
+        const p1 = b2Pts[step];
+        const p2 = b2Pts[step + 1];
+        renderables.push({
+          type: "tail_filament",
+          p1,
+          p2,
+          z: (p1.z + p2.z) * 0.5,
+          width: 1.2
+        });
+        renderables.push({
+          type: "tail_bead",
+          p: p1,
+          z: p1.z,
+          scale: p1.scale,
+          radius: Math.max(0.7, 1.8 - step * 0.08)
+        });
+      }
+
+      // Branch 3: Filamento Inferior Suave
+      const b3Pts = [];
+      for (let step = 0; step < 20; step++) {
+        const frac = step / 19.0;
+        const bx = endHelixX + frac * 85;
+        const by = centerY + 24 * Math.sin(frac * Math.PI * 0.5) - Math.pow(frac, 1.5) * 6;
+        const bz = -15 * Math.cos(frac * Math.PI + this.angle);
+        b3Pts.push(project(bx, by, bz));
+      }
+      for (let step = 0; step < b3Pts.length - 1; step++) {
+        const p1 = b3Pts[step];
+        const p2 = b3Pts[step + 1];
+        renderables.push({
+          type: "tail_filament",
+          p1,
+          p2,
+          z: (p1.z + p2.z) * 0.5,
+          width: Math.max(0.8, 1.8 * (1 - step / 22.0))
+        });
+        renderables.push({
+          type: "tail_bead",
+          p: p1,
+          z: p1.z,
+          scale: p1.scale,
+          radius: Math.max(0.8, 2.0 - step * 0.08)
+        });
       }
 
       // 7. Z-Buffer: Ordenação de Profundidade
@@ -1029,17 +1120,40 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
             }
           }
 
+        } else if (item.type === "tail_filament") {
+          ctx.beginPath();
+          ctx.moveTo(item.p1.px, item.p1.py);
+          ctx.lineTo(item.p2.px, item.p2.py);
+          ctx.strokeStyle = "rgba(63, 244, 213, 0.75)";
+          ctx.lineWidth = item.width;
+          ctx.stroke();
+
         } else if (item.type === "tail_bead") {
           ctx.beginPath();
-          ctx.arc(item.p.px, item.p.py, 1.8 * item.scale, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(63, 244, 213, 0.85)";
+          ctx.arc(item.p.px, item.p.py, item.radius * item.scale, 0, Math.PI * 2);
+          ctx.fillStyle = normZ > 0.4 ? "rgba(190, 255, 248, 0.95)" : "rgba(63, 244, 213, 0.85)";
           ctx.fill();
+
+        } else if (item.type === "satellite_ring") {
+          const satR = 3.5 * item.scale;
+          ctx.beginPath();
+          ctx.arc(item.p.px, item.p.py, satR, 0, Math.PI * 2);
+          ctx.strokeStyle = item.isHit ? "#ffd15c" : "rgba(63, 244, 213, 0.85)";
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+
+        } else if (item.type === "twist_node") {
+          ctx.beginPath();
+          ctx.arc(item.p.px, item.p.py, 4.5 * item.scale, 0, Math.PI * 2);
+          ctx.strokeStyle = item.isHit ? "#ffffff" : "rgba(190, 255, 248, 0.9)";
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
 
         } else if (item.type === "strand_node") {
           if (item.isRing && normZ > 0.2) {
-            // Grande anel vazado brilhante (Vesícula / Donut)
-            const ringR = (5.0 + normZ * 3.2) * item.scale;
-            const strokeW = normZ < 0.65 ? 2.0 : 2.8;
+            // Anel Vesicular Vazado Brilhante (Vesícula / Donut com miolo)
+            const ringR = (5.0 + (item.peakFrac || 0.5) * 3.5) * item.scale;
+            const strokeW = 2.4;
 
             ctx.beginPath();
             ctx.arc(item.p.px, item.p.py, ringR, 0, Math.PI * 2);
@@ -1057,11 +1171,11 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
               ctx.arc(item.p.px, item.p.py, 1.8 * item.scale, 0, Math.PI * 2);
               ctx.fill();
             } else {
-              const alpha = 0.65 + normZ * 0.35;
+              const alpha = 0.70 + normZ * 0.30;
               ctx.strokeStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
               ctx.lineWidth = strokeW;
 
-              if (normZ > 0.45) {
+              if (normZ > 0.4) {
                 ctx.shadowColor = "rgba(63, 244, 213, 0.75)";
                 ctx.shadowBlur = 8 * normZ;
               }
@@ -1069,26 +1183,17 @@ export class DnaHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
               ctx.shadowBlur = 0;
 
               // Anel concêntrico interno fino
-              if (normZ > 0.45) {
-                ctx.beginPath();
-                ctx.arc(item.p.px, item.p.py, ringR * 0.45, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(200, 255, 245, ${(0.4 + normZ * 0.4).toFixed(3)})`;
-                ctx.lineWidth = 0.8;
-                ctx.stroke();
-              }
+              ctx.beginPath();
+              ctx.arc(item.p.px, item.p.py, ringR * 0.45, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(200, 255, 245, ${(0.4 + normZ * 0.4).toFixed(3)})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
 
-              // Anel satélite companheiro
-              const crestFactor = Math.abs(Math.sin(item.theta));
-              if (crestFactor > 0.65 && normZ > 0.45) {
-                const satR = 3.2 * item.scale;
-                const offsetY = (item.p.py < centerY ? -7.5 : 7.5) * item.scale;
-                const offsetX = (item.strand === 1 ? 4.5 : -4.5) * item.scale;
-                ctx.beginPath();
-                ctx.arc(item.p.px + offsetX, item.p.py + offsetY, satR, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(63, 244, 213, ${alpha.toFixed(3)})`;
-                ctx.lineWidth = 1.8;
-                ctx.stroke();
-              }
+              // Miolo central reflexivo
+              ctx.beginPath();
+              ctx.arc(item.p.px, item.p.py, 1.4 * item.scale, 0, Math.PI * 2);
+              ctx.fillStyle = normZ > 0.5 ? "#ffffff" : "rgba(63, 244, 213, 0.75)";
+              ctx.fill();
             }
           } else {
             // Conta sólida intermediária / nó
