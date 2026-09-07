@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <!-- Medidores Circulares Marginais e Retículo Gimbal -->
+      <!-- Medidores Circulares Marginais e Triple Dial Instrument -->
       <div class="dial-arc-row">
         <div class="arc-meters-col">
           <div class="arc-meter"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="arc-bg" /><path d="M 12 2 A 10 10 0 1 1 3.3 17" class="arc-fg" /></svg><span>001</span></div>
@@ -66,12 +66,12 @@
           <div class="arc-meter"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="arc-bg" /><path d="M 12 2 A 10 10 0 0 1 20.6 17" class="arc-fg" /></svg><span>003</span></div>
         </div>
 
-        <div class="gimbal-reticle-wrap">
-          <svg viewBox="0 0 54 54" class="left-gimbal-svg">
-            <circle cx="27" cy="27" r="25" class="gimbal-ring-1" />
-            <circle cx="27" cy="27" r="18" class="gimbal-ring-2" />
-            <circle cx="27" cy="27" r="10" class="gimbal-ring-3" />
-            <circle cx="27" cy="27" r="4" class="gimbal-center-amber" />
+        <div class="triple-dial-wrap">
+          <img src="modules/teste-hud/assets/triple-dial-widget.webp" alt="Triple Dial Widget" class="triple-dial-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
+          <svg viewBox="0 0 96 44" class="fallback-dial-svg" style="display:none;">
+            <circle cx="20" cy="22" r="16" stroke="#ffd15c" fill="none" stroke-width="1.5" />
+            <circle cx="48" cy="22" r="18" stroke="#3ff4d5" fill="none" stroke-width="2" />
+            <circle cx="76" cy="22" r="16" stroke="#ffd15c" fill="none" stroke-width="1.5" />
           </svg>
         </div>
       </div>
@@ -133,13 +133,19 @@
         </div>
         <div class="temp-value-display" id="collider-temp-val">89.02°</div>
 
-        <!-- Espectro Equalizador de Barras -->
+        <!-- Espectro Equalizador de 12 Barras -->
         <div class="temp-spectrum-wrap">
-          <canvas id="collider-spectrum-canvas" class="spectrum-canvas"></canvas>
+          <canvas id="collider-histogram-canvas" class="spectrum-canvas"></canvas>
+          <div class="temp-spectrum-labels">
+            <span class="spec-label-main">EQUAL DATA NODES [INPUT/SCALE]</span>
+            <span class="spec-label-sub">12 28 78 40 //_0924</span>
+          </div>
         </div>
 
-        <div class="temp-sub-telemetry">
-          <span>// DUAL DATA RINGS // 78881 70455 4172 020 35</span>
+        <div class="temp-matrix-numbers">
+          <div>78881 70455 4172 020 35</div>
+          <div>8768 694 073 177</div>
+          <div>734884 282a* 447 :: 72735</div>
         </div>
       </div>
 

@@ -2276,16 +2276,16 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
     this._animId = null;
-    this._waveInterval = null;
     this._ledInterval = null;
+    this._dotInterval = null;
     this.time = 0;
 
     // Estado da Coluna 1: Poliedro 3D
     this.polyNodes = [];
-    for (let i = 0; i < 28; i++) {
-      const th = Math.random() * Math.PI * 2;
-      const ph = (Math.random() - 0.5) * Math.PI;
-      const r = 24 + Math.random() * 22;
+    for (let i = 0; i < 32; i++) {
+      const th = (i / 32) * Math.PI * 2;
+      const ph = ((i % 5) - 2) * 0.5;
+      const r = 26 + ((i * 13) % 20);
       this.polyNodes.push({
         baseX: r * Math.cos(ph) * Math.cos(th),
         baseY: r * Math.cos(ph) * Math.sin(th),
@@ -2295,7 +2295,7 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
       });
     }
 
-    // Partículas de poeira da Coluna 1
+    // Poeira cósmica 3D da Coluna 1
     this.dust1 = [];
     for (let i = 0; i < 35; i++) {
       this.dust1.push({
@@ -2309,13 +2309,13 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
       });
     }
 
-    // Estado da Coluna 2: Torus Paramétrico (64 vértices)
+    // Estado da Coluna 2: Torus Paramétrico 3D (128 vértices)
     this.torusPoints = [];
     const R_major = 38, r_minor = 14;
     for (let u_i = 0; u_i < 16; u_i++) {
       const u = u_i * (Math.PI * 2 / 16);
-      for (let v_i = 0; v_i < 4; v_i++) {
-        const v = v_i * (Math.PI * 2 / 4);
+      for (let v_i = 0; v_i < 8; v_i++) {
+        const v = v_i * (Math.PI * 2 / 8);
         this.torusPoints.push({
           x: (R_major + r_minor * Math.cos(v)) * Math.cos(u),
           y: (R_major + r_minor * Math.cos(v)) * Math.sin(u),
@@ -2325,13 +2325,26 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
       }
     }
 
-    // Estado do Grafo Alluvial (24 splines trançadas com pacotes de fótons)
+    // Estado da Coluna 3: Esfera Geodésica 3D (24 vértices)
+    this.sphereNodes = [];
+    for (let i = 0; i < 24; i++) {
+      const u = (i / 24) * Math.PI * 2;
+      const v = ((i % 6) - 2.5) * 0.5;
+      const r = 28;
+      this.sphereNodes.push({
+        baseX: r * Math.cos(v) * Math.cos(u),
+        baseY: r * Math.cos(v) * Math.sin(u),
+        baseZ: r * Math.sin(v)
+      });
+    }
+
+    // Estado do Grafo Alluvial (24 splines trançadas com 42 pacotes de fótons)
     this.alluvialPackets = [];
     for (let i = 0; i < 42; i++) {
       this.alluvialPackets.push({
         splineIndex: i % 24,
         t: Math.random(),
-        speed: 0.003 + Math.random() * 0.007,
+        speed: 0.004 + Math.random() * 0.008,
         size: 1.5 + Math.random() * 1.5,
         color: Math.random() > 0.3 ? "#3ff4d5" : "#ffd15c"
       });
@@ -2345,6 +2358,7 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender?.(context, options);
     this._initCanvases();
+    this._initDotMatrices();
     this._initLedMatrix();
   }
 
@@ -2362,16 +2376,20 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const ws2 = this.element.querySelector("#topology-wave-canvas-sub-2");
     const ws3 = this.element.querySelector("#topology-wave-canvas-sub-3");
 
-    const canvases = [c1, c2, c3, cAlluvial, w1, w2, w3, ws1, ws2, ws3].filter(Boolean);
-
-    const setupDpi = (c) => {
+    const checkCanvas = (c) => {
+      if (!c) return null;
       const rect = c.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return null;
       const dpr = window.devicePixelRatio || 1;
-      c.width = Math.round((rect.width || 100) * dpr);
-      c.height = Math.round((rect.height || 60) * dpr);
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (c.width !== targetW || c.height !== targetH) {
+        c.width = targetW;
+        c.height = targetH;
+      }
       const ctx = c.getContext("2d");
       if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      return { ctx, width: rect.width || 100, height: rect.height || 60 };
+      return { ctx, width: rect.width, height: rect.height };
     };
 
     const renderLoop = () => {
@@ -2379,263 +2397,272 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const t = this.time;
 
       // 1. CANVAS 1: POLIEDRO IRREGULAR 3D
-      if (c1) {
-        const ctx1 = c1.getContext("2d");
-        const rect1 = c1.getBoundingClientRect();
-        if (ctx1 && rect1.width > 0) {
-          ctx1.clearRect(0, 0, rect1.width, rect1.height);
-          const cx = rect1.width / 2;
-          const cy = rect1.height / 2;
+      const c1Data = checkCanvas(c1);
+      if (c1Data) {
+        const { ctx: ctx1, width: w1, height: h1 } = c1Data;
+        ctx1.clearRect(0, 0, w1, h1);
+        const cx = w1 / 2;
+        const cy = h1 / 2;
 
-          const rotX = t * 0.45;
-          const rotY = t * 0.65;
+        const rotX = t * 0.45;
+        const rotY = t * 0.65;
 
-          const project3D = (x, y, z) => {
-            // Rotação Y
-            const x1 = x * Math.cos(rotY) + z * Math.sin(rotY);
-            const z1 = -x * Math.sin(rotY) + z * Math.cos(rotY);
-            // Rotação X
-            const y2 = y * Math.cos(rotX) - z1 * Math.sin(rotX);
-            const z2 = y * Math.sin(rotX) + z1 * Math.cos(rotX);
-            const scale = 140 / (160 + z2);
-            return { px: cx + x1 * scale, py: cy + y2 * scale, pz: z2 };
-          };
+        const project3D = (x, y, z) => {
+          const x1 = x * Math.cos(rotY) + z * Math.sin(rotY);
+          const z1 = -x * Math.sin(rotY) + z * Math.cos(rotY);
+          const y2 = y * Math.cos(rotX) - z1 * Math.sin(rotX);
+          const z2 = y * Math.sin(rotX) + z1 * Math.cos(rotX);
+          const scale = 140 / (160 + z2);
+          return { px: cx + x1 * scale, py: cy + y2 * scale, pz: z2 };
+        };
 
-          // Poeira cósmica 3D
-          for (const p of this.dust1) {
-            p.x += p.vx; p.y += p.vy; p.z += p.vz;
-            if (p.x > 55) p.x = -55; if (p.x < -55) p.x = 55;
-            if (p.y > 55) p.y = -55; if (p.y < -55) p.y = 55;
-            if (p.z > 55) p.z = -55; if (p.z < -55) p.z = 55;
-            const pt = project3D(p.x, p.y, p.z);
-            ctx1.fillStyle = "rgba(63, 244, 213, 0.4)";
-            ctx1.beginPath();
-            ctx1.arc(pt.px, pt.py, p.size, 0, Math.PI * 2);
-            ctx1.fill();
-          }
+        // Poeira cósmica 3D
+        for (const p of this.dust1) {
+          p.x += p.vx; p.y += p.vy; p.z += p.vz;
+          if (p.x > 55) p.x = -55; if (p.x < -55) p.x = 55;
+          if (p.y > 55) p.y = -55; if (p.y < -55) p.y = 55;
+          if (p.z > 55) p.z = -55; if (p.z < -55) p.z = 55;
+          const pt = project3D(p.x, p.y, p.z);
+          ctx1.fillStyle = "rgba(63, 244, 213, 0.4)";
+          ctx1.beginPath();
+          ctx1.arc(pt.px, pt.py, p.size, 0, Math.PI * 2);
+          ctx1.fill();
+        }
 
-          // Vértices do Poliedro
-          const projectedNodes = this.polyNodes.map(node => {
-            const pulse = 1 + 0.08 * Math.sin(t * node.speed + node.phase);
-            return project3D(node.baseX * pulse, node.baseY * pulse, node.baseZ * pulse);
-          });
+        // Vértices do Poliedro
+        const projectedNodes = this.polyNodes.map(node => {
+          const pulse = 1 + 0.08 * Math.sin(t * node.speed + node.phase);
+          return project3D(node.baseX * pulse, node.baseY * pulse, node.baseZ * pulse);
+        });
 
-          // Arestas
-          ctx1.lineWidth = 1;
-          for (let i = 0; i < projectedNodes.length; i++) {
-            for (let j = i + 1; j < projectedNodes.length; j++) {
-              const p1 = projectedNodes[i];
-              const p2 = projectedNodes[j];
-              const dx = p1.px - p2.px;
-              const dy = p1.py - p2.py;
-              const dist = Math.hypot(dx, dy);
-              if (dist < 32) {
-                const alpha = Math.max(0.1, 1 - dist / 32) * 0.65;
-                ctx1.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
-                ctx1.beginPath();
-                ctx1.moveTo(p1.px, p1.py);
-                ctx1.lineTo(p2.px, p2.py);
-                ctx1.stroke();
-              }
+        // Arestas
+        ctx1.lineWidth = 1;
+        for (let i = 0; i < projectedNodes.length; i++) {
+          for (let j = i + 1; j < projectedNodes.length; j++) {
+            const p1 = projectedNodes[i];
+            const p2 = projectedNodes[j];
+            const dist = Math.hypot(p1.px - p2.px, p1.py - p2.py);
+            if (dist < 34) {
+              const alpha = Math.max(0.1, 1 - dist / 34) * 0.65;
+              ctx1.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
+              ctx1.beginPath();
+              ctx1.moveTo(p1.px, p1.py);
+              ctx1.lineTo(p2.px, p2.py);
+              ctx1.stroke();
             }
           }
-
-          // Nós
-          for (const p of projectedNodes) {
-            ctx1.fillStyle = "#3ff4d5";
-            ctx1.shadowColor = "#3ff4d5";
-            ctx1.shadowBlur = 5;
-            ctx1.beginPath();
-            ctx1.arc(p.px, p.py, 1.8, 0, Math.PI * 2);
-            ctx1.fill();
-          }
-          ctx1.shadowBlur = 0;
         }
+
+        // Nós
+        for (const p of projectedNodes) {
+          ctx1.fillStyle = "#3ff4d5";
+          ctx1.shadowColor = "#3ff4d5";
+          ctx1.shadowBlur = 5;
+          ctx1.beginPath();
+          ctx1.arc(p.px, p.py, 1.8, 0, Math.PI * 2);
+          ctx1.fill();
+        }
+        ctx1.shadowBlur = 0;
       }
 
-      // 2. CANVAS 2: TORUS PARAMÉTRICO 3D
-      if (c2) {
-        const ctx2 = c2.getContext("2d");
-        const rect2 = c2.getBoundingClientRect();
-        if (ctx2 && rect2.width > 0) {
-          ctx2.clearRect(0, 0, rect2.width, rect2.height);
-          const cx = rect2.width / 2;
-          const cy = rect2.height / 2;
+      // 2. CANVAS 2: TORUS PARAMÉTRICO 3D (ANEL INCLINADO)
+      const c2Data = checkCanvas(c2);
+      if (c2Data) {
+        const { ctx: ctx2, width: w2, height: h2 } = c2Data;
+        ctx2.clearRect(0, 0, w2, h2);
+        const cx = w2 / 2;
+        const cy = h2 / 2;
 
-          const rotX = 0.5 + Math.sin(t * 0.3) * 0.2;
-          const rotZ = t * 0.7;
-
-          const projectTorus = (pt) => {
-            // Rotação Z
-            const x1 = pt.x * Math.cos(rotZ) - pt.y * Math.sin(rotZ);
-            const y1 = pt.x * Math.sin(rotZ) + pt.y * Math.cos(rotZ);
-            // Inclinação X
-            const y2 = y1 * Math.cos(rotX) - pt.z * Math.sin(rotX);
-            const z2 = y1 * Math.sin(rotX) + pt.z * Math.cos(rotX);
-            const scale = 140 / (150 + z2);
-            return { px: cx + x1 * scale, py: cy + y2 * scale, pz: z2 };
-          };
-
-          const pPts = this.torusPoints.map(projectTorus);
-
-          // Desenha filamentos trançados do anel
-          ctx2.strokeStyle = "rgba(63, 244, 213, 0.4)";
-          ctx2.lineWidth = 1;
-          for (let u = 0; u < 16; u++) {
-            const nextU = (u + 1) % 16;
-            for (let v = 0; v < 4; v++) {
-              const idx1 = u * 4 + v;
-              const idx2 = nextU * 4 + v;
-              const idx3 = u * 4 + ((v + 1) % 4);
-              ctx2.beginPath();
-              ctx2.moveTo(pPts[idx1].px, pPts[idx1].py);
-              ctx2.lineTo(pPts[idx2].px, pPts[idx2].py);
-              ctx2.stroke();
-
-              ctx2.strokeStyle = "rgba(255, 209, 92, 0.25)";
-              ctx2.beginPath();
-              ctx2.moveTo(pPts[idx1].px, pPts[idx1].py);
-              ctx2.lineTo(pPts[idx3].px, pPts[idx3].py);
-              ctx2.stroke();
-              ctx2.strokeStyle = "rgba(63, 244, 213, 0.4)";
-            }
+        const R = 38, r = 14;
+        const rotTilt = 0.65; // ~37 graus de inclinação
+        const rotSpin = t * 0.5; // rotação contínua
+        const torusGrid = [];
+        for (let u = 0; u < 16; u++) {
+          const uAng = (u / 16) * Math.PI * 2 + rotSpin;
+          const ring = [];
+          for (let v = 0; v < 8; v++) {
+            const vAng = (v / 8) * Math.PI * 2;
+            const x0 = (R + r * Math.cos(vAng)) * Math.cos(uAng);
+            const y0 = (R + r * Math.cos(vAng)) * Math.sin(uAng);
+            const z0 = r * Math.sin(vAng);
+            const y1 = y0 * Math.cos(rotTilt) - z0 * Math.sin(rotTilt);
+            const z1 = y0 * Math.sin(rotTilt) + z0 * Math.cos(rotTilt);
+            const scale = 140 / (150 + z1);
+            ring.push({ px: cx + x0 * scale, py: cy + y1 * scale });
           }
+          torusGrid.push(ring);
+        }
 
-          // Pontos
-          for (let i = 0; i < pPts.length; i++) {
-            const p = pPts[i];
-            ctx2.fillStyle = i % 2 === 0 ? "#3ff4d5" : "#ffd15c";
+        // Meridianos
+        ctx2.strokeStyle = "rgba(63, 244, 213, 0.45)";
+        ctx2.lineWidth = 1;
+        for (let u = 0; u < 16; u++) {
+          ctx2.beginPath();
+          for (let v = 0; v < 8; v++) {
+            if (v === 0) ctx2.moveTo(torusGrid[u][v].px, torusGrid[u][v].py);
+            else ctx2.lineTo(torusGrid[u][v].px, torusGrid[u][v].py);
+          }
+          ctx2.closePath();
+          ctx2.stroke();
+        }
+
+        // Paralelos
+        ctx2.strokeStyle = "rgba(255, 209, 92, 0.3)";
+        for (let v = 0; v < 8; v++) {
+          ctx2.beginPath();
+          for (let u = 0; u < 16; u++) {
+            if (u === 0) ctx2.moveTo(torusGrid[u][v].px, torusGrid[u][v].py);
+            else ctx2.lineTo(torusGrid[u][v].px, torusGrid[u][v].py);
+          }
+          ctx2.closePath();
+          ctx2.stroke();
+        }
+
+        // Vértices brilhantes alternados
+        for (let u = 0; u < 16; u++) {
+          for (let v = 0; v < 8; v++) {
+            ctx2.fillStyle = (u + v) % 2 === 0 ? "#3ff4d5" : "#ffd15c";
             ctx2.beginPath();
-            ctx2.arc(p.px, p.py, 1.4, 0, Math.PI * 2);
+            ctx2.arc(torusGrid[u][v].px, torusGrid[u][v].py, 1.2, 0, Math.PI * 2);
             ctx2.fill();
           }
         }
       }
 
-      // 3. CANVAS 3: ESFERA GEODÉSICA & RADAR GRID
-      if (c3) {
-        const ctx3 = c3.getContext("2d");
-        const rect3 = c3.getBoundingClientRect();
-        if (ctx3 && rect3.width > 0) {
-          ctx3.clearRect(0, 0, rect3.width, rect3.height);
-          const cx = rect3.width / 2;
-          const cy = rect3.height / 2;
+      // 3. CANVAS 3: ESFERA GEODÉSICA & RADAR COMPASS
+      const c3Data = checkCanvas(c3);
+      if (c3Data) {
+        const { ctx: ctx3, width: w3, height: h3 } = c3Data;
+        ctx3.clearRect(0, 0, w3, h3);
+        const cx = w3 / 2;
+        const cy = h3 / 2;
 
-          // Círculos de retículo exterior
-          ctx3.strokeStyle = "rgba(13, 70, 87, 0.7)";
-          ctx3.lineWidth = 1;
-          for (const r of [16, 28, 42]) {
-            ctx3.beginPath();
-            ctx3.ellipse(cx, cy, r, r * 0.7, 0, 0, Math.PI * 2);
-            ctx3.stroke();
-          }
-
-          // Retículo alvo e eixos
-          ctx3.strokeStyle = "rgba(63, 244, 213, 0.6)";
+        // Retículos e elipses
+        ctx3.strokeStyle = "rgba(13, 70, 87, 0.6)";
+        ctx3.lineWidth = 1;
+        for (const rad of [20, 32, 44]) {
           ctx3.beginPath();
-          ctx3.moveTo(cx - 46, cy); ctx3.lineTo(cx + 46, cy);
-          ctx3.moveTo(cx, cy - 46); ctx3.lineTo(cx, cy + 46);
+          ctx3.ellipse(cx, cy, rad, rad * 0.72, 0, 0, Math.PI * 2);
           ctx3.stroke();
-
-          // Círculo dourado externo
-          ctx3.strokeStyle = "#ffd15c";
-          ctx3.beginPath();
-          ctx3.arc(cx, cy, 44, 0, Math.PI * 2);
-          ctx3.stroke();
-
-          // Feixe de varredura vertical de radar
-          const scanY = cy + Math.sin(t * 2.2) * 42;
-          ctx3.strokeStyle = "rgba(63, 244, 213, 0.85)";
-          ctx3.shadowColor = "#3ff4d5";
-          ctx3.shadowBlur = 8;
-          ctx3.beginPath();
-          ctx3.moveTo(cx - 40, scanY); ctx3.lineTo(cx + 40, scanY);
-          ctx3.stroke();
-          ctx3.shadowBlur = 0;
         }
+
+        // Círculo dourado de órbita
+        ctx3.strokeStyle = "#ffd15c";
+        ctx3.lineWidth = 1.2;
+        ctx3.beginPath();
+        ctx3.arc(cx, cy, 45, 0, Math.PI * 2);
+        ctx3.stroke();
+
+        // Crosshair
+        ctx3.strokeStyle = "rgba(63, 244, 213, 0.5)";
+        ctx3.beginPath();
+        ctx3.moveTo(cx - 48, cy); ctx3.lineTo(cx + 48, cy);
+        ctx3.moveTo(cx, cy - 48); ctx3.lineTo(cx + 48, cy);
+        ctx3.stroke();
+
+        // Esfera Geodésica 3D
+        const rotY = t * 0.8, rotX = 0.4;
+        const sNodes = this.sphereNodes.map(n => {
+          const x1 = n.baseX * Math.cos(rotY) + n.baseZ * Math.sin(rotY);
+          const z1 = -n.baseX * Math.sin(rotY) + n.baseZ * Math.cos(rotY);
+          const y2 = n.baseY * Math.cos(rotX) - z1 * Math.sin(rotX);
+          const z2 = n.baseY * Math.sin(rotX) + z1 * Math.cos(rotX);
+          const scale = 140 / (150 + z2);
+          return { px: cx + x1 * scale, py: cy + y2 * scale };
+        });
+
+        ctx3.strokeStyle = "rgba(63, 244, 213, 0.4)";
+        for (let i = 0; i < sNodes.length; i++) {
+          for (let j = i + 1; j < sNodes.length; j++) {
+            const dist = Math.hypot(sNodes[i].px - sNodes[j].px, sNodes[i].py - sNodes[j].py);
+            if (dist < 20) {
+              ctx3.beginPath();
+              ctx3.moveTo(sNodes[i].px, sNodes[i].py);
+              ctx3.lineTo(sNodes[j].px, sNodes[j].py);
+              ctx3.stroke();
+            }
+          }
+        }
+        for (const n of sNodes) {
+          ctx3.fillStyle = "#3ff4d5";
+          ctx3.beginPath();
+          ctx3.arc(n.px, n.py, 1.4, 0, Math.PI * 2);
+          ctx3.fill();
+        }
+
+        // Feixe laser de varredura vertical
+        const scanY = cy + Math.sin(t * 2.5) * 36;
+        ctx3.strokeStyle = "rgba(63, 244, 213, 0.9)";
+        ctx3.shadowColor = "#3ff4d5";
+        ctx3.shadowBlur = 6;
+        ctx3.beginPath();
+        ctx3.moveTo(cx - 38, scanY);
+        ctx3.lineTo(cx + 38, scanY);
+        ctx3.stroke();
+        ctx3.shadowBlur = 0;
       }
 
       // 4. CANVAS ALLUVIAL: FLUXOS BEZIER TRANÇADOS
-      if (cAlluvial) {
-        const ctxA = cAlluvial.getContext("2d");
-        const rectA = cAlluvial.getBoundingClientRect();
-        if (ctxA && rectA.width > 0) {
-          ctxA.clearRect(0, 0, rectA.width, rectA.height);
-          const w = rectA.width;
-          const h = rectA.height;
+      const cAData = checkCanvas(cAlluvial);
+      if (cAData) {
+        const { ctx: ctxA, width: w, height: h } = cAData;
+        ctxA.clearRect(0, 0, w, h);
+        const numNodes = 16, startY = 6, stepY = (h - 12) / (numNodes - 1);
+        const connections = [
+          [0, 4], [0, 9], [1, 2], [1, 7], [2, 0], [2, 11], [3, 8], [3, 14],
+          [4, 1], [4, 5], [5, 12], [6, 3], [6, 10], [7, 6], [7, 15],
+          [8, 2], [9, 8], [10, 13], [11, 4], [12, 11], [13, 7], [14, 1],
+          [15, 9], [15, 14]
+        ];
 
-          const numNodes = 16;
-          const startY = 6;
-          const stepY = (h - 12) / (numNodes - 1);
+        ctxA.lineWidth = 1.2;
+        for (let c_i = 0; c_i < connections.length; c_i++) {
+          const [src, dst] = connections[c_i];
+          const y0 = startY + src * stepY;
+          const y1 = startY + dst * stepY;
+          const cx1 = w * 0.35;
+          const cx2 = w * 0.65;
+          const alpha = 0.2 + (Math.sin(t * 1.8 + c_i) * 0.1);
+          ctxA.strokeStyle = c_i % 3 === 0
+            ? `rgba(255, 209, 92, ${alpha * 1.2})`
+            : `rgba(63, 244, 213, ${alpha})`;
+          ctxA.beginPath();
+          ctxA.moveTo(0, y0);
+          ctxA.bezierCurveTo(cx1, y0, cx2, y1, w, y1);
+          ctxA.stroke();
+        }
 
-          // 24 conexões predefinidas para replicar a imagem
-          const connections = [
-            [0, 4], [0, 9], [1, 2], [1, 7], [2, 0], [2, 11], [3, 8], [3, 14],
-            [4, 1], [4, 5], [5, 12], [6, 3], [6, 10], [7, 6], [7, 15],
-            [8, 2], [9, 8], [10, 13], [11, 4], [12, 11], [13, 7], [14, 1],
-            [15, 9], [15, 14]
-          ];
-
-          // Desenha curvas Bezier trançadas
-          ctxA.lineWidth = 1.2;
-          for (let c_i = 0; c_i < connections.length; c_i++) {
-            const [src, dst] = connections[c_i];
-            const y0 = startY + src * stepY;
-            const y1 = startY + dst * stepY;
-            const cx1 = w * 0.35;
-            const cx2 = w * 0.65;
-
-            const alpha = 0.2 + (Math.sin(t * 1.8 + c_i) * 0.1);
-            ctxA.strokeStyle = c_i % 3 === 0 
-              ? `rgba(255, 209, 92, ${alpha * 1.2})` 
-              : `rgba(63, 244, 213, ${alpha})`;
-
-            ctxA.beginPath();
-            ctxA.moveTo(0, y0);
-            ctxA.bezierCurveTo(cx1, y0, cx2, y1, w, y1);
-            ctxA.stroke();
-          }
-
-          // Atualiza e desenha os pacotes de fótons que viajam pelas curvas
-          for (const pkt of this.alluvialPackets) {
-            pkt.t += pkt.speed;
-            if (pkt.t > 1) pkt.t = 0;
-
-            const [src, dst] = connections[pkt.splineIndex];
-            const y0 = startY + src * stepY;
-            const y1 = startY + dst * stepY;
-            const cx1 = w * 0.35;
-            const cx2 = w * 0.65;
-
-            // Ponto na curva cúbica de Bezier
-            const u = 1 - pkt.t;
-            const px = 3 * u * u * pkt.t * cx1 + 3 * u * pkt.t * pkt.t * cx2 + pkt.t * pkt.t * pkt.t * w;
-            const py = u * u * u * y0 + 3 * u * u * pkt.t * y0 + 3 * u * pkt.t * pkt.t * y1 + pkt.t * pkt.t * pkt.t * y1;
-
-            ctxA.fillStyle = pkt.color;
-            ctxA.shadowColor = pkt.color;
-            ctxA.shadowBlur = 6;
-            ctxA.beginPath();
-            ctxA.arc(px, py, pkt.size, 0, Math.PI * 2);
-            ctxA.fill();
-          }
-          ctxA.shadowBlur = 0;
+        // Pacotes de fótons
+        for (const pkt of this.alluvialPackets) {
+          pkt.t += pkt.speed;
+          if (pkt.t > 1) pkt.t = 0;
+          const [src, dst] = connections[pkt.splineIndex];
+          const y0 = startY + src * stepY;
+          const y1 = startY + dst * stepY;
+          const cx1 = w * 0.35;
+          const cx2 = w * 0.65;
+          const u = 1 - pkt.t;
+          const px = 3 * u * u * pkt.t * cx1 + 3 * u * pkt.t * pkt.t * cx2 + pkt.t * pkt.t * pkt.t * w;
+          const py = u * u * u * y0 + 3 * u * u * pkt.t * y0 + 3 * u * pkt.t * pkt.t * y1 + pkt.t * pkt.t * pkt.t * y1;
+          ctxA.fillStyle = pkt.color;
+          ctxA.beginPath();
+          ctxA.arc(px, py, pkt.size, 0, Math.PI * 2);
+          ctxA.fill();
         }
       }
 
       // 5. WAVEFORMS
       [w1, w2, w3].forEach((wc, idx) => {
-        if (!wc) return;
-        const wctx = wc.getContext("2d");
-        const wrect = wc.getBoundingClientRect();
-        if (!wctx || wrect.width === 0) return;
-        wctx.clearRect(0, 0, wrect.width, wrect.height);
+        const wData = checkCanvas(wc);
+        if (!wData) return;
+        const { ctx: wctx, width: ww, height: wh } = wData;
+        wctx.clearRect(0, 0, ww, wh);
         wctx.strokeStyle = "#3ff4d5";
         wctx.lineWidth = 1;
         wctx.beginPath();
-        for (let x = 0; x < wrect.width; x++) {
+        for (let x = 0; x < ww; x++) {
           const freq = 0.15 + idx * 0.05;
-          const y = (wrect.height / 2) + Math.sin(x * freq + t * 4) * 6 + ((x % 11 === 0) ? (Math.sin(t * 8) * 5) : 0);
+          const y = (wh / 2) + Math.sin(x * freq + t * 4) * 6 + ((x % 11 === 0) ? (Math.sin(t * 8) * 4) : 0);
           if (x === 0) wctx.moveTo(x, y);
           else wctx.lineTo(x, y);
         }
@@ -2643,16 +2670,15 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
       });
 
       [ws1, ws2, ws3].forEach((wsc, idx) => {
-        if (!wsc) return;
-        const wsctx = wsc.getContext("2d");
-        const wsrect = wsc.getBoundingClientRect();
-        if (!wsctx || wsrect.width === 0) return;
-        wsctx.clearRect(0, 0, wsrect.width, wsrect.height);
+        const wsData = checkCanvas(wsc);
+        if (!wsData) return;
+        const { ctx: wsctx, width: wsw, height: wsh } = wsData;
+        wsctx.clearRect(0, 0, wsw, wsh);
         wsctx.strokeStyle = "#1b8ba5";
         wsctx.lineWidth = 1;
         wsctx.beginPath();
-        for (let x = 0; x < wsrect.width; x++) {
-          const y = (wsrect.height / 2) + Math.sin(x * 0.3 + t * 5 + idx) * 4;
+        for (let x = 0; x < wsw; x++) {
+          const y = (wsh / 2) + Math.sin(x * 0.3 + t * 5 + idx) * 4;
           if (x === 0) wsctx.moveTo(x, y);
           else wsctx.lineTo(x, y);
         }
@@ -2665,13 +2691,44 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
     renderLoop();
   }
 
+  _initDotMatrices() {
+    if (!this.element) return;
+    const dotContainers = [
+      this.element.querySelector("#dot-matrix-1"),
+      this.element.querySelector("#dot-matrix-2"),
+      this.element.querySelector("#dot-matrix-3")
+    ].filter(Boolean);
+
+    const allDots = [];
+    dotContainers.forEach(container => {
+      container.innerHTML = "";
+      const colDots = [];
+      for (let i = 0; i < 32; i++) {
+        const dot = document.createElement("div");
+        dot.className = "led-dot" + (Math.random() > 0.4 ? " active" : "");
+        container.appendChild(dot);
+        colDots.push(dot);
+      }
+      allDots.push(colDots);
+    });
+
+    this._dotInterval = setInterval(() => {
+      allDots.forEach((colDots, cIdx) => {
+        colDots.forEach((dot, dIdx) => {
+          const active = Math.sin(this.time * 4 + cIdx * 1.5 + dIdx * 0.3) > 0.15;
+          dot.classList.toggle("active", active);
+        });
+      });
+    }, 140);
+  }
+
   _initLedMatrix() {
     if (!this.element) return;
     const container = this.element.querySelector("#amber-led-matrix");
     if (!container) return;
 
     container.innerHTML = "";
-    const totalPixels = 48;
+    const totalPixels = 56;
     const pixels = [];
     for (let i = 0; i < totalPixels; i++) {
       const p = document.createElement("div");
@@ -2682,7 +2739,7 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     this._ledInterval = setInterval(() => {
       pixels.forEach((p, idx) => {
-        p.classList.toggle("active", (Math.sin(this.time * 3 + idx * 0.5) > 0.2));
+        p.classList.toggle("active", (Math.sin(this.time * 3 + idx * 0.4) > 0.15));
       });
     }, 120);
   }
@@ -2695,6 +2752,10 @@ export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this._ledInterval) {
       clearInterval(this._ledInterval);
       this._ledInterval = null;
+    }
+    if (this._dotInterval) {
+      clearInterval(this._dotInterval);
+      this._dotInterval = null;
     }
     return super.close(options);
   }
@@ -2736,21 +2797,24 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor(options = {}) {
     super(options);
     this._animId = null;
+    this._polyAnimId = null;
+    this._spectrumAnimId = null;
     this._tempInterval = null;
+    this._vaInterval = null;
     this.time = 0;
     this.coreTemp = 89.02;
 
     // 180 partículas orbitais relativísticas
     this.particles = [];
-    const tracks = [48, 82, 118, 154, 188];
-    const colors = ["#3ff4d5", "#3ff4d5", "#ffd15c", "#00ff88", "#ffffff", "#ff9f1c"];
+    const tracks = [48, 84, 120, 156, 192];
+    const colors = ["#3ff4d5", "#3ff4d5", "#ffd15c", "#00ff88", "#ffffff", "#ff4d6d"];
     for (let i = 0; i < 180; i++) {
       const track = tracks[i % tracks.length];
       this.particles.push({
         track,
-        r: track + (Math.random() - 0.5) * 6,
+        r: track + (Math.random() - 0.5) * 8,
         angle: Math.random() * Math.PI * 2,
-        speed: (0.008 + Math.random() * 0.02) * (i % 2 === 0 ? 1 : -0.8),
+        speed: (0.008 + Math.random() * 0.02) * (i % 2 === 0 ? 1 : -0.85),
         color: colors[i % colors.length],
         size: 1.0 + Math.random() * 1.8,
         trail: []
@@ -2777,7 +2841,7 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     super._onRender?.(context, options);
     this._initColliderCanvas();
     this._initMiniPolyCanvas();
-    this._initSpectrumCanvas();
+    this._initHistogramCanvas();
     this._initVisualAnalysisEqualizer();
 
     // Oscilação suave da temperatura do núcleo
@@ -2804,9 +2868,17 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const t = this.time;
 
       const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        this._animId = requestAnimationFrame(renderCollider);
+        return;
+      }
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const cx = rect.width / 2;
@@ -2815,7 +2887,7 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.clearRect(0, 0, rect.width, rect.height);
 
       // 1. Círculos concêntricos de telemetria
-      const radii = [48, 82, 118, 154, 188];
+      const radii = [48, 84, 120, 156, 192];
       for (const r of radii) {
         ctx.strokeStyle = "rgba(13, 74, 92, 0.4)";
         ctx.lineWidth = 1;
@@ -2824,37 +2896,44 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ctx.stroke();
       }
 
-      // 2. Marcas de Grau no Anel de Precisão (r = 118)
-      ctx.lineWidth = 1;
+      // 2. Marcas de Grau no Anel de Precisão Vernier (r = 120)
       for (let deg = 0; deg < 360; deg += 5) {
-        const rad = (deg * Math.PI / 180) + t * 0.1;
-        const r1 = deg % 30 === 0 ? 114 : 117;
-        const r2 = 121;
-        ctx.strokeStyle = deg % 30 === 0 ? "#ffd15c" : (deg % 15 === 0 ? "#3ff4d5" : "rgba(63, 244, 213, 0.3)");
+        const rad = (deg * Math.PI / 180) + t * 0.05;
+        const isMajor = deg % 30 === 0;
+        const isMid = deg % 15 === 0;
+        const r1 = isMajor ? 114 : (isMid ? 116 : 118);
+        const r2 = 122;
+        ctx.strokeStyle = isMajor ? "#ffd15c" : (isMid ? "#3ff4d5" : "rgba(255, 77, 109, 0.5)");
+        ctx.lineWidth = isMajor ? 1.5 : 1;
         ctx.beginPath();
         ctx.moveTo(cx + r1 * Math.cos(rad), cy + r1 * Math.sin(rad));
         ctx.lineTo(cx + r2 * Math.cos(rad), cy + r2 * Math.sin(rad));
         ctx.stroke();
       }
 
-      // 3. Arcos tracejados no Anel Médio (r = 82)
+      // 3. Arcos tracejados no Anel Médio (r = 84)
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = "#3ff4d5";
       ctx.beginPath();
-      ctx.arc(cx, cy, 82, -t * 0.3, -t * 0.3 + 1.2);
+      ctx.arc(cx, cy, 84, -t * 0.3, -t * 0.3 + 1.4);
       ctx.stroke();
 
       ctx.strokeStyle = "#ffd15c";
       ctx.beginPath();
-      ctx.arc(cx, cy, 82, -t * 0.3 + 2.0, -t * 0.3 + 3.2);
+      ctx.arc(cx, cy, 84, -t * 0.3 + 2.2, -t * 0.3 + 3.4);
       ctx.stroke();
 
-      // 4. Envelope harmônico ondulante exterior (curva flutuante)
-      ctx.strokeStyle = "rgba(63, 244, 213, 0.6)";
+      ctx.strokeStyle = "#00ffcc";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 84, -t * 0.3 + 4.2, -t * 0.3 + 5.0);
+      ctx.stroke();
+
+      // 4. Envelope harmônico ondulante exterior (r = 192)
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.55)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       for (let a = 0; a <= Math.PI * 2; a += 0.02) {
-        const rWave = 196 + 14 * Math.sin(8 * a + t * 2);
+        const rWave = 192 + 14 * Math.sin(8 * a + t * 2);
         const x = cx + rWave * Math.cos(a);
         const y = cy + rWave * Math.sin(a);
         if (a === 0) ctx.moveTo(x, y);
@@ -2863,45 +2942,60 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       ctx.closePath();
       ctx.stroke();
 
-      // 5. 16 Lâminas de Íris Mecânica
-      ctx.strokeStyle = "rgba(45, 160, 184, 0.85)";
-      ctx.lineWidth = 1.2;
+      // 5. 16 Lâminas de Íris Mecânica Curvadas
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.85)";
+      ctx.lineWidth = 1.3;
       const rotIris = t * 0.08;
       for (let i = 0; i < 16; i++) {
         const a = i * (Math.PI * 2 / 16) + rotIris;
         const x1 = cx + 22 * Math.cos(a);
         const y1 = cy + 22 * Math.sin(a);
-        const x2 = cx + 76 * Math.cos(a + 0.45);
-        const y2 = cy + 76 * Math.sin(a + 0.45);
+        const x2 = cx + 78 * Math.cos(a + 0.48);
+        const y2 = cy + 78 * Math.sin(a + 0.48);
+        const cpx = cx + 55 * Math.cos(a + 0.22);
+        const cpy = cy + 55 * Math.sin(a + 0.22);
         ctx.beginPath();
         ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
+        ctx.quadraticCurveTo(cpx, cpy, x2, y2);
         ctx.stroke();
       }
 
-      // 6. Núcleo de Fusão Central de Plasma
-      const corePulse = 16 + Math.sin(t * 3.5) * 3;
+      // 6. 8 Braços Injetores Radiais e Núcleo de Plasma
+      for (let i = 0; i < 8; i++) {
+        const a = i * (Math.PI * 2 / 8) - t * 0.12;
+        ctx.strokeStyle = "rgba(255, 209, 92, 0.6)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx + 12 * Math.cos(a), cy + 12 * Math.sin(a));
+        ctx.lineTo(cx + 42 * Math.cos(a), cy + 42 * Math.sin(a));
+        ctx.stroke();
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(cx + 42 * Math.cos(a), cy + 42 * Math.sin(a), 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Núcleo de Fusão Central de Plasma
+      const corePulse = 20 + Math.sin(t * 3.5) * 3;
       const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, corePulse);
       grad.addColorStop(0, "#ffffff");
-      grad.addColorStop(0.4, "#3ff4d5");
-      grad.addColorStop(0.8, "rgba(4, 42, 53, 0.6)");
+      grad.addColorStop(0.3, "#3ff4d5");
+      grad.addColorStop(0.7, "rgba(4, 42, 53, 0.8)");
       grad.addColorStop(1, "transparent");
       ctx.fillStyle = grad;
       ctx.beginPath();
       ctx.arc(cx, cy, corePulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // 7. Partículas Relativísticas
+      // 7. Partículas Relativísticas com Rastros
       for (const p of this.particles) {
         p.angle += p.speed;
         const px = cx + p.r * Math.cos(p.angle);
         const py = cy + p.r * Math.sin(p.angle);
 
-        // Atualiza rastro
         p.trail.push({ x: px, y: py });
         if (p.trail.length > 5) p.trail.shift();
 
-        // Desenha cauda da partícula
         ctx.strokeStyle = p.color;
         ctx.lineWidth = p.size * 0.6;
         for (let tr = 0; tr < p.trail.length - 1; tr++) {
@@ -2911,15 +3005,26 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
           ctx.stroke();
         }
 
-        // Cabeça da partícula
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(px, py, p.size, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // 8. Ocasional Colisão com Centelhas
-      if (Math.random() < 0.05) {
+      // 8. Rajadas Radiais de Fótons em 16 Pontos
+      for (let b = 0; b < 16; b++) {
+        const bAng = b * (Math.PI * 2 / 16) + 0.1;
+        for (let k = 0; k < 4; k++) {
+          const bDist = 160 + k * 8;
+          ctx.fillStyle = `rgba(255, 209, 92, ${0.8 - k * 0.18})`;
+          ctx.beginPath();
+          ctx.arc(cx + bDist * Math.cos(bAng), cy + bDist * Math.sin(bAng), 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // 9. Centelhas de Colisão
+      if (Math.random() < 0.06) {
         const sparkAngle = Math.random() * Math.PI * 2;
         const sparkR = radii[Math.floor(Math.random() * radii.length)];
         const sx = cx + sparkR * Math.cos(sparkAngle);
@@ -2935,7 +3040,6 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         }
       }
 
-      // Desenha centelhas ativas
       for (let s_i = this.sparks.length - 1; s_i >= 0; s_i--) {
         const sp = this.sparks[s_i];
         sp.x += sp.vx;
@@ -2951,90 +3055,127 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ctx.fill();
       }
 
-      // 9. Callout Leader Lines e Badges Holográficos
+      // 10. Callouts Holográficos
       ctx.lineWidth = 1;
+      const drawCallout = (targetX, targetY, elbowX, elbowY, boxX, boxY, tag, label) => {
+        ctx.strokeStyle = "#3ff4d5";
+        ctx.beginPath();
+        ctx.moveTo(targetX, targetY);
+        ctx.lineTo(elbowX, elbowY);
+        ctx.lineTo(boxX, boxY);
+        ctx.stroke();
+        const boxW = 100, boxH = 14;
+        ctx.fillStyle = "#3ff4d5";
+        ctx.fillRect(boxX, boxY - boxH / 2, boxW, boxH);
+        ctx.fillStyle = "#02060b";
+        ctx.font = "bold 8px monospace";
+        ctx.fillText(`${tag}  ${label}`, boxX + 4, boxY + 3);
+      };
 
-      // Top-Right 1
-      ctx.strokeStyle = "#3ff4d5";
-      ctx.beginPath();
-      ctx.moveTo(cx + 120, cy - 80);
-      ctx.lineTo(cx + 190, cy - 120);
-      ctx.lineTo(cx + 250, cy - 120);
-      ctx.stroke();
-      ctx.fillStyle = "#3ff4d5";
-      ctx.fillRect(cx + 250, cy - 128, 120, 16);
-      ctx.fillStyle = "#02060b";
-      ctx.font = "bold 9px monospace";
-      ctx.fillText("PRAVO  POINT_DATA_NODE", cx + 254, cy - 116);
+      drawCallout(cx + 120, cy - 80, cx + 190, cy - 110, cx + 240, cy - 110, "PRAVO", "POINT_DATA_NODE");
+      drawCallout(cx + 145, cy - 35, cx + 205, cy - 65, cx + 240, cy - 65, "PRAVO", "POINT_DATA_NODE");
+      drawCallout(cx + 140, cy + 20, cx + 205, cy - 20, cx + 240, cy - 20, "PRAVO", "POINT_DATA_NODE");
 
-      // Top-Right 2
-      ctx.strokeStyle = "#3ff4d5";
-      ctx.beginPath();
-      ctx.moveTo(cx + 145, cy - 35);
-      ctx.lineTo(cx + 205, cy - 70);
-      ctx.lineTo(cx + 250, cy - 70);
-      ctx.stroke();
-      ctx.fillStyle = "#3ff4d5";
-      ctx.fillRect(cx + 250, cy - 78, 120, 16);
-      ctx.fillStyle = "#02060b";
-      ctx.fillText("PRAVO  POINT_DATA_NODE", cx + 254, cy - 66);
+      // Retículo Laranja Direito (3 o'clock)
+      ctx.strokeStyle = "#ff9f1c"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx + 140, cy + 20, 8, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 132, cy + 20); ctx.lineTo(cx + 148, cy + 20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 140, cy + 12); ctx.lineTo(cx + 140, cy + 28); ctx.stroke();
 
-      // Top-Right 3 com retículo alvo laranja
-      const targetX = cx + 140;
-      const targetY = cy + 20;
-      ctx.strokeStyle = "#ff9f1c";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(targetX, targetY, 7, 0, Math.PI * 2);
-      ctx.stroke();
+      const drawLeftCallout = (targetX, targetY, elbowX, elbowY, boxX, boxY, tag, label) => {
+        ctx.strokeStyle = "#3ff4d5";
+        ctx.beginPath();
+        ctx.moveTo(targetX, targetY);
+        ctx.lineTo(elbowX, elbowY);
+        ctx.lineTo(boxX, boxY);
+        ctx.stroke();
+        const boxW = 100, boxH = 14;
+        ctx.fillStyle = "#3ff4d5";
+        ctx.fillRect(boxX - boxW, boxY - boxH / 2, boxW, boxH);
+        ctx.fillStyle = "#02060b";
+        ctx.font = "bold 8px monospace";
+        ctx.fillText(`${tag}  ${label}`, boxX - boxW + 4, boxY + 3);
+      };
+      drawLeftCallout(cx - 130, cy + 20, cx - 180, cy + 20, cx - 220, cy + 20, "BRAVO", "POINT_DATA_NODE");
+      drawLeftCallout(cx - 145, cy + 55, cx - 180, cy + 55, cx - 220, cy + 55, "BRAVO", "POINT_DATA_NODE");
 
-      ctx.strokeStyle = "#3ff4d5";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(targetX, targetY);
-      ctx.lineTo(cx + 205, cy - 25);
-      ctx.lineTo(cx + 250, cy - 25);
-      ctx.stroke();
-      ctx.fillStyle = "#3ff4d5";
-      ctx.fillRect(cx + 250, cy - 33, 120, 16);
-      ctx.fillStyle = "#02060b";
-      ctx.fillText("PRAVO  POINT_DATA_NODE", cx + 254, cy - 21);
-
-      // Left 1
-      ctx.strokeStyle = "#3ff4d5";
-      ctx.beginPath();
-      ctx.moveTo(cx - 130, cy + 20);
-      ctx.lineTo(cx - 190, cy + 20);
-      ctx.lineTo(cx - 240, cy + 20);
-      ctx.stroke();
-      ctx.fillStyle = "#3ff4d5";
-      ctx.fillRect(cx - 360, cy + 12, 120, 16);
-      ctx.fillStyle = "#02060b";
-      ctx.fillText("BRAVO  POINT_DATA_NODE", cx - 355, cy + 24);
-
-      // Left 2
-      ctx.strokeStyle = "#3ff4d5";
-      ctx.beginPath();
-      ctx.moveTo(cx - 145, cy + 55);
-      ctx.lineTo(cx - 190, cy + 55);
-      ctx.lineTo(cx - 240, cy + 55);
-      ctx.stroke();
-      ctx.fillStyle = "#3ff4d5";
-      ctx.fillRect(cx - 360, cy + 47, 120, 16);
-      ctx.fillStyle = "#02060b";
-      ctx.fillText("BRAVO  POINT_DATA_NODE", cx - 355, cy + 59);
-
-      // Bottom Target Reticle Ring Laranja
-      ctx.strokeStyle = "#ff9f1c";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(cx + 15, cy + 168, 7, 0, Math.PI * 2);
-      ctx.stroke();
+      // Retículo Laranja Inferior (6 o'clock)
+      ctx.strokeStyle = "#ff9f1c"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx + 15, cy + 168, 8, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 7, cy + 168); ctx.lineTo(cx + 23, cy + 168); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 15, cy + 160); ctx.lineTo(cx + 15, cy + 176); ctx.stroke();
 
       this._animId = requestAnimationFrame(renderCollider);
     };
 
     renderCollider();
+  }
+
+  _initHistogramCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#collider-histogram-canvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const renderHistogram = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        this._spectrumAnimId = requestAnimationFrame(renderHistogram);
+        return;
+      }
+      const dpr = window.devicePixelRatio || 1;
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      const numCols = 12;
+      const colW = (rect.width - 20) / numCols;
+      const baseH = [12, 16, 14, 20, 26, 18, 14, 22, 24, 16, 14, 10];
+      const pts = [];
+
+      for (let i = 0; i < numCols; i++) {
+        const x = 8 + i * colW;
+        const bgH = rect.height - 6;
+        // Fundo coral escuro
+        ctx.fillStyle = "rgba(56, 28, 28, 0.7)";
+        ctx.fillRect(x + 2, 3, colW - 4, bgH);
+
+        // Barra ciano animada
+        const dynH = baseH[i] + Math.sin(this.time * 3 + i * 0.7) * 4;
+        const barH = Math.max(4, Math.min(rect.height - 6, dynH));
+        const barY = rect.height - 3 - barH;
+        ctx.fillStyle = "rgba(63, 244, 213, 0.65)";
+        ctx.fillRect(x + 2, barY, colW - 4, barH);
+
+        pts.push({ x: x + colW / 2, y: barY });
+      }
+
+      // Linha conectando os topos
+      ctx.strokeStyle = "#3ff4d5"; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        if (i === 0) ctx.moveTo(pts[i].x, pts[i].y);
+        else ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.stroke();
+
+      // Pontos brancos nos topos
+      for (const pt of pts) {
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      this._spectrumAnimId = requestAnimationFrame(renderHistogram);
+    };
+    renderHistogram();
   }
 
   _initMiniPolyCanvas() {
@@ -3046,9 +3187,17 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const renderMiniPoly = () => {
       const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        this._polyAnimId = requestAnimationFrame(renderMiniPoly);
+        return;
+      }
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       ctx.clearRect(0, 0, rect.width, rect.height);
@@ -3084,37 +3233,6 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     renderMiniPoly();
   }
 
-  _initSpectrumCanvas() {
-    if (!this.element) return;
-    const canvas = this.element.querySelector("#collider-spectrum-canvas");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const renderSpectrum = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      ctx.clearRect(0, 0, rect.width, rect.height);
-      const numBars = 12;
-      const barW = (rect.width - 24) / numBars;
-
-      for (let i = 0; i < numBars; i++) {
-        const bh = 6 + Math.abs(Math.sin(this.time * 3 + i * 0.8)) * (rect.height - 8);
-        const bx = 12 + i * (barW + 2);
-        const by = rect.height - bh;
-        ctx.fillStyle = (i >= 4 && i <= 6) ? "#ffd15c" : "#3ff4d5";
-        ctx.fillRect(bx, by, barW, bh);
-      }
-
-      this._spectrumAnimId = requestAnimationFrame(renderSpectrum);
-    };
-    renderSpectrum();
-  }
-
   _initVisualAnalysisEqualizer() {
     if (!this.element) return;
     const container = this.element.querySelector("#va-equalizer");
@@ -3128,7 +3246,7 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
       container.appendChild(bar);
       bars.push(bar);
     }
-    setInterval(() => {
+    this._vaInterval = setInterval(() => {
       bars.forEach((b, idx) => {
         const pct = 20 + Math.abs(Math.sin(this.time * 4 + idx * 0.6)) * 75;
         b.style.height = `${pct}%`;
@@ -3152,6 +3270,10 @@ export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
     if (this._tempInterval) {
       clearInterval(this._tempInterval);
       this._tempInterval = null;
+    }
+    if (this._vaInterval) {
+      clearInterval(this._vaInterval);
+      this._vaInterval = null;
     }
     return super.close(options);
   }
@@ -3200,12 +3322,12 @@ export class MarsSatviewApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.time = 0;
     this.baseDist = 75.3;
 
-    // Coordenadas base dos dois pontos principais (percentual da largura/altura)
-    this.baseCamp = { pxPct: 0.62, pyPct: 0.45 };
-    this.daedalus = { pxPct: 0.73, pyPct: 0.58 };
+    // Coordenadas normalizadas dos waypoints sincronizadas com os cartões
+    this.baseCamp = { pxPct: 0.455, pyPct: 0.46 };
+    this.daedalus = { pxPct: 0.535, pyPct: 0.63 };
 
     // Pulsos de range vector
-    this.vectorPulses = [0.1, 0.4, 0.7];
+    this.vectorPulses = [0.15, 0.45, 0.75];
   }
 
   async _prepareContext(options) {
@@ -3239,9 +3361,17 @@ export class MarsSatviewApp extends HandlebarsApplicationMixin(ApplicationV2) {
       const t = this.time;
 
       const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        this._animId = requestAnimationFrame(renderMap);
+        return;
+      }
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const w = rect.width;
@@ -3249,24 +3379,24 @@ export class MarsSatviewApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
       ctx.clearRect(0, 0, w, h);
 
-      // 1. Grid de Coordenadas Táticas
-      ctx.strokeStyle = "rgba(6, 33, 43, 0.8)";
+      // 1. Grid de Coordenadas Táticas Dotted
+      ctx.strokeStyle = "rgba(6, 40, 52, 0.6)";
       ctx.lineWidth = 1;
-      for (let x = 30; x < w - 20; x += 60) {
+      for (let x = 20; x < w; x += 50) {
         ctx.beginPath();
-        ctx.moveTo(x, 20); ctx.lineTo(x, h - 10);
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
         ctx.stroke();
       }
-      for (let y = 30; y < h - 10; y += 40) {
+      for (let y = 20; y < h; y += 40) {
         ctx.beginPath();
-        ctx.moveTo(20, y); ctx.lineTo(w - 20, y);
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
         ctx.stroke();
       }
 
       // Marcadores Crosshair '+' nos nós da grade
-      ctx.strokeStyle = "rgba(31, 163, 176, 0.35)";
-      for (let x = 90; x < w - 40; x += 120) {
-        for (let y = 70; y < h - 20; y += 80) {
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.4)";
+      for (let x = 70; x < w - 40; x += 100) {
+        for (let y = 60; y < h - 40; y += 80) {
           ctx.beginPath();
           ctx.moveTo(x - 3, y); ctx.lineTo(x + 3, y);
           ctx.moveTo(x, y - 3); ctx.lineTo(x, y + 3);
@@ -3274,108 +3404,87 @@ export class MarsSatviewApp extends HandlebarsApplicationMixin(ApplicationV2) {
         }
       }
 
-      // 2. Relevo Sombreado de Valles Marineris (Canyon Escarpments)
-      // Gradiente de profundidade do desfiladeiro
-      const canyonGrad = ctx.createLinearGradient(0, h * 0.35, 0, h * 0.75);
-      canyonGrad.addColorStop(0, "rgba(2, 16, 22, 0.1)");
-      canyonGrad.addColorStop(0.3, "rgba(4, 28, 38, 0.65)");
-      canyonGrad.addColorStop(0.7, "rgba(2, 14, 20, 0.85)");
-      canyonGrad.addColorStop(1, "rgba(3, 21, 28, 0.2)");
-      ctx.fillStyle = canyonGrad;
-      ctx.fillRect(20, h * 0.32, w - 40, h * 0.45);
-
-      // 3. Curvas de Nível Topográficas Cyan (Contour Isolines)
-      // Linha 1: Borda Superior do Canyon
+      // 2. Curvas de Nível Topográficas Neon Cyan (Melas Chasma Rim & Cliff Walls)
       ctx.strokeStyle = "#3ff4d5";
-      ctx.shadowColor = "rgba(63, 244, 213, 0.5)";
-      ctx.shadowBlur = 4;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "rgba(63, 244, 213, 0.85)";
+      ctx.shadowBlur = 8;
+
+      // Borda Norte (WEST -> Base Camp)
       ctx.beginPath();
-      for (let x = 30; x < w - 30; x += 4) {
-        const y = h * 0.38 + Math.sin(x * 0.012) * 26 + Math.cos(x * 0.035) * 12 + Math.sin(x * 0.08) * 4;
-        if (x === 30) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      const northRim = [
+        [0.08, 0.42], [0.15, 0.41], [0.22, 0.43], [0.30, 0.44], [0.38, 0.46],
+        [0.44, 0.42], [0.49, 0.40], [0.53, 0.44], [0.55, 0.50], [0.57, 0.53]
+      ];
+      for (let i = 0; i < northRim.length; i++) {
+        const px = w * northRim[i][0], py = h * northRim[i][1];
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.stroke();
 
-      // Linha 2: Terraço Médio do Melas Chasma
+      // Loop Nordeste (Melas Chasma montanha & NORTH promontory)
       ctx.beginPath();
-      for (let x = 40; x < w - 20; x += 4) {
-        let y = h * 0.50 + Math.sin(x * 0.015) * 32 + Math.cos(x * 0.04) * 16;
-        if (x > w * 0.55) y -= (x - w * 0.55) * 0.18;
-        if (x === 40) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      const neLoop = [
+        [0.57, 0.53], [0.60, 0.58], [0.65, 0.62], [0.70, 0.56], [0.73, 0.48],
+        [0.78, 0.40], [0.82, 0.38], [0.85, 0.44], [0.89, 0.52], [0.93, 0.56],
+        [0.96, 0.60], [0.98, 0.68]
+      ];
+      for (let i = 0; i < neLoop.length; i++) {
+        const px = w * neLoop[i][0], py = h * neLoop[i][1];
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.stroke();
 
-      // Linha 3: Borda Inferior / Garganta
+      // Borda Sul
       ctx.beginPath();
-      for (let x = w * 0.35; x < w - 20; x += 4) {
-        const y = h * 0.64 + Math.sin(x * 0.018) * 38 + Math.cos(x * 0.05) * 10;
-        if (x === Math.round(w * 0.35)) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      const southRim = [
+        [0.50, 0.65], [0.54, 0.72], [0.58, 0.75], [0.64, 0.78], [0.70, 0.85],
+        [0.76, 0.90], [0.82, 0.95]
+      ];
+      for (let i = 0; i < southRim.length; i++) {
+        const px = w * southRim[i][0], py = h * southRim[i][1];
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // Curvas secundárias de relevo
+      // Curva secundária suave
       ctx.strokeStyle = "rgba(63, 244, 213, 0.4)";
       ctx.lineWidth = 1;
       ctx.beginPath();
-      for (let x = 30; x < w - 30; x += 5) {
-        const y = h * 0.44 + Math.sin(x * 0.013 + 1) * 20 + Math.cos(x * 0.03) * 8;
-        if (x === 30) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      for (let i = 0; i < northRim.length; i++) {
+        const px = w * northRim[i][0], py = h * northRim[i][1] - 8;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       }
       ctx.stroke();
 
-      // 4. Arcos de Varredura de Radar Orbital
-      const radarCx = w * 0.48;
-      const radarCy = h * 0.45;
-      const sweepR = 60 + (t * 40) % 220;
-      ctx.strokeStyle = `rgba(63, 244, 213, ${Math.max(0, 0.6 - sweepR / 280)})`;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(radarCx, radarCy, sweepR, Math.PI * 0.8, Math.PI * 2.1);
-      ctx.stroke();
-
-      // 5. Rótulos Geográficos
-      ctx.fillStyle = "#3ff4d5";
-      ctx.font = "bold 9px monospace";
-      ctx.fillText("EAST O", 50, h * 0.38 - 15);
-      ctx.fillText("O NORTH", w * 0.82, h * 0.28);
-
-      ctx.fillStyle = "#ff9f1c";
-      ctx.fillText("O SINAI DORSA", w * 0.38, h * 0.72);
-      ctx.fillText("O MELAS CHASMA", w * 0.78, h * 0.74);
-      ctx.font = "8px monospace";
-      ctx.fillText("   15km", w * 0.78, h * 0.74 + 11);
-
-      // 6. Vetor Base Camp <-> Daedalus
+      // 3. Vetor Tático Base Camp <-> Daedalus
       const bcX = w * this.baseCamp.pxPct;
       const bcY = h * this.baseCamp.pyPct;
       const ddX = w * this.daedalus.pxPct;
       const ddY = h * this.daedalus.pyPct;
 
-      // Círculo Range Finder ao redor dos dois pontos
-      ctx.strokeStyle = "rgba(255, 159, 28, 0.75)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
+      // Círculo Range Finder Âmbar
       const midX = (bcX + ddX) / 2;
       const midY = (bcY + ddY) / 2;
-      const rangeR = Math.hypot(bcX - ddX, bcY - ddY) * 1.05;
-      ctx.arc(midX, midY, rangeR, Math.PI * 0.1, Math.PI * 1.85);
+      const rangeR = Math.hypot(bcX - ddX, bcY - ddY) * 1.55;
+      ctx.strokeStyle = "rgba(255, 159, 28, 0.85)";
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.arc(midX, midY, rangeR, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Linha de Vetor
+      // Linha tracejada do vetor
       ctx.strokeStyle = "#ff9f1c";
       ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo(bcX, bcY);
       ctx.lineTo(ddX, ddY);
       ctx.stroke();
+      ctx.setLineDash([]);
 
-      // Pulsos que viajam ao longo do vetor
+      // Pulsos de RF viajando pelo vetor
       for (let i = 0; i < this.vectorPulses.length; i++) {
         this.vectorPulses[i] += 0.008;
         if (this.vectorPulses[i] > 1) this.vectorPulses[i] = 0;
@@ -3391,27 +3500,50 @@ export class MarsSatviewApp extends HandlebarsApplicationMixin(ApplicationV2) {
       }
       ctx.shadowBlur = 0;
 
-      // Retículo do Base Camp
+      // Retículo Base Camp (O)
       ctx.strokeStyle = "#ff9f1c";
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(bcX, bcY, 7, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(bcX, bcY, 8, 0, Math.PI * 2); ctx.stroke();
       ctx.fillStyle = "#ff9f1c";
-      ctx.beginPath();
-      ctx.arc(bcX, bcY, 2.5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(bcX, bcY, 2.5, 0, Math.PI * 2); ctx.fill();
 
-      // Retículo do Daedalus
+      // Retículo Daedalus (O)
       ctx.strokeStyle = "#ff9f1c";
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(ddX, ddY, 7, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(ddX, ddY, 8, 0, Math.PI * 2); ctx.stroke();
       ctx.fillStyle = "#ff9f1c";
+      ctx.beginPath(); ctx.arc(ddX, ddY, 2.5, 0, Math.PI * 2); ctx.fill();
+
+      // 4. Varredura de Radar Orbital
+      const radarCx = w * 0.48;
+      const radarCy = h * 0.45;
+      const sweepR = 60 + (t * 35) % 200;
+      ctx.strokeStyle = `rgba(63, 244, 213, ${Math.max(0, 0.5 - sweepR / 250)})`;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(ddX, ddY, 2.5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.arc(radarCx, radarCy, sweepR, Math.PI * 0.8, Math.PI * 2.1);
+      ctx.stroke();
+
+      // 5. Rótulos Geográficos
+      ctx.fillStyle = "#3ff4d5";
+      ctx.font = "bold 9px monospace";
+      ctx.fillText("EAST O", w * 0.05, h * 0.42 - 10);
+      ctx.fillText("WEST", w * 0.44, h * 0.22);
+      ctx.fillText("O NORTH", w * 0.81, h * 0.30);
+
+      ctx.fillStyle = "#ff9f1c";
+      ctx.fillText("O SINAI DORSA", w * 0.30, h * 0.80);
+      ctx.fillText("O MELAS CHASMA", w * 0.77, h * 0.81);
+      ctx.font = "8px monospace";
+      ctx.fillText("   15km", w * 0.77, h * 0.81 + 10);
+
+      // Anéis de sondas orbitais
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.7)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(w * 0.52, h * 0.12, 22, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(w * 0.47, h * 0.20, 10, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(w * 0.37, h * 0.15, 6, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(w * 0.32, h * 0.36, 8, 0, Math.PI * 2); ctx.stroke();
 
       this._animId = requestAnimationFrame(renderMap);
     };

@@ -228,9 +228,12 @@
 
         <div class="col-bottom-widget">
           <div class="gimbal-dial-triple">
-            <div class="satellite-dial"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" class="dial-mid" /></svg></div>
-            <div class="main-dial"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" class="dial-gold" /><circle cx="22" cy="22" r="13" class="dial-outer" /></svg></div>
-            <div class="satellite-dial"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" class="dial-mid" /></svg></div>
+            <img src="modules/teste-hud/assets/triple-dial-widget.webp" alt="Triple Dial" class="triple-dial-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="fallback-triple-svg" style="display:none;">
+              <div class="satellite-dial"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" class="dial-mid" /></svg></div>
+              <div class="main-dial"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" class="dial-gold" /><circle cx="22" cy="22" r="13" class="dial-outer" /></svg></div>
+              <div class="satellite-dial"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" class="dial-mid" /></svg></div>
+            </div>
           </div>
         </div>
       </section>

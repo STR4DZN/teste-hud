@@ -18,6 +18,9 @@ if (Test-Path (Join-Path $root "README.md")) {
 Copy-Item -Recurse (Join-Path $root "scripts") -Destination $temp
 Copy-Item -Recurse (Join-Path $root "styles") -Destination $temp
 Copy-Item -Recurse (Join-Path $root "templates") -Destination $temp
+if (Test-Path (Join-Path $root "assets")) {
+    Copy-Item -Recurse (Join-Path $root "assets") -Destination $temp
+}
 
 if (-not (Test-Path $dist)) {
     New-Item -ItemType Directory -Path $dist -Force | Out-Null
