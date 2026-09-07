@@ -1264,13 +1264,27 @@ export class ReactorHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Partículas de fluxo contínuo ao longo do eixo do reator
     this.fluxParticles = [];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 45; i++) {
       this.fluxParticles.push({
-        z: -270 + Math.random() * 580,
-        r: Math.random() * 18,
+        z: -290 + Math.random() * 600,
+        r: Math.random() * 20,
         theta: Math.random() * Math.PI * 2,
         speed: 1.2 + Math.random() * 2.2,
         color: Math.random() > 0.4 ? "#3ff4d5" : "#ffd15c"
+      });
+    }
+
+    // Nuvem volumétrica de 350 micro-partículas quânticas (poeira estelar holográfica)
+    this.dustParticles = [];
+    for (let i = 0; i < 350; i++) {
+      this.dustParticles.push({
+        z: -300 + Math.random() * 630,
+        r: Math.random() * 165,
+        theta: Math.random() * Math.PI * 2,
+        vtheta: (Math.random() - 0.5) * 0.006,
+        vz: (Math.random() - 0.5) * 0.35,
+        color: Math.random() > 0.45 ? "rgba(63, 244, 213, 0.75)" : (Math.random() > 0.4 ? "rgba(255, 190, 50, 0.75)" : "rgba(255, 255, 255, 0.9)"),
+        size: 0.6 + Math.random() * 1.0
       });
     }
   }
@@ -1424,8 +1438,8 @@ export class ReactorHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
       const renderables = [];
 
-      // Auxiliares de Geometria 3D
-      const addRing = (radius, zPos, numPts, colorFn, lineWidth = 1, isLine = true) => {
+      // Auxiliares de Geometria 3D de Alta Fidelidade
+      const addRing = (radius, zPos, numPts, colorFn, lineWidth = 1, isLine = true, dash = null) => {
         const pts = [];
         for (let i = 0; i < numPts; i++) {
           const th = (i / numPts) * Math.PI * 2;
@@ -1433,10 +1447,11 @@ export class ReactorHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
           pts.push({ ...p, th });
         }
         for (let i = 0; i < numPts; i++) {
+          if (dash && (i % (dash[0] + dash[1]) >= dash[0])) continue;
           const p1 = pts[i];
           const p2 = pts[(i + 1) % numPts];
           const avgZ = (p1.z + p2.z) * 0.5;
-          const col = colorFn(p1.th, avgZ);
+          const col = typeof colorFn === "function" ? colorFn(p1.th, avgZ) : colorFn;
           if (isLine) {
             renderables.push({
               type: "line",
@@ -1458,170 +1473,467 @@ export class ReactorHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
         }
       };
 
+      const addDotRing = (radius, zPos, numPts, colorFn, dotRadius = 1.0) => {
+        for (let i = 0; i < numPts; i++) {
+          const th = (i / numPts) * Math.PI * 2;
+          const p = project(radius * Math.cos(th), radius * Math.sin(th), zPos);
+          const col = typeof colorFn === "function" ? colorFn(th, p.z) : colorFn;
+          renderables.push({
+            type: "dot",
+            p,
+            r: dotRadius * p.scale,
+            color: col,
+            z: p.z
+          });
+        }
+      };
+
       const addSpokes = (rInner, rOuter, zPos, numSpokes, colorFn, lineWidth = 1) => {
         for (let i = 0; i < numSpokes; i++) {
           const th = (i / numSpokes) * Math.PI * 2;
           const p1 = project(rInner * Math.cos(th), rInner * Math.sin(th), zPos);
           const p2 = project(rOuter * Math.cos(th), rOuter * Math.sin(th), zPos);
           const avgZ = (p1.z + p2.z) * 0.5;
+          const col = typeof colorFn === "function" ? colorFn(th, avgZ) : colorFn;
           renderables.push({
             type: "line",
             p1,
             p2,
-            color: colorFn(th, avgZ),
+            color: col,
             width: lineWidth,
             z: avgZ
           });
         }
       };
 
-      // --- Estágio 1: Bocal Injetor Frontal (z: -270 a -230) ---
-      for (let z = -270; z <= -230; z += 9) {
-        const rad = 18 + (z - (-270)) * 0.15;
-        addRing(rad, z, 32, (th, z_d) => `rgba(255, 170, 50, ${(0.45 + 0.45 * Math.max(0, Math.min(1, (z_d + 80) / 160.0))).toFixed(2)})`, 1);
-      }
-      addRing(28, -270, 24, () => "rgba(63, 244, 213, 0.75)", 1.2);
-      addSpokes(14, 28, -270, 8, () => "rgba(255, 200, 80, 0.8)", 1);
-
-      // --- Estágio 2: Anel Estator 1 com Dentes Radiais (z: -215) ---
-      addRing(48, -215, 48, () => "rgba(63, 244, 213, 0.75)", 1);
-      addRing(58, -215, 60, () => "rgba(63, 244, 213, 0.9)", 1.2, false);
-      addSpokes(48, 62, -215, 24, () => "rgba(63, 244, 213, 0.6)", 1);
-
-      // --- Estágio 3: Grande Disco de Compressão 1 (z: -140) ---
-      addRing(72, -140, 64, () => "rgba(63, 244, 213, 0.65)", 1);
-      addRing(86, -140, 72, () => "rgba(63, 244, 213, 0.85)", 1.5, false);
-      addSpokes(70, 88, -140, 36, () => "rgba(20, 140, 150, 0.45)", 1);
-      for (let i = 0; i < 12; i++) {
-        const th = (i / 12) * Math.PI * 2;
-        const p = project(96 * Math.cos(th), 96 * Math.sin(th), -140);
-        renderables.push({ type: "dot", p, r: 2.0, color: "rgba(63, 244, 213, 0.75)", z: p.z });
-      }
-
-      // --- Estágio 4: Flange & Anel de Transição Segmentado (z: -65) ---
-      addRing(52, -65, 48, () => "rgba(255, 175, 55, 0.75)", 1);
-      addRing(66, -65, 54, () => "rgba(63, 244, 213, 0.8)", 1.2, false);
-      addSpokes(52, 66, -65, 18, () => "rgba(255, 190, 70, 0.7)", 1);
-
-      // --- Estágio 5: CORAÇÃO DE PLASMA INCANDESCENTE (z: 0) ---
-      const R_core = 42 + 2.0 * Math.sin(this.corePulsePhase);
-      const numCageRings = 14;
-      for (let c = 0; c < numCageRings; c++) {
-        const lat = -Math.PI * 0.42 + (c / (numCageRings - 1)) * Math.PI * 0.84;
-        const r_lat = R_core * Math.cos(lat);
-        const z_lat = R_core * Math.sin(lat);
-        addRing(r_lat, z_lat, 36, (th, z_d) => {
-          const normZ = Math.max(0, Math.min(1, (z_d + 60) / 120.0));
-          return `rgba(255, ${150 + Math.floor(90 * Math.sin(th * 3 + this.corePulsePhase))}, 30, ${(0.6 + 0.4 * normZ).toFixed(2)})`;
-        }, 1.5);
-      }
-
-      // Nervuras de confinamento magnético meridianas
-      for (let m = 0; m < 8; m++) {
-        const th_m = (m / 8) * Math.PI;
-        const pts_m = [];
-        for (let step = 0; step < 32; step++) {
-          const phi = (step / 31) * Math.PI * 2;
-          const lx = R_core * Math.cos(phi) * Math.cos(th_m);
-          const ly = R_core * Math.cos(phi) * Math.sin(th_m);
-          const lz = R_core * Math.sin(phi);
-          pts_m.push(project(lx, ly, lz));
+      const addArc = (radius, zPos, thStart, thEnd, numSteps, colorFn, lineWidth = 1) => {
+        const pts = [];
+        for (let step = 0; step < numSteps; step++) {
+          const th = thStart + (step / (numSteps - 1)) * (thEnd - thStart);
+          const p = project(radius * Math.cos(th), radius * Math.sin(th), zPos);
+          pts.push({ ...p, th });
         }
-        for (let step = 0; step < 31; step++) {
-          const p1 = pts_m[step];
-          const p2 = pts_m[step + 1];
+        for (let step = 0; step < numSteps - 1; step++) {
+          const p1 = pts[step];
+          const p2 = pts[step + 1];
           const avgZ = (p1.z + p2.z) * 0.5;
-          const normZ = Math.max(0, Math.min(1, (avgZ + 50) / 100.0));
+          const col = typeof colorFn === "function" ? colorFn(p1.th, avgZ) : colorFn;
           renderables.push({
             type: "line",
             p1,
             p2,
-            color: `rgba(255, 195, 60, ${(0.55 + 0.45 * normZ).toFixed(2)})`,
-            width: 1.4,
+            color: col,
+            width: lineWidth,
             z: avgZ
           });
         }
+      };
+
+      // Paleta Cromática Holográfica
+      const C_CYAN_HI = "rgba(190, 255, 248, 0.95)";
+      const C_CYAN_BR = "rgba(63, 244, 213, 0.85)";
+      const C_CYAN_MD = "rgba(35, 175, 160, 0.65)";
+      const C_CYAN_DK = "rgba(20, 100, 105, 0.45)";
+      const C_GOLD_HI = "rgba(255, 238, 175, 0.95)";
+      const C_GOLD_BR = "rgba(255, 190, 50, 0.85)";
+      const C_GOLD_MD = "rgba(255, 145, 30, 0.70)";
+      const C_WHITE   = "rgba(255, 255, 255, 0.95)";
+
+      // --- RETÍCULO HUD CIRCULAR DE FUNDO (Centralizado no cubo do Estator em z: +175) ---
+      const hubP = project(0, 0, 175);
+      const reticleCx = hubP.px;
+      const reticleCy = hubP.py;
+      const rMain = 205;
+
+      for (let deg = 0; deg < 360; deg += 2) {
+        const rad = (deg * Math.PI) / 180;
+        const cosD = Math.cos(rad);
+        const sinD = Math.sin(rad);
+        const tickLen = deg % 10 === 0 ? 9 : (deg % 5 === 0 ? 5 : 3);
+        const col = deg % 10 === 0 ? "rgba(63, 244, 213, 0.45)" : "rgba(35, 120, 125, 0.22)";
+        const x1 = reticleCx + rMain * cosD;
+        const y1 = reticleCy + rMain * sinD;
+        const x2 = reticleCx + (rMain - tickLen) * cosD;
+        const y2 = reticleCy + (rMain - tickLen) * sinD;
+        renderables.push({ type: "line", p1: { px: x1, py: y1 }, p2: { px: x2, py: y2 }, color: col, width: 1, z: -350 });
       }
 
-      // --- Estágio 6: Anel de Transição & Blindagem Secundária (z: +65) ---
-      addRing(56, 65, 48, () => "rgba(63, 244, 213, 0.65)", 1);
-      addRing(70, 65, 54, () => "rgba(63, 244, 213, 0.85)", 1.5, false);
-      addSpokes(56, 70, 65, 18, () => "rgba(20, 140, 150, 0.5)", 1);
-
-      // --- Estágio 7: OS ANÉIS GÊMEOS DE BISEL CIANO (z: +105 & +125) ---
-      for (const z_r of [105, 125]) {
-        addRing(88, z_r, 72, () => "rgba(63, 244, 213, 0.95)", 2.4);
-        addRing(76, z_r, 64, () => "rgba(63, 244, 213, 0.8)", 1.4);
-        addSpokes(76, 88, z_r, 32, () => "rgba(63, 244, 213, 0.65)", 1);
-        addRing(82, z_r, 48, () => "rgba(200, 255, 245, 0.9)", 1.4, false);
+      for (let deg = 0; deg < 360; deg += 4) {
+        const rad = (deg * Math.PI) / 180;
+        const x = reticleCx + 222 * Math.cos(rad);
+        const y = reticleCy + 222 * Math.sin(rad);
+        renderables.push({ type: "dot", p: { px: x, py: y }, r: 0.8, color: "rgba(63, 244, 213, 0.3)", z: -350 });
       }
 
-      // --- Estágio 8: GRANDE ESTATOR ACELERADOR PRINCIPAL (z: +180) ---
-      addRing(95, 180, 80, () => "rgba(63, 244, 213, 0.7)", 1);
-      addRing(128, 180, 96, () => "rgba(63, 244, 213, 0.9)", 2.0);
-      addRing(142, 180, 96, () => "rgba(63, 244, 213, 0.85)", 1.4, false);
-      addSpokes(95, 142, 180, 48, () => "rgba(63, 244, 213, 0.55)", 1);
+      for (const deg of [0, 45, 90, 135, 180, 225, 270, 315]) {
+        const rad = (deg * Math.PI) / 180;
+        const cosD = Math.cos(rad);
+        const sinD = Math.sin(rad);
+        const x1 = reticleCx + (rMain + 5) * cosD;
+        const y1 = reticleCy + (rMain + 5) * sinD;
+        const x2 = reticleCx + (rMain + 28) * cosD;
+        const y2 = reticleCy + (rMain + 28) * sinD;
+        renderables.push({ type: "line", p1: { px: x1, py: y1 }, p2: { px: x2, py: y2 }, color: "rgba(63, 244, 213, 0.4)", width: 1.2, z: -350 });
+      }
 
-      // Escudos em arco flutuantes
+      for (const [bx, by, fx, fy] of [
+        [reticleCx - 170, reticleCy - 170, 1, 1],
+        [reticleCx + 170, reticleCy - 170, -1, 1],
+        [reticleCx - 170, reticleCy + 170, 1, -1],
+        [reticleCx + 170, reticleCy + 170, -1, -1]
+      ]) {
+        renderables.push({ type: "line", p1: { px: bx, py: by }, p2: { px: bx + 18 * fx, py: by }, color: "rgba(63, 244, 213, 0.35)", width: 1.2, z: -350 });
+        renderables.push({ type: "line", p1: { px: bx, py: by }, p2: { px: bx, py: by + 18 * fy }, color: "rgba(63, 244, 213, 0.35)", width: 1.2, z: -350 });
+      }
+
+      for (const [mx, my] of [[reticleCx - 130, reticleCy - 140], [reticleCx + 100, reticleCy - 140]]) {
+        for (let gx = 0; gx < 4; gx++) {
+          for (let gy = 0; gy < 3; gy++) {
+            renderables.push({ type: "dot", p: { px: mx + gx * 8, py: my + gy * 7 }, r: 0.9, color: "rgba(63, 244, 213, 0.35)", z: -350 });
+          }
+        }
+      }
+
+      // --- ESTÁGIO 1: BOCAL INJETOR FRONTAL & ESTATOR DE COBRE (z: -300 a -250) ---
+      addRing(28, -300, 48, C_CYAN_BR, 2);
+      addRing(14, -300, 32, C_CYAN_MD, 1);
+      addDotRing(22, -300, 8, C_WHITE, 1.4);
+
+      // 24 Barras Longitudinais de Enrolamento de Cobre
+      for (let i = 0; i < 24; i++) {
+        const th = (i / 24) * Math.PI * 2;
+        const cosT = Math.cos(th);
+        const sinT = Math.sin(th);
+        const p1 = project(24 * cosT, 24 * sinT, -300);
+        const p2 = project(24 * cosT, 24 * sinT, -255);
+        renderables.push({ type: "line", p1, p2, color: C_GOLD_MD, width: 1.2, z: (p1.z + p2.z) * 0.5 });
+      }
+
+      // 12 Anéis Concêntricos de Bobinamento
+      for (let z_coil = -300; z_coil <= -254; z_coil += 4) {
+        addRing(24.2, z_coil, 36, C_GOLD_BR, 1);
+        if (z_coil % 8 === 0) {
+          addDotRing(24.5, z_coil, 12, C_GOLD_HI, 1.1);
+        }
+      }
+
+      // Flange Intermediária com Dentes de Engrenagem (z: -275)
+      addRing(36, -275, 48, C_CYAN_BR, 1.5);
+      addSpokes(26, 36, -275, 16, C_CYAN_MD, 1.2);
+
+      // Presilhas C-Brackets Flutuantes
       for (let arcIdx = 0; arcIdx < 4; arcIdx++) {
-        const thStart = (arcIdx / 4) * Math.PI * 2 + 0.2;
-        const thEnd = thStart + 0.9;
-        const arcPts = [];
-        for (let step = 0; step < 16; step++) {
-          const thA = thStart + (step / 15) * (thEnd - thStart);
-          arcPts.push(project(160 * Math.cos(thA), 160 * Math.sin(thA), 180));
+        const thS = arcIdx * (Math.PI * 0.5) + 0.15;
+        addArc(42, -280, thS, thS + 0.42, 8, C_GOLD_BR, 2);
+        const pDot = project(42 * Math.cos(thS), 42 * Math.sin(thS), -280);
+        renderables.push({ type: "dot", p: pDot, r: 1.5 * pDot.scale, color: C_WHITE, z: pDot.z });
+      }
+
+      // Flange Traseira Perfurada (z: -250)
+      addRing(48, -250, 48, C_CYAN_BR, 1.5);
+      addRing(30, -250, 36, C_CYAN_DK, 1);
+      addDotRing(39, -250, 14, C_CYAN_HI, 1.5);
+
+      // --- ESTÁGIO 2: ANEL ESTATOR 1 COM DENTES DE INDEXAÇÃO (z: -225) ---
+      addRing(42, -225, 48, C_CYAN_MD, 1);
+      addRing(56, -225, 60, C_CYAN_BR, 1.2);
+      addRing(68, -225, 64, C_CYAN_BR, 1.5);
+      for (let i = 0; i < 32; i++) {
+        const th = (i / 32) * Math.PI * 2;
+        const rTop = i % 2 === 0 ? 68 : 62;
+        const p1 = project(56 * Math.cos(th), 56 * Math.sin(th), -225);
+        const p2 = project(rTop * Math.cos(th), rTop * Math.sin(th), -225);
+        renderables.push({ type: "line", p1, p2, color: C_CYAN_BR, width: 1.2, z: (p1.z + p2.z) * 0.5 });
+      }
+      addDotRing(62, -225, 48, C_CYAN_HI, 1.1);
+      addArc(76, -225, 0.2, 0.7, 10, C_CYAN_BR, 2);
+      addArc(76, -225, Math.PI + 0.2, Math.PI + 0.7, 10, C_CYAN_BR, 2);
+
+      // --- ESTÁGIO 3: GRANDE DISCO DE COMPRESSÃO FRONTAL & LEQUE DE AGULHAS (z: -160) ---
+      addRing(38, -160, 48, C_CYAN_DK, 1);
+      addRing(50, -160, 48, C_CYAN_MD, 1);
+      addDotRing(44, -160, 24, C_GOLD_BR, 1.2);
+      addSpokes(50, 82, -160, 56, C_CYAN_DK, 0.8);
+
+      addRing(82, -160, 72, C_CYAN_BR, 1.5);
+      addDotRing(88, -160, 64, C_CYAN_HI, 1.2);
+      addRing(94, -160, 80, C_CYAN_BR, 1.8);
+      addSpokes(94, 100, -160, 56, C_CYAN_MD, 1.2);
+
+      // Leque de Agulhas Radiais (Quadrante Inferior Direito)
+      for (let i = 0; i < 22; i++) {
+        const frac = i / 21.0;
+        const th = 0.04 * Math.PI + frac * (0.42 * Math.PI);
+        const rLen = 106 + 28 * Math.sin(frac * Math.PI);
+        const p1 = project(94 * Math.cos(th), 94 * Math.sin(th), -160);
+        const p2 = project(rLen * Math.cos(th), rLen * Math.sin(th), -160);
+        renderables.push({ type: "line", p1, p2, color: C_CYAN_HI, width: 1.2, z: (p1.z + p2.z) * 0.5 });
+        renderables.push({ type: "dot", p: p2, r: 1.5 * p2.scale, color: C_WHITE, z: p2.z });
+      }
+
+      addArc(110, -160, 0.8 * Math.PI, 1.3 * Math.PI, 16, C_CYAN_BR, 2);
+      addArc(116, -160, 0.85 * Math.PI, 1.25 * Math.PI, 14, C_GOLD_BR, 1.5);
+
+      // --- ESTÁGIO 4: FLANGE DE TRANSIÇÃO & TIRANTES DE CONEXÃO (z: -85) ---
+      addRing(56, -85, 54, C_GOLD_MD, 1.5);
+      addRing(72, -85, 64, C_CYAN_BR, 1.5);
+      addDotRing(64, -85, 8, C_WHITE, 2.0);
+
+      // 8 Tirantes Longitudinais conectando ao Estágio 5
+      for (let i = 0; i < 8; i++) {
+        const th = (i / 8) * Math.PI * 2;
+        const cosT = Math.cos(th);
+        const sinT = Math.sin(th);
+        const p1 = project(64 * cosT, 64 * sinT, -85);
+        const p2 = project(52 * cosT, 52 * sinT, -45);
+        renderables.push({ type: "line", p1, p2, color: C_CYAN_HI, width: 1.8, z: (p1.z + p2.z) * 0.5 });
+      }
+
+      // --- ESTÁGIO 5: CÂMARA TOKAMAK DE CONFINAMENTO & NÚCLEO DE PLASMA (z: -45 a +45) ---
+      // Eixo Guia de Onda Central
+      for (const rSh of [5, 10]) {
+        for (let i = 0; i < 12; i++) {
+          const th = (i / 12) * Math.PI * 2;
+          const p1 = project(rSh * Math.cos(th), rSh * Math.sin(th), -45);
+          const p2 = project(rSh * Math.cos(th), rSh * Math.sin(th), 45);
+          renderables.push({ type: "line", p1, p2, color: C_CYAN_HI, width: 1.2, z: (p1.z + p2.z) * 0.5 });
         }
-        for (let step = 0; step < 15; step++) {
-          const p1 = arcPts[step];
-          const p2 = arcPts[step + 1];
-          const avgZ = (p1.z + p2.z) * 0.5;
+      }
+
+      // 32 Nervuras Longitudinais de Cobre da Câmara Tokamak
+      for (let i = 0; i < 32; i++) {
+        const th = (i / 32) * Math.PI * 2;
+        const cosT = Math.cos(th);
+        const sinT = Math.sin(th);
+        const ptsRib = [];
+        for (let step = 0; step < 12; step++) {
+          const frac = step / 11.0;
+          const zR = -45 + frac * 90;
+          const rR = 52 + 6 * Math.sin(frac * Math.PI);
+          ptsRib.push(project(rR * cosT, rR * sinT, zR));
+        }
+        for (let step = 0; step < 11; step++) {
+          const p1 = ptsRib[step];
+          const p2 = ptsRib[step + 1];
+          renderables.push({ type: "line", p1, p2, color: C_GOLD_MD, width: 1.2, z: (p1.z + p2.z) * 0.5 });
+        }
+      }
+
+      // 7 Anéis Equatoriais de Bobinamento
+      for (const zEq of [-40, -26, -13, 0, 13, 26, 40]) {
+        const rEq = 52 + 6 * Math.cos((zEq / 45.0) * (Math.PI * 0.5));
+        addRing(rEq, zEq, 48, C_GOLD_BR, 1.2);
+        addDotRing(rEq, zEq, 24, C_GOLD_HI, 1.1);
+      }
+
+      // Tubos de Resfriamento em S no Topo e Base com Terminais
+      for (const [sign, angBase] of [[1, 0.6 * Math.PI], [-1, 1.6 * Math.PI]]) {
+        const ptsS = [];
+        for (let step = 0; step < 24; step++) {
+          const t = step / 23.0;
+          const rPipe = 52 + t * 32;
+          const angPipe = angBase + sign * 0.28 * Math.sin(t * Math.PI * 2);
+          const zPipe = 14 * Math.cos(t * Math.PI);
+          ptsS.push(project(rPipe * Math.cos(angPipe), rPipe * Math.sin(angPipe), zPipe));
+        }
+        for (let step = 0; step < 23; step++) {
+          const p1 = ptsS[step];
+          const p2 = ptsS[step + 1];
+          renderables.push({ type: "line", p1, p2, color: C_GOLD_HI, width: 2.2, z: (p1.z + p2.z) * 0.5 });
+        }
+        const pEnd = ptsS[ptsS.length - 1];
+        renderables.push({ type: "dot", p: pEnd, r: 3.5 * pEnd.scale, color: C_GOLD_BR, z: pEnd.z });
+      }
+
+      // Vórtice de Plasma Incandescente Turbulento
+      const pulseScale = 1.0 + 0.08 * Math.sin(this.corePulsePhase);
+      for (let i = 0; i < 90; i++) {
+        const rCore = (3 + (i % 30)) * pulseScale;
+        const thC = (i * 0.35) + this.angle * 2.5;
+        const zC = Math.sin(i * 0.5 + this.corePulsePhase) * 22;
+        const pC = project(rCore * Math.cos(thC), rCore * Math.sin(thC), zC);
+        const col = i % 3 === 0 ? C_WHITE : (i % 2 === 0 ? C_GOLD_HI : C_CYAN_BR);
+        renderables.push({ type: "dot", p: pC, r: (1.2 + (i % 3) * 0.6) * pC.scale, color: col, z: pC.z });
+      }
+
+      // --- ESTÁGIO 6: ESCUDO DE BLINDAGEM SECUNDÁRIO (z: +65) ---
+      addRing(52, 65, 48, C_CYAN_MD, 1);
+      addRing(76, 65, 64, C_CYAN_BR, 1.5);
+      addSpokes(52, 76, 65, 24, C_CYAN_DK, 1.2);
+      addDotRing(64, 65, 24, C_CYAN_HI, 1.2);
+      for (const lugAng of [0, 0.5 * Math.PI, Math.PI, 1.5 * Math.PI]) {
+        const p1 = project(76 * Math.cos(lugAng), 76 * Math.sin(lugAng), 65);
+        const p2 = project(86 * Math.cos(lugAng), 86 * Math.sin(lugAng), 65);
+        renderables.push({ type: "line", p1, p2, color: C_CYAN_HI, width: 2.5, z: (p1.z + p2.z) * 0.5 });
+      }
+
+      // --- ESTÁGIO 7: OS ANÉIS GÊMEOS DE BISEL CIANO COM ESPESSURA VOLUMÉTRICA (z: +102 & +128) ---
+      for (const zRing of [102, 128]) {
+        addRing(90, zRing, 80, C_CYAN_BR, 2.6);
+        addRing(85, zRing, 72, C_CYAN_HI, 1.5);
+        addRing(76, zRing, 64, C_CYAN_BR, 2.0);
+        addRing(80, zRing, 64, C_CYAN_MD, 1.0);
+        addSpokes(90, 95, zRing, 60, C_CYAN_MD, 1.2);
+
+        // Nervuras do Bore Interno
+        for (let i = 0; i < 16; i++) {
+          const thB = (i / 16) * Math.PI * 2;
+          const p1 = project(76 * Math.cos(thB), 76 * Math.sin(thB), zRing);
+          const p2 = project(76 * Math.cos(thB), 76 * Math.sin(thB), zRing + 14);
+          renderables.push({ type: "line", p1, p2, color: C_CYAN_DK, width: 1.0, z: (p1.z + p2.z) * 0.5 });
+        }
+        addRing(90, zRing + 14, 80, C_CYAN_DK, 1.5);
+
+        // Realce Especular Superior e Inferior
+        addArc(90, zRing, 0.4 * Math.PI, 0.8 * Math.PI, 20, C_WHITE, 2.8);
+        addArc(90, zRing, 1.4 * Math.PI, 1.8 * Math.PI, 20, C_WHITE, 2.8);
+      }
+
+      // Trilha Planetária Âmbar entre os Anéis
+      addRing(84, 115, 60, C_GOLD_MD, 1.2);
+      addDotRing(84, 115, 36, C_GOLD_HI, 1.4);
+      for (const clampAng of [0.25 * Math.PI, 0.75 * Math.PI, 1.25 * Math.PI, 1.75 * Math.PI]) {
+        const p1 = project(98 * Math.cos(clampAng), 98 * Math.sin(clampAng), 98);
+        const p2 = project(98 * Math.cos(clampAng), 98 * Math.sin(clampAng), 136);
+        renderables.push({ type: "line", p1, p2, color: C_GOLD_BR, width: 2.5, z: (p1.z + p2.z) * 0.5 });
+      }
+
+      // --- ESTÁGIO 8: GRANDE ESTATOR ACELERADOR PRINCIPAL / DISCO GIGANTE (z: +175) ---
+      addRing(44, 175, 48, C_CYAN_MD, 1);
+      addRing(58, 175, 54, C_CYAN_BR, 1.5);
+      addRing(74, 175, 64, C_CYAN_BR, 1.5);
+
+      // 8 Grandes Recortes em Setor com Bordas Reforçadas
+      for (let sec = 0; sec < 8; sec++) {
+        const thS1 = (sec / 8) * Math.PI * 2 + 0.08;
+        const thS2 = ((sec + 1) / 8) * Math.PI * 2 - 0.08;
+        const p1 = project(74 * Math.cos(thS1), 74 * Math.sin(thS1), 175);
+        const p2 = project(134 * Math.cos(thS1), 134 * Math.sin(thS1), 175);
+        renderables.push({ type: "line", p1, p2, color: C_CYAN_BR, width: 2.0, z: (p1.z + p2.z) * 0.5 });
+        addArc(74, 175, thS1, thS2, 8, C_CYAN_MD, 1.2);
+        addArc(134, 175, thS1, thS2, 12, C_CYAN_MD, 1.2);
+      }
+
+      addDotRing(96, 175, 64, C_CYAN_HI, 1.2);
+      addDotRing(116, 175, 72, C_CYAN_DK, 1.0);
+
+      // Pente de 72 Dentes de Engrenagem
+      addRing(134, 175, 96, C_CYAN_BR, 1.8);
+      addRing(146, 175, 96, C_CYAN_BR, 2.2);
+      addSpokes(134, 146, 175, 72, C_CYAN_HI, 1.2);
+      addSpokes(146, 152, 175, 72, C_CYAN_MD, 1.0);
+      addRing(152, 175, 96, C_CYAN_DK, 1.0);
+
+      // Sapatas de Freio / Escudos Magnéticos em Arco Flutuantes
+      for (const [sStart, sEnd] of [
+        [0.12 * Math.PI, 0.48 * Math.PI],
+        [0.78 * Math.PI, 1.18 * Math.PI],
+        [1.42 * Math.PI, 1.82 * Math.PI]
+      ]) {
+        addArc(164, 175, sStart, sEnd, 20, C_CYAN_BR, 2.8);
+        addArc(169, 175, sStart, sEnd, 20, C_CYAN_MD, 1.5);
+        for (let stp = 0; stp < 5; stp++) {
+          const thP = sStart + (stp / 4.0) * (sEnd - sStart);
+          const p1 = project(164 * Math.cos(thP), 164 * Math.sin(thP), 175);
+          const p2 = project(169 * Math.cos(thP), 169 * Math.sin(thP), 175);
+          renderables.push({ type: "line", p1, p2, color: C_CYAN_HI, width: 1.8, z: (p1.z + p2.z) * 0.5 });
+          renderables.push({ type: "dot", p: p2, r: 1.8 * p2.scale, color: C_GOLD_BR, z: p2.z });
+        }
+      }
+
+      // --- ESTÁGIO 8B: ESTATOR PERFURADO INTERMEDIÁRIO (z: +210) ---
+      addRing(62, 210, 54, C_CYAN_BR, 1.5);
+      addRing(42, 210, 42, C_CYAN_DK, 1.0);
+      addDotRing(52, 210, 18, C_CYAN_HI, 1.5);
+
+      // --- ESTÁGIO 9: SOLENOIDE TRASEIRO DE COBRE (z: +230 a +265) ---
+      for (let i = 0; i < 24; i++) {
+        const th = (i / 24) * Math.PI * 2;
+        const p1 = project(36 * Math.cos(th), 36 * Math.sin(th), 230);
+        const p2 = project(36 * Math.cos(th), 36 * Math.sin(th), 265);
+        renderables.push({ type: "line", p1, p2, color: C_GOLD_MD, width: 1.2, z: (p1.z + p2.z) * 0.5 });
+      }
+
+      for (let zSol = 230; zSol <= 266; zSol += 5) {
+        addRing(36.2, zSol, 42, C_GOLD_BR, 1.2);
+        if (zSol % 10 === 0) {
+          addDotRing(36.5, zSol, 16, C_GOLD_HI, 1.2);
+        }
+      }
+
+      // Presilhas Flutuantes
+      for (let arcIdx = 0; arcIdx < 3; arcIdx++) {
+        const thS = arcIdx * (Math.PI * 0.66) + 0.2;
+        addArc(44, 248, thS, thS + 0.45, 10, C_GOLD_HI, 2.2);
+      }
+
+      // --- ESTÁGIO 10A: ROTOR IMPULSOR DA TURBINA TRASEIRA (z: +280) ---
+      addRing(28, 280, 36, C_GOLD_MD, 1.5);
+      addRing(54, 280, 54, C_CYAN_BR, 1.5);
+      for (let v = 0; v < 20; v++) {
+        const thBase = (v / 20) * Math.PI * 2;
+        const ptsV = [];
+        for (let step = 0; step < 6; step++) {
+          const frac = step / 5.0;
+          const rV = 28 + frac * 26;
+          const thV = thBase + frac * 0.35;
+          ptsV.push(project(rV * Math.cos(thV), rV * Math.sin(thV), 280));
+        }
+        for (let step = 0; step < 5; step++) {
+          const p1 = ptsV[step];
+          const p2 = ptsV[step + 1];
+          renderables.push({ type: "line", p1, p2, color: C_GOLD_HI, width: 1.4, z: (p1.z + p2.z) * 0.5 });
+        }
+      }
+
+      // --- ESTÁGIO 10B: BOCAL CÔNICO DE EXAUSTÃO (z: +295 a +320) ---
+      for (let step = 0; step < 5; step++) {
+        const frac = step / 4.0;
+        const zCone = 295 + frac * 25;
+        const rCone = 34 - frac * 12;
+        addRing(rCone, zCone, 36, C_CYAN_MD, 1.2);
+      }
+      addRing(22, 320, 32, C_CYAN_BR, 2.4);
+
+      // --- LINHAS DE FLUXO MAGNÉTICO (Dashed Flux Lines) ---
+      for (let fluxI = 0; fluxI < 8; fluxI++) {
+        const thF = (fluxI / 8) * Math.PI * 2;
+        const ptsFlux = [];
+        for (let step = 0; step < 28; step++) {
+          const frac = step / 27.0;
+          const zF = -290 + frac * 600;
+          const rF = 75 + 48 * Math.sin(frac * Math.PI);
+          ptsFlux.push(project(rF * Math.cos(thF), rF * Math.sin(thF), zF));
+        }
+        for (let step = 0; step < 27; step += 2) {
+          const p1 = ptsFlux[step];
+          const p2 = ptsFlux[step + 1];
+          renderables.push({ type: "line", p1, p2, color: C_CYAN_DK, width: 1.0, z: (p1.z + p2.z) * 0.5 });
+        }
+      }
+
+      // --- NUVEM VOLUMÉTRICA DE 350 MICRO-PARTÍCULAS HOLOGRÁFICAS ---
+      for (const dp of this.dustParticles) {
+        dp.theta += dp.vtheta;
+        dp.z += dp.vz;
+        if (dp.z > 330) dp.z = -310;
+        if (dp.z < -310) dp.z = 330;
+        const p = project(dp.r * Math.cos(dp.theta), dp.r * Math.sin(dp.theta), dp.z);
+        if (p.px > 10 && p.px < width - 10 && p.py > 10 && p.py < height - 10) {
           renderables.push({
-            type: "line",
-            p1,
-            p2,
-            color: "rgba(63, 244, 213, 0.8)",
-            width: 2.4,
-            z: avgZ
+            type: "dot",
+            p,
+            r: dp.size * p.scale,
+            color: dp.color,
+            z: p.z
           });
         }
       }
 
-      // --- Estágio 9: Rotor de Turbina / Palhetas Radiais (z: +230) ---
-      addRing(62, 230, 54, () => "rgba(255, 180, 60, 0.8)", 1.2);
-      addRing(78, 230, 64, () => "rgba(63, 244, 213, 0.75)", 1);
-      addSpokes(32, 76, 230, 42, () => "rgba(255, 195, 75, 0.7)", 1.2);
-
-      // --- Estágio 10: Tubo de Escape & Bobinas Terminais (z: +265 a +310) ---
-      for (let z_ex = 265; z_ex <= 310; z_ex += 9) {
-        const rad_ex = 42 - (z_ex - 265) * 0.22;
-        addRing(rad_ex, z_ex, 32, () => "rgba(255, 175, 55, 0.75)", 1.4);
-      }
-      addRing(30, 310, 24, () => "rgba(63, 244, 213, 0.9)", 1.8);
-
-      // --- Grandes Retículos HUD Circulares (Centralizados no Estator em z: +180) ---
-      addRing(205, 180, 120, () => "rgba(63, 244, 213, 0.3)", 1);
-      addRing(220, 180, 120, () => "rgba(63, 244, 213, 0.2)", 1);
-      for (let i = 0; i < 36; i++) {
-        const th = (i / 36) * Math.PI * 2;
-        const isMajor = (i % 9 === 0);
-        const r1 = 205;
-        const r2 = isMajor ? 225 : 213;
-        const p1 = project(r1 * Math.cos(th), r1 * Math.sin(th), 180);
-        const p2 = project(r2 * Math.cos(th), r2 * Math.sin(th), 180);
-        renderables.push({
-          type: "line",
-          p1,
-          p2,
-          color: isMajor ? "rgba(63, 244, 213, 0.7)" : "rgba(63, 244, 213, 0.35)",
-          width: isMajor ? 1.6 : 1,
-          z: (p1.z + p2.z) * 0.5
-        });
-      }
-
-      // --- Partículas de Fluxo ao Longo do Eixo ---
+      // --- PARTÍCULAS DE FLUXO AO LONGO DO EIXO ---
       for (const fp of this.fluxParticles) {
         fp.z += fp.speed;
-        if (fp.z > 315) fp.z = -270;
+        if (fp.z > 325) fp.z = -290;
         fp.theta += 0.02;
         const p = project(fp.r * Math.cos(fp.theta), fp.r * Math.sin(fp.theta), fp.z);
         renderables.push({
