@@ -1,0 +1,194 @@
+<div class="collider-console">
+  <!-- Efeitos Ópticos Analógicos CRT e Vinheta Sci-Fi -->
+  <div class="collider-crt-overlay"></div>
+  <div class="collider-vignette"></div>
+
+  <!-- Botão Militar Integrado de Fechar HUD -->
+  <button type="button" class="collider-hud-close-btn" data-action="closeColliderWindow" title="Encerrar Colisor Quântico">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+  <!-- ==================== FAIXA SUPERIOR (TOP STATUS BAR) ==================== -->
+  <header class="collider-top-bar">
+    <div class="top-accent-block"></div>
+    <div class="top-serials-ticker">
+      <span class="serial-item">460762</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">1 251 261 24</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">Ospobwl vi4 276</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">01 261 751 235080-04 6095</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">crn dnizca gs quef si b20823</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">460762</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">1 251 261 24</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">01 261 751 235080-04 6095</span>
+    </div>
+
+    <div class="top-coords-matrix">
+      <div class="coord-row"><span class="axis">X</span> <span>01</span> <span>02</span> <span>03</span></div>
+      <div class="coord-row"><span class="axis">Y</span> <span>04</span> <span>05</span> <span>06</span></div>
+    </div>
+  </header>
+
+  <!-- ==================== ÁREA PRINCIPAL DO CONSOLE ==================== -->
+  <div class="collider-main-frame">
+
+    <!-- ==================== PAINEL ESQUERDO ==================== -->
+    <aside class="collider-left-panel">
+      <!-- Snippet C++ de Inicialização de Propriedades -->
+      <div class="code-snippet-box">
+        <p class="code-comment">// DEFINE THE MAXIMUM NUMBER OF PROPERTIES. A PROPERTY COUNTER, AND...</p>
+        <p class="code-comment">// HM MOONPROPS STRUCTURE</p>
+        <p class="code-decl">CONST INT NUMBEROFPROPERTIES = 1; <span class="code-comment">// NUMBER OF COMPUTER PROPERTIES</span></p>
+        <p class="code-decl">DWORD CPROPID = 0;</p>
+      </div>
+
+      <!-- Telemetria DATA_NODE_07 -->
+      <div class="data-node-box">
+        <div class="node-title">DATA_NODE_07</div>
+        <div class="node-matrix">
+          <div><span>78881</span><span>70455</span><span>4172</span><span>020</span><span>35</span></div>
+          <div><span>8768</span><span>694</span><span>873</span><span>177</span><span>--</span></div>
+          <div><span>734484</span><span>282A*</span><span>447</span><span>::</span><span>72735</span></div>
+        </div>
+      </div>
+
+      <!-- Medidores Circulares Marginais e Retículo Gimbal -->
+      <div class="dial-arc-row">
+        <div class="arc-meters-col">
+          <div class="arc-meter"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="arc-bg" /><path d="M 12 2 A 10 10 0 1 1 3.3 17" class="arc-fg" /></svg><span>001</span></div>
+          <div class="arc-meter"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="arc-bg" /><path d="M 12 2 A 10 10 0 1 1 7 20.6" class="arc-fg" /></svg><span>002</span></div>
+          <div class="arc-meter"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="arc-bg" /><path d="M 12 2 A 10 10 0 0 1 20.6 17" class="arc-fg" /></svg><span>003</span></div>
+        </div>
+
+        <div class="gimbal-reticle-wrap">
+          <svg viewBox="0 0 54 54" class="left-gimbal-svg">
+            <circle cx="27" cy="27" r="25" class="gimbal-ring-1" />
+            <circle cx="27" cy="27" r="18" class="gimbal-ring-2" />
+            <circle cx="27" cy="27" r="10" class="gimbal-ring-3" />
+            <circle cx="27" cy="27" r="4" class="gimbal-center-amber" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Grade de 12 Blocos de Dados Interativos -->
+      <div class="data-blocks-grid">
+        <button type="button" class="data-block-btn active" data-action="clickDataBlock" data-block="041.03">DATA BLOCK 041.03</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="151.89">DATA BLOCK 151.89</button>
+        <button type="button" class="data-block-btn active" data-action="clickDataBlock" data-block="160.03">DATA BLOCK 160.03</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="448.60">DATA BLOCK 448.60</button>
+        <button type="button" class="data-block-btn active" data-action="clickDataBlock" data-block="467.03">DATA BLOCK 467.03</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="457.21">DATA BLOCK 457.21</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="158.03">DATA BLOCK 158.03</button>
+        <button type="button" class="data-block-btn active" data-action="clickDataBlock" data-block="238.11">DATA BLOCK 238.11</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="000.11">DATA BLOCK 000.11</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="119.11">DATA BLOCK 119.11</button>
+        <button type="button" class="data-block-btn active" data-action="clickDataBlock" data-block="468.37">DATA BLOCK 468.37</button>
+        <button type="button" class="data-block-btn" data-action="clickDataBlock" data-block="476.44">DATA BLOCK 476.44</button>
+      </div>
+
+      <!-- Barras de Status Vermelho/Âmbar -->
+      <div class="ticking-num-box">
+        <span class="tick-title">TICKING_NUM // 1238-1</span>
+        <div class="tick-bar red"></div>
+        <div class="tick-bar amber-short"></div>
+        <div class="tick-bar amber-long"></div>
+      </div>
+
+      <!-- Mini 3D Wireframe Polyhedron & Barcode Strip -->
+      <div class="left-bottom-sub">
+        <div class="mini-poly-box">
+          <canvas id="mini-poly-canvas" class="mini-poly-canvas"></canvas>
+        </div>
+        <div class="barcode-frequency-strip"></div>
+      </div>
+    </aside>
+
+    <!-- ==================== CENTRO: COLISOR DE PARTÍCULAS & ÍRIS HOLOGRÁFICO ==================== -->
+    <main class="collider-center-main">
+      <div class="collider-canvas-container">
+        <canvas id="collider-iris-canvas" class="collider-canvas"></canvas>
+      </div>
+    </main>
+
+    <!-- ==================== PAINEL DIREITO ==================== -->
+    <aside class="collider-right-panel">
+      <!-- Snippet C++ de Validação -->
+      <div class="code-validation-box">
+        <span class="func-header">GT_AC_6</span>
+        <p class="code-stmt">HMRESULT HR = S_FALSE;</p>
+        <p class="code-stmt">// VALIDATE THE INPUT PARAMETERS...</p>
+        <p class="code-stmt">IF (!WSZPATHNAME == NULL) { RETURN HR; }</p>
+      </div>
+
+      <!-- Monitor Térmico do Núcleo: CORE TEMP 89.02° -->
+      <div class="core-temp-monitor">
+        <div class="temp-header-row">
+          <span class="temp-label">CORE TEMP.</span>
+        </div>
+        <div class="temp-value-display" id="collider-temp-val">89.02°</div>
+
+        <!-- Espectro Equalizador de Barras -->
+        <div class="temp-spectrum-wrap">
+          <canvas id="collider-spectrum-canvas" class="spectrum-canvas"></canvas>
+        </div>
+
+        <div class="temp-sub-telemetry">
+          <span>// DUAL DATA RINGS // 78881 70455 4172 020 35</span>
+        </div>
+      </div>
+
+      <!-- Tabelas de Dados GT_AC_6, GT_AC_5, JS_05_5 -->
+      <div class="telemetry-tables-stack">
+        <div class="telem-block">
+          <span class="tbl-tag">GT_AC_6</span>
+          <div class="tbl-row"><span>236540</span><span>9638</span><span>0re:nv:</span><span>s054</span></div>
+          <div class="tbl-row"><span>893495</span><span>6846</span><span>BA2N35</span><span>828</span></div>
+        </div>
+        <div class="telem-block">
+          <span class="tbl-tag">GT_AC_5</span>
+          <div class="tbl-row"><span>236540</span><span>9638</span><span>0re:nv:</span><span>s054</span></div>
+          <div class="tbl-row"><span>893495</span><span>6846</span><span>BA2N35</span><span>828</span></div>
+        </div>
+        <div class="telem-block">
+          <span class="tbl-tag">JS_05_5</span>
+          <div class="tbl-row"><span>236540</span><span>9638</span><span>0re:nv:</span><span>s054</span></div>
+          <div class="tbl-row"><span>893495</span><span>6846</span><span>BA2N35</span><span>828</span></div>
+        </div>
+      </div>
+
+      <!-- Equalizador Âmbar: VISUAL ANALYSIS -->
+      <div class="visual-analysis-box">
+        <span class="va-title">// VISUAL ANALYSIS</span>
+        <div class="va-equalizer-bars" id="va-equalizer">
+          <!-- Barras verticais geradas proceduralmente -->
+        </div>
+      </div>
+
+      <!-- DNA CELL COUNT // 34.2 & Hex Dump -->
+      <div class="cell-count-section">
+        <div class="count-header">
+          <span class="count-title">DNA CELL COUNT // 34.2</span>
+          <span class="count-code">234_A</span>
+        </div>
+        <div class="code-log-box">
+          <p>FUNCTION DETECT_COLLISION_VORTEX() {</p>
+          <p>&nbsp;&nbsp;LET BEAM = APERTURE_FLUX.SCAN();</p>
+          <p>&nbsp;&nbsp;RETURN BEAM.RESONANCE > 89.02;</p>
+          <p>}</p>
+        </div>
+        <div class="hex-dump-cols">
+          <div><span>345894</span><span>238491</span><span>949583</span></div>
+          <div><span>345894</span><span>238491</span><span>949583</span></div>
+          <div><span>014828</span><span>217226</span><span>897211</span></div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>

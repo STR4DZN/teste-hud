@@ -2244,97 +2244,1306 @@ export class ReactorHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
+
+/**
+ * DataTopologyApp — Console de Topologia de Dados & Rede 3D [DATA TOPOLOGY // ALLUVIAL FLOW]
+ * Projeção 3D procedural de reticulados poliedrais, vórtice toroidal e grafo alluvial em Canvas 2D.
+ */
+export class DataTopologyApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "data-topology-hud-app",
+    classes: ["data-topology-hud-window"],
+    position: {
+      width: 1280,
+      height: 720
+    },
+    window: {
+      title: "TOPOLOGIA DE DADOS & REDE 3D [DATA TOPOLOGY // ALLUVIAL FLOW]",
+      icon: "fa-solid fa-network-wired",
+      resizable: true
+    },
+    actions: {
+      closeTopologyWindow: DataTopologyApp.#onCloseTopologyWindow
+    }
+  };
+
+  static PARTS = {
+    main: {
+      template: "modules/teste-hud/templates/data-topology.hbs"
+    }
+  };
+
+  constructor(options = {}) {
+    super(options);
+    this._animId = null;
+    this._waveInterval = null;
+    this._ledInterval = null;
+    this.time = 0;
+
+    // Estado da Coluna 1: Poliedro 3D
+    this.polyNodes = [];
+    for (let i = 0; i < 28; i++) {
+      const th = Math.random() * Math.PI * 2;
+      const ph = (Math.random() - 0.5) * Math.PI;
+      const r = 24 + Math.random() * 22;
+      this.polyNodes.push({
+        baseX: r * Math.cos(ph) * Math.cos(th),
+        baseY: r * Math.cos(ph) * Math.sin(th),
+        baseZ: r * Math.sin(ph),
+        phase: Math.random() * Math.PI * 2,
+        speed: 1.2 + Math.random() * 1.5
+      });
+    }
+
+    // Partículas de poeira da Coluna 1
+    this.dust1 = [];
+    for (let i = 0; i < 35; i++) {
+      this.dust1.push({
+        x: (Math.random() - 0.5) * 110,
+        y: (Math.random() - 0.5) * 110,
+        z: (Math.random() - 0.5) * 110,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        vz: (Math.random() - 0.5) * 0.3,
+        size: 0.8 + Math.random() * 1.2
+      });
+    }
+
+    // Estado da Coluna 2: Torus Paramétrico (64 vértices)
+    this.torusPoints = [];
+    const R_major = 38, r_minor = 14;
+    for (let u_i = 0; u_i < 16; u_i++) {
+      const u = u_i * (Math.PI * 2 / 16);
+      for (let v_i = 0; v_i < 4; v_i++) {
+        const v = v_i * (Math.PI * 2 / 4);
+        this.torusPoints.push({
+          x: (R_major + r_minor * Math.cos(v)) * Math.cos(u),
+          y: (R_major + r_minor * Math.cos(v)) * Math.sin(u),
+          z: r_minor * Math.sin(v),
+          u_i, v_i
+        });
+      }
+    }
+
+    // Estado do Grafo Alluvial (24 splines trançadas com pacotes de fótons)
+    this.alluvialPackets = [];
+    for (let i = 0; i < 42; i++) {
+      this.alluvialPackets.push({
+        splineIndex: i % 24,
+        t: Math.random(),
+        speed: 0.003 + Math.random() * 0.007,
+        size: 1.5 + Math.random() * 1.5,
+        color: Math.random() > 0.3 ? "#3ff4d5" : "#ffd15c"
+      });
+    }
+  }
+
+  async _prepareContext(options) {
+    return {};
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    this._initCanvases();
+    this._initLedMatrix();
+  }
+
+  _initCanvases() {
+    if (!this.element) return;
+    const c1 = this.element.querySelector("#topology-canvas-1");
+    const c2 = this.element.querySelector("#topology-canvas-2");
+    const c3 = this.element.querySelector("#topology-canvas-3");
+    const cAlluvial = this.element.querySelector("#alluvial-stream-canvas");
+
+    const w1 = this.element.querySelector("#topology-wave-canvas-1");
+    const w2 = this.element.querySelector("#topology-wave-canvas-2");
+    const w3 = this.element.querySelector("#topology-wave-canvas-3");
+    const ws1 = this.element.querySelector("#topology-wave-canvas-sub-1");
+    const ws2 = this.element.querySelector("#topology-wave-canvas-sub-2");
+    const ws3 = this.element.querySelector("#topology-wave-canvas-sub-3");
+
+    const canvases = [c1, c2, c3, cAlluvial, w1, w2, w3, ws1, ws2, ws3].filter(Boolean);
+
+    const setupDpi = (c) => {
+      const rect = c.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      c.width = Math.round((rect.width || 100) * dpr);
+      c.height = Math.round((rect.height || 60) * dpr);
+      const ctx = c.getContext("2d");
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, width: rect.width || 100, height: rect.height || 60 };
+    };
+
+    const renderLoop = () => {
+      this.time += 0.016;
+      const t = this.time;
+
+      // 1. CANVAS 1: POLIEDRO IRREGULAR 3D
+      if (c1) {
+        const ctx1 = c1.getContext("2d");
+        const rect1 = c1.getBoundingClientRect();
+        if (ctx1 && rect1.width > 0) {
+          ctx1.clearRect(0, 0, rect1.width, rect1.height);
+          const cx = rect1.width / 2;
+          const cy = rect1.height / 2;
+
+          const rotX = t * 0.45;
+          const rotY = t * 0.65;
+
+          const project3D = (x, y, z) => {
+            // Rotação Y
+            const x1 = x * Math.cos(rotY) + z * Math.sin(rotY);
+            const z1 = -x * Math.sin(rotY) + z * Math.cos(rotY);
+            // Rotação X
+            const y2 = y * Math.cos(rotX) - z1 * Math.sin(rotX);
+            const z2 = y * Math.sin(rotX) + z1 * Math.cos(rotX);
+            const scale = 140 / (160 + z2);
+            return { px: cx + x1 * scale, py: cy + y2 * scale, pz: z2 };
+          };
+
+          // Poeira cósmica 3D
+          for (const p of this.dust1) {
+            p.x += p.vx; p.y += p.vy; p.z += p.vz;
+            if (p.x > 55) p.x = -55; if (p.x < -55) p.x = 55;
+            if (p.y > 55) p.y = -55; if (p.y < -55) p.y = 55;
+            if (p.z > 55) p.z = -55; if (p.z < -55) p.z = 55;
+            const pt = project3D(p.x, p.y, p.z);
+            ctx1.fillStyle = "rgba(63, 244, 213, 0.4)";
+            ctx1.beginPath();
+            ctx1.arc(pt.px, pt.py, p.size, 0, Math.PI * 2);
+            ctx1.fill();
+          }
+
+          // Vértices do Poliedro
+          const projectedNodes = this.polyNodes.map(node => {
+            const pulse = 1 + 0.08 * Math.sin(t * node.speed + node.phase);
+            return project3D(node.baseX * pulse, node.baseY * pulse, node.baseZ * pulse);
+          });
+
+          // Arestas
+          ctx1.lineWidth = 1;
+          for (let i = 0; i < projectedNodes.length; i++) {
+            for (let j = i + 1; j < projectedNodes.length; j++) {
+              const p1 = projectedNodes[i];
+              const p2 = projectedNodes[j];
+              const dx = p1.px - p2.px;
+              const dy = p1.py - p2.py;
+              const dist = Math.hypot(dx, dy);
+              if (dist < 32) {
+                const alpha = Math.max(0.1, 1 - dist / 32) * 0.65;
+                ctx1.strokeStyle = `rgba(63, 244, 213, ${alpha})`;
+                ctx1.beginPath();
+                ctx1.moveTo(p1.px, p1.py);
+                ctx1.lineTo(p2.px, p2.py);
+                ctx1.stroke();
+              }
+            }
+          }
+
+          // Nós
+          for (const p of projectedNodes) {
+            ctx1.fillStyle = "#3ff4d5";
+            ctx1.shadowColor = "#3ff4d5";
+            ctx1.shadowBlur = 5;
+            ctx1.beginPath();
+            ctx1.arc(p.px, p.py, 1.8, 0, Math.PI * 2);
+            ctx1.fill();
+          }
+          ctx1.shadowBlur = 0;
+        }
+      }
+
+      // 2. CANVAS 2: TORUS PARAMÉTRICO 3D
+      if (c2) {
+        const ctx2 = c2.getContext("2d");
+        const rect2 = c2.getBoundingClientRect();
+        if (ctx2 && rect2.width > 0) {
+          ctx2.clearRect(0, 0, rect2.width, rect2.height);
+          const cx = rect2.width / 2;
+          const cy = rect2.height / 2;
+
+          const rotX = 0.5 + Math.sin(t * 0.3) * 0.2;
+          const rotZ = t * 0.7;
+
+          const projectTorus = (pt) => {
+            // Rotação Z
+            const x1 = pt.x * Math.cos(rotZ) - pt.y * Math.sin(rotZ);
+            const y1 = pt.x * Math.sin(rotZ) + pt.y * Math.cos(rotZ);
+            // Inclinação X
+            const y2 = y1 * Math.cos(rotX) - pt.z * Math.sin(rotX);
+            const z2 = y1 * Math.sin(rotX) + pt.z * Math.cos(rotX);
+            const scale = 140 / (150 + z2);
+            return { px: cx + x1 * scale, py: cy + y2 * scale, pz: z2 };
+          };
+
+          const pPts = this.torusPoints.map(projectTorus);
+
+          // Desenha filamentos trançados do anel
+          ctx2.strokeStyle = "rgba(63, 244, 213, 0.4)";
+          ctx2.lineWidth = 1;
+          for (let u = 0; u < 16; u++) {
+            const nextU = (u + 1) % 16;
+            for (let v = 0; v < 4; v++) {
+              const idx1 = u * 4 + v;
+              const idx2 = nextU * 4 + v;
+              const idx3 = u * 4 + ((v + 1) % 4);
+              ctx2.beginPath();
+              ctx2.moveTo(pPts[idx1].px, pPts[idx1].py);
+              ctx2.lineTo(pPts[idx2].px, pPts[idx2].py);
+              ctx2.stroke();
+
+              ctx2.strokeStyle = "rgba(255, 209, 92, 0.25)";
+              ctx2.beginPath();
+              ctx2.moveTo(pPts[idx1].px, pPts[idx1].py);
+              ctx2.lineTo(pPts[idx3].px, pPts[idx3].py);
+              ctx2.stroke();
+              ctx2.strokeStyle = "rgba(63, 244, 213, 0.4)";
+            }
+          }
+
+          // Pontos
+          for (let i = 0; i < pPts.length; i++) {
+            const p = pPts[i];
+            ctx2.fillStyle = i % 2 === 0 ? "#3ff4d5" : "#ffd15c";
+            ctx2.beginPath();
+            ctx2.arc(p.px, p.py, 1.4, 0, Math.PI * 2);
+            ctx2.fill();
+          }
+        }
+      }
+
+      // 3. CANVAS 3: ESFERA GEODÉSICA & RADAR GRID
+      if (c3) {
+        const ctx3 = c3.getContext("2d");
+        const rect3 = c3.getBoundingClientRect();
+        if (ctx3 && rect3.width > 0) {
+          ctx3.clearRect(0, 0, rect3.width, rect3.height);
+          const cx = rect3.width / 2;
+          const cy = rect3.height / 2;
+
+          // Círculos de retículo exterior
+          ctx3.strokeStyle = "rgba(13, 70, 87, 0.7)";
+          ctx3.lineWidth = 1;
+          for (const r of [16, 28, 42]) {
+            ctx3.beginPath();
+            ctx3.ellipse(cx, cy, r, r * 0.7, 0, 0, Math.PI * 2);
+            ctx3.stroke();
+          }
+
+          // Retículo alvo e eixos
+          ctx3.strokeStyle = "rgba(63, 244, 213, 0.6)";
+          ctx3.beginPath();
+          ctx3.moveTo(cx - 46, cy); ctx3.lineTo(cx + 46, cy);
+          ctx3.moveTo(cx, cy - 46); ctx3.lineTo(cx, cy + 46);
+          ctx3.stroke();
+
+          // Círculo dourado externo
+          ctx3.strokeStyle = "#ffd15c";
+          ctx3.beginPath();
+          ctx3.arc(cx, cy, 44, 0, Math.PI * 2);
+          ctx3.stroke();
+
+          // Feixe de varredura vertical de radar
+          const scanY = cy + Math.sin(t * 2.2) * 42;
+          ctx3.strokeStyle = "rgba(63, 244, 213, 0.85)";
+          ctx3.shadowColor = "#3ff4d5";
+          ctx3.shadowBlur = 8;
+          ctx3.beginPath();
+          ctx3.moveTo(cx - 40, scanY); ctx3.lineTo(cx + 40, scanY);
+          ctx3.stroke();
+          ctx3.shadowBlur = 0;
+        }
+      }
+
+      // 4. CANVAS ALLUVIAL: FLUXOS BEZIER TRANÇADOS
+      if (cAlluvial) {
+        const ctxA = cAlluvial.getContext("2d");
+        const rectA = cAlluvial.getBoundingClientRect();
+        if (ctxA && rectA.width > 0) {
+          ctxA.clearRect(0, 0, rectA.width, rectA.height);
+          const w = rectA.width;
+          const h = rectA.height;
+
+          const numNodes = 16;
+          const startY = 6;
+          const stepY = (h - 12) / (numNodes - 1);
+
+          // 24 conexões predefinidas para replicar a imagem
+          const connections = [
+            [0, 4], [0, 9], [1, 2], [1, 7], [2, 0], [2, 11], [3, 8], [3, 14],
+            [4, 1], [4, 5], [5, 12], [6, 3], [6, 10], [7, 6], [7, 15],
+            [8, 2], [9, 8], [10, 13], [11, 4], [12, 11], [13, 7], [14, 1],
+            [15, 9], [15, 14]
+          ];
+
+          // Desenha curvas Bezier trançadas
+          ctxA.lineWidth = 1.2;
+          for (let c_i = 0; c_i < connections.length; c_i++) {
+            const [src, dst] = connections[c_i];
+            const y0 = startY + src * stepY;
+            const y1 = startY + dst * stepY;
+            const cx1 = w * 0.35;
+            const cx2 = w * 0.65;
+
+            const alpha = 0.2 + (Math.sin(t * 1.8 + c_i) * 0.1);
+            ctxA.strokeStyle = c_i % 3 === 0 
+              ? `rgba(255, 209, 92, ${alpha * 1.2})` 
+              : `rgba(63, 244, 213, ${alpha})`;
+
+            ctxA.beginPath();
+            ctxA.moveTo(0, y0);
+            ctxA.bezierCurveTo(cx1, y0, cx2, y1, w, y1);
+            ctxA.stroke();
+          }
+
+          // Atualiza e desenha os pacotes de fótons que viajam pelas curvas
+          for (const pkt of this.alluvialPackets) {
+            pkt.t += pkt.speed;
+            if (pkt.t > 1) pkt.t = 0;
+
+            const [src, dst] = connections[pkt.splineIndex];
+            const y0 = startY + src * stepY;
+            const y1 = startY + dst * stepY;
+            const cx1 = w * 0.35;
+            const cx2 = w * 0.65;
+
+            // Ponto na curva cúbica de Bezier
+            const u = 1 - pkt.t;
+            const px = 3 * u * u * pkt.t * cx1 + 3 * u * pkt.t * pkt.t * cx2 + pkt.t * pkt.t * pkt.t * w;
+            const py = u * u * u * y0 + 3 * u * u * pkt.t * y0 + 3 * u * pkt.t * pkt.t * y1 + pkt.t * pkt.t * pkt.t * y1;
+
+            ctxA.fillStyle = pkt.color;
+            ctxA.shadowColor = pkt.color;
+            ctxA.shadowBlur = 6;
+            ctxA.beginPath();
+            ctxA.arc(px, py, pkt.size, 0, Math.PI * 2);
+            ctxA.fill();
+          }
+          ctxA.shadowBlur = 0;
+        }
+      }
+
+      // 5. WAVEFORMS
+      [w1, w2, w3].forEach((wc, idx) => {
+        if (!wc) return;
+        const wctx = wc.getContext("2d");
+        const wrect = wc.getBoundingClientRect();
+        if (!wctx || wrect.width === 0) return;
+        wctx.clearRect(0, 0, wrect.width, wrect.height);
+        wctx.strokeStyle = "#3ff4d5";
+        wctx.lineWidth = 1;
+        wctx.beginPath();
+        for (let x = 0; x < wrect.width; x++) {
+          const freq = 0.15 + idx * 0.05;
+          const y = (wrect.height / 2) + Math.sin(x * freq + t * 4) * 6 + ((x % 11 === 0) ? (Math.sin(t * 8) * 5) : 0);
+          if (x === 0) wctx.moveTo(x, y);
+          else wctx.lineTo(x, y);
+        }
+        wctx.stroke();
+      });
+
+      [ws1, ws2, ws3].forEach((wsc, idx) => {
+        if (!wsc) return;
+        const wsctx = wsc.getContext("2d");
+        const wsrect = wsc.getBoundingClientRect();
+        if (!wsctx || wsrect.width === 0) return;
+        wsctx.clearRect(0, 0, wsrect.width, wsrect.height);
+        wsctx.strokeStyle = "#1b8ba5";
+        wsctx.lineWidth = 1;
+        wsctx.beginPath();
+        for (let x = 0; x < wsrect.width; x++) {
+          const y = (wsrect.height / 2) + Math.sin(x * 0.3 + t * 5 + idx) * 4;
+          if (x === 0) wsctx.moveTo(x, y);
+          else wsctx.lineTo(x, y);
+        }
+        wsctx.stroke();
+      });
+
+      this._animId = requestAnimationFrame(renderLoop);
+    };
+
+    renderLoop();
+  }
+
+  _initLedMatrix() {
+    if (!this.element) return;
+    const container = this.element.querySelector("#amber-led-matrix");
+    if (!container) return;
+
+    container.innerHTML = "";
+    const totalPixels = 48;
+    const pixels = [];
+    for (let i = 0; i < totalPixels; i++) {
+      const p = document.createElement("div");
+      p.className = "amber-pixel";
+      container.appendChild(p);
+      pixels.push(p);
+    }
+
+    this._ledInterval = setInterval(() => {
+      pixels.forEach((p, idx) => {
+        p.classList.toggle("active", (Math.sin(this.time * 3 + idx * 0.5) > 0.2));
+      });
+    }, 120);
+  }
+
+  async close(options) {
+    if (this._animId) {
+      cancelAnimationFrame(this._animId);
+      this._animId = null;
+    }
+    if (this._ledInterval) {
+      clearInterval(this._ledInterval);
+      this._ledInterval = null;
+    }
+    return super.close(options);
+  }
+
+  static #onCloseTopologyWindow(event, target) {
+    this.close();
+  }
+}
+
+/**
+ * ColliderHudApp — Console de Colisor Quântico & Íris Holográfica [QUANTUM COLLIDER // PARTICLE APERTURE]
+ * Acelerador de partículas central, lâminas de íris mecânico, feixes relativísticos e monitor térmico.
+ */
+export class ColliderHudApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "collider-hud-app",
+    classes: ["collider-hud-window"],
+    position: {
+      width: 1280,
+      height: 720
+    },
+    window: {
+      title: "COLISOR QUÂNTICO // ÍRIS HOLOGRÁFICA [QUANTUM COLLIDER // PARTICLE APERTURE]",
+      icon: "fa-solid fa-atom",
+      resizable: true
+    },
+    actions: {
+      closeColliderWindow: ColliderHudApp.#onCloseColliderWindow,
+      clickDataBlock: ColliderHudApp.#onClickDataBlock
+    }
+  };
+
+  static PARTS = {
+    main: {
+      template: "modules/teste-hud/templates/collider.hbs"
+    }
+  };
+
+  constructor(options = {}) {
+    super(options);
+    this._animId = null;
+    this._tempInterval = null;
+    this.time = 0;
+    this.coreTemp = 89.02;
+
+    // 180 partículas orbitais relativísticas
+    this.particles = [];
+    const tracks = [48, 82, 118, 154, 188];
+    const colors = ["#3ff4d5", "#3ff4d5", "#ffd15c", "#00ff88", "#ffffff", "#ff9f1c"];
+    for (let i = 0; i < 180; i++) {
+      const track = tracks[i % tracks.length];
+      this.particles.push({
+        track,
+        r: track + (Math.random() - 0.5) * 6,
+        angle: Math.random() * Math.PI * 2,
+        speed: (0.008 + Math.random() * 0.02) * (i % 2 === 0 ? 1 : -0.8),
+        color: colors[i % colors.length],
+        size: 1.0 + Math.random() * 1.8,
+        trail: []
+      });
+    }
+
+    // Centelhas / Fagulhas de colisão
+    this.sparks = [];
+
+    // Vértices do Mini Poliedro 3D
+    this.miniPolyNodes = [];
+    for (let i = 0; i < 12; i++) {
+      const th = i * (Math.PI * 2 / 12);
+      const r = 16 + (i % 2 === 0 ? 5 : -4);
+      this.miniPolyNodes.push({ x: r * Math.cos(th), y: r * Math.sin(th) * 0.8, z: (i % 3 - 1) * 8 });
+    }
+  }
+
+  async _prepareContext(options) {
+    return {};
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    this._initColliderCanvas();
+    this._initMiniPolyCanvas();
+    this._initSpectrumCanvas();
+    this._initVisualAnalysisEqualizer();
+
+    // Oscilação suave da temperatura do núcleo
+    const tempDisplay = this.element.querySelector("#collider-temp-val");
+    this._tempInterval = setInterval(() => {
+      if (tempDisplay) {
+        const delta = (Math.random() - 0.49) * 0.05;
+        this.coreTemp = Math.max(88.90, Math.min(89.15, this.coreTemp + delta));
+        tempDisplay.textContent = `${this.coreTemp.toFixed(2)}°`;
+      }
+    }, 1400);
+  }
+
+  _initColliderCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#collider-iris-canvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const renderCollider = () => {
+      this.time += 0.016;
+      const t = this.time;
+
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      // 1. Círculos concêntricos de telemetria
+      const radii = [48, 82, 118, 154, 188];
+      for (const r of radii) {
+        ctx.strokeStyle = "rgba(13, 74, 92, 0.4)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // 2. Marcas de Grau no Anel de Precisão (r = 118)
+      ctx.lineWidth = 1;
+      for (let deg = 0; deg < 360; deg += 5) {
+        const rad = (deg * Math.PI / 180) + t * 0.1;
+        const r1 = deg % 30 === 0 ? 114 : 117;
+        const r2 = 121;
+        ctx.strokeStyle = deg % 30 === 0 ? "#ffd15c" : (deg % 15 === 0 ? "#3ff4d5" : "rgba(63, 244, 213, 0.3)");
+        ctx.beginPath();
+        ctx.moveTo(cx + r1 * Math.cos(rad), cy + r1 * Math.sin(rad));
+        ctx.lineTo(cx + r2 * Math.cos(rad), cy + r2 * Math.sin(rad));
+        ctx.stroke();
+      }
+
+      // 3. Arcos tracejados no Anel Médio (r = 82)
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 82, -t * 0.3, -t * 0.3 + 1.2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#ffd15c";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 82, -t * 0.3 + 2.0, -t * 0.3 + 3.2);
+      ctx.stroke();
+
+      // 4. Envelope harmônico ondulante exterior (curva flutuante)
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.6)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let a = 0; a <= Math.PI * 2; a += 0.02) {
+        const rWave = 196 + 14 * Math.sin(8 * a + t * 2);
+        const x = cx + rWave * Math.cos(a);
+        const y = cy + rWave * Math.sin(a);
+        if (a === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      // 5. 16 Lâminas de Íris Mecânica
+      ctx.strokeStyle = "rgba(45, 160, 184, 0.85)";
+      ctx.lineWidth = 1.2;
+      const rotIris = t * 0.08;
+      for (let i = 0; i < 16; i++) {
+        const a = i * (Math.PI * 2 / 16) + rotIris;
+        const x1 = cx + 22 * Math.cos(a);
+        const y1 = cy + 22 * Math.sin(a);
+        const x2 = cx + 76 * Math.cos(a + 0.45);
+        const y2 = cy + 76 * Math.sin(a + 0.45);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      // 6. Núcleo de Fusão Central de Plasma
+      const corePulse = 16 + Math.sin(t * 3.5) * 3;
+      const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, corePulse);
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.4, "#3ff4d5");
+      grad.addColorStop(0.8, "rgba(4, 42, 53, 0.6)");
+      grad.addColorStop(1, "transparent");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, corePulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 7. Partículas Relativísticas
+      for (const p of this.particles) {
+        p.angle += p.speed;
+        const px = cx + p.r * Math.cos(p.angle);
+        const py = cy + p.r * Math.sin(p.angle);
+
+        // Atualiza rastro
+        p.trail.push({ x: px, y: py });
+        if (p.trail.length > 5) p.trail.shift();
+
+        // Desenha cauda da partícula
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = p.size * 0.6;
+        for (let tr = 0; tr < p.trail.length - 1; tr++) {
+          ctx.beginPath();
+          ctx.moveTo(p.trail[tr].x, p.trail[tr].y);
+          ctx.lineTo(p.trail[tr + 1].x, p.trail[tr + 1].y);
+          ctx.stroke();
+        }
+
+        // Cabeça da partícula
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 8. Ocasional Colisão com Centelhas
+      if (Math.random() < 0.05) {
+        const sparkAngle = Math.random() * Math.PI * 2;
+        const sparkR = radii[Math.floor(Math.random() * radii.length)];
+        const sx = cx + sparkR * Math.cos(sparkAngle);
+        const sy = cy + sparkR * Math.sin(sparkAngle);
+        for (let k = 0; k < 6; k++) {
+          this.sparks.push({
+            x: sx, y: sy,
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3,
+            life: 1.0,
+            color: Math.random() > 0.5 ? "#ffffff" : "#ffd15c"
+          });
+        }
+      }
+
+      // Desenha centelhas ativas
+      for (let s_i = this.sparks.length - 1; s_i >= 0; s_i--) {
+        const sp = this.sparks[s_i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.life -= 0.04;
+        if (sp.life <= 0) {
+          this.sparks.splice(s_i, 1);
+          continue;
+        }
+        ctx.fillStyle = sp.color;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, sp.life * 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 9. Callout Leader Lines e Badges Holográficos
+      ctx.lineWidth = 1;
+
+      // Top-Right 1
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.beginPath();
+      ctx.moveTo(cx + 120, cy - 80);
+      ctx.lineTo(cx + 190, cy - 120);
+      ctx.lineTo(cx + 250, cy - 120);
+      ctx.stroke();
+      ctx.fillStyle = "#3ff4d5";
+      ctx.fillRect(cx + 250, cy - 128, 120, 16);
+      ctx.fillStyle = "#02060b";
+      ctx.font = "bold 9px monospace";
+      ctx.fillText("PRAVO  POINT_DATA_NODE", cx + 254, cy - 116);
+
+      // Top-Right 2
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.beginPath();
+      ctx.moveTo(cx + 145, cy - 35);
+      ctx.lineTo(cx + 205, cy - 70);
+      ctx.lineTo(cx + 250, cy - 70);
+      ctx.stroke();
+      ctx.fillStyle = "#3ff4d5";
+      ctx.fillRect(cx + 250, cy - 78, 120, 16);
+      ctx.fillStyle = "#02060b";
+      ctx.fillText("PRAVO  POINT_DATA_NODE", cx + 254, cy - 66);
+
+      // Top-Right 3 com retículo alvo laranja
+      const targetX = cx + 140;
+      const targetY = cy + 20;
+      ctx.strokeStyle = "#ff9f1c";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(targetX, targetY, 7, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(targetX, targetY);
+      ctx.lineTo(cx + 205, cy - 25);
+      ctx.lineTo(cx + 250, cy - 25);
+      ctx.stroke();
+      ctx.fillStyle = "#3ff4d5";
+      ctx.fillRect(cx + 250, cy - 33, 120, 16);
+      ctx.fillStyle = "#02060b";
+      ctx.fillText("PRAVO  POINT_DATA_NODE", cx + 254, cy - 21);
+
+      // Left 1
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.beginPath();
+      ctx.moveTo(cx - 130, cy + 20);
+      ctx.lineTo(cx - 190, cy + 20);
+      ctx.lineTo(cx - 240, cy + 20);
+      ctx.stroke();
+      ctx.fillStyle = "#3ff4d5";
+      ctx.fillRect(cx - 360, cy + 12, 120, 16);
+      ctx.fillStyle = "#02060b";
+      ctx.fillText("BRAVO  POINT_DATA_NODE", cx - 355, cy + 24);
+
+      // Left 2
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.beginPath();
+      ctx.moveTo(cx - 145, cy + 55);
+      ctx.lineTo(cx - 190, cy + 55);
+      ctx.lineTo(cx - 240, cy + 55);
+      ctx.stroke();
+      ctx.fillStyle = "#3ff4d5";
+      ctx.fillRect(cx - 360, cy + 47, 120, 16);
+      ctx.fillStyle = "#02060b";
+      ctx.fillText("BRAVO  POINT_DATA_NODE", cx - 355, cy + 59);
+
+      // Bottom Target Reticle Ring Laranja
+      ctx.strokeStyle = "#ff9f1c";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx + 15, cy + 168, 7, 0, Math.PI * 2);
+      ctx.stroke();
+
+      this._animId = requestAnimationFrame(renderCollider);
+    };
+
+    renderCollider();
+  }
+
+  _initMiniPolyCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#mini-poly-canvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const renderMiniPoly = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const rot = this.time * 0.8;
+
+      const proj = this.miniPolyNodes.map(n => ({
+        x: cx + (n.x * Math.cos(rot) - n.z * Math.sin(rot)),
+        y: cy + n.y
+      }));
+
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < proj.length; i++) {
+        const next = (i + 1) % proj.length;
+        ctx.beginPath();
+        ctx.moveTo(proj[i].x, proj[i].y);
+        ctx.lineTo(proj[next].x, proj[next].y);
+        ctx.stroke();
+
+        const cross = (i + 4) % proj.length;
+        ctx.strokeStyle = "rgba(13, 74, 92, 0.5)";
+        ctx.beginPath();
+        ctx.moveTo(proj[i].x, proj[i].y);
+        ctx.lineTo(proj[cross].x, proj[cross].y);
+        ctx.stroke();
+        ctx.strokeStyle = "#3ff4d5";
+      }
+
+      this._polyAnimId = requestAnimationFrame(renderMiniPoly);
+    };
+    renderMiniPoly();
+  }
+
+  _initSpectrumCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#collider-spectrum-canvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const renderSpectrum = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      const numBars = 12;
+      const barW = (rect.width - 24) / numBars;
+
+      for (let i = 0; i < numBars; i++) {
+        const bh = 6 + Math.abs(Math.sin(this.time * 3 + i * 0.8)) * (rect.height - 8);
+        const bx = 12 + i * (barW + 2);
+        const by = rect.height - bh;
+        ctx.fillStyle = (i >= 4 && i <= 6) ? "#ffd15c" : "#3ff4d5";
+        ctx.fillRect(bx, by, barW, bh);
+      }
+
+      this._spectrumAnimId = requestAnimationFrame(renderSpectrum);
+    };
+    renderSpectrum();
+  }
+
+  _initVisualAnalysisEqualizer() {
+    if (!this.element) return;
+    const container = this.element.querySelector("#va-equalizer");
+    if (!container) return;
+    container.innerHTML = "";
+    const bars = [];
+    for (let i = 0; i < 16; i++) {
+      const bar = document.createElement("div");
+      bar.className = "va-bar";
+      bar.style.height = "50%";
+      container.appendChild(bar);
+      bars.push(bar);
+    }
+    setInterval(() => {
+      bars.forEach((b, idx) => {
+        const pct = 20 + Math.abs(Math.sin(this.time * 4 + idx * 0.6)) * 75;
+        b.style.height = `${pct}%`;
+      });
+    }, 80);
+  }
+
+  async close(options) {
+    if (this._animId) {
+      cancelAnimationFrame(this._animId);
+      this._animId = null;
+    }
+    if (this._polyAnimId) {
+      cancelAnimationFrame(this._polyAnimId);
+      this._polyAnimId = null;
+    }
+    if (this._spectrumAnimId) {
+      cancelAnimationFrame(this._spectrumAnimId);
+      this._spectrumAnimId = null;
+    }
+    if (this._tempInterval) {
+      clearInterval(this._tempInterval);
+      this._tempInterval = null;
+    }
+    return super.close(options);
+  }
+
+  static #onCloseColliderWindow(event, target) {
+    this.close();
+  }
+
+  static #onClickDataBlock(event, target) {
+    target.classList.toggle("active");
+  }
+}
+
+/**
+ * MarsSatviewApp — Console de Reconhecimento Orbital Marciano [MARS.SATVIEW.17-A]
+ * Topografia de relevo sombreado de Valles Marineris, curvas de nível cyan, radar e vetor Daedalus.
+ */
+export class MarsSatviewApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "mars-satview-hud-app",
+    classes: ["mars-satview-hud-window"],
+    position: {
+      width: 1280,
+      height: 720
+    },
+    window: {
+      title: "CONTROLE DE MISSÃO ORBITAL // RECONHECIMENTO MARCIANO [MARS.SATVIEW.17-A]",
+      icon: "fa-solid fa-satellite",
+      resizable: true
+    },
+    actions: {
+      closeMarsSatviewWindow: MarsSatviewApp.#onCloseMarsSatviewWindow
+    }
+  };
+
+  static PARTS = {
+    main: {
+      template: "modules/teste-hud/templates/mars-satview.hbs"
+    }
+  };
+
+  constructor(options = {}) {
+    super(options);
+    this._animId = null;
+    this._distInterval = null;
+    this.time = 0;
+    this.baseDist = 75.3;
+
+    // Coordenadas base dos dois pontos principais (percentual da largura/altura)
+    this.baseCamp = { pxPct: 0.62, pyPct: 0.45 };
+    this.daedalus = { pxPct: 0.73, pyPct: 0.58 };
+
+    // Pulsos de range vector
+    this.vectorPulses = [0.1, 0.4, 0.7];
+  }
+
+  async _prepareContext(options) {
+    return {};
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    this._initMapCanvas();
+
+    // Flutuação micro-telemétrica da distância
+    const distEl = this.element.querySelector("#mars-distance-digits");
+    this._distInterval = setInterval(() => {
+      if (distEl) {
+        const drift = (Math.random() - 0.48) * 0.04;
+        const current = (this.baseDist + drift).toFixed(1);
+        distEl.textContent = current;
+      }
+    }, 1200);
+  }
+
+  _initMapCanvas() {
+    if (!this.element) return;
+    const canvas = this.element.querySelector("#mars-satview-map-canvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const renderMap = () => {
+      this.time += 0.016;
+      const t = this.time;
+
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Grid de Coordenadas Táticas
+      ctx.strokeStyle = "rgba(6, 33, 43, 0.8)";
+      ctx.lineWidth = 1;
+      for (let x = 30; x < w - 20; x += 60) {
+        ctx.beginPath();
+        ctx.moveTo(x, 20); ctx.lineTo(x, h - 10);
+        ctx.stroke();
+      }
+      for (let y = 30; y < h - 10; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(20, y); ctx.lineTo(w - 20, y);
+        ctx.stroke();
+      }
+
+      // Marcadores Crosshair '+' nos nós da grade
+      ctx.strokeStyle = "rgba(31, 163, 176, 0.35)";
+      for (let x = 90; x < w - 40; x += 120) {
+        for (let y = 70; y < h - 20; y += 80) {
+          ctx.beginPath();
+          ctx.moveTo(x - 3, y); ctx.lineTo(x + 3, y);
+          ctx.moveTo(x, y - 3); ctx.lineTo(x, y + 3);
+          ctx.stroke();
+        }
+      }
+
+      // 2. Relevo Sombreado de Valles Marineris (Canyon Escarpments)
+      // Gradiente de profundidade do desfiladeiro
+      const canyonGrad = ctx.createLinearGradient(0, h * 0.35, 0, h * 0.75);
+      canyonGrad.addColorStop(0, "rgba(2, 16, 22, 0.1)");
+      canyonGrad.addColorStop(0.3, "rgba(4, 28, 38, 0.65)");
+      canyonGrad.addColorStop(0.7, "rgba(2, 14, 20, 0.85)");
+      canyonGrad.addColorStop(1, "rgba(3, 21, 28, 0.2)");
+      ctx.fillStyle = canyonGrad;
+      ctx.fillRect(20, h * 0.32, w - 40, h * 0.45);
+
+      // 3. Curvas de Nível Topográficas Cyan (Contour Isolines)
+      // Linha 1: Borda Superior do Canyon
+      ctx.strokeStyle = "#3ff4d5";
+      ctx.shadowColor = "rgba(63, 244, 213, 0.5)";
+      ctx.shadowBlur = 4;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      for (let x = 30; x < w - 30; x += 4) {
+        const y = h * 0.38 + Math.sin(x * 0.012) * 26 + Math.cos(x * 0.035) * 12 + Math.sin(x * 0.08) * 4;
+        if (x === 30) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Linha 2: Terraço Médio do Melas Chasma
+      ctx.beginPath();
+      for (let x = 40; x < w - 20; x += 4) {
+        let y = h * 0.50 + Math.sin(x * 0.015) * 32 + Math.cos(x * 0.04) * 16;
+        if (x > w * 0.55) y -= (x - w * 0.55) * 0.18;
+        if (x === 40) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Linha 3: Borda Inferior / Garganta
+      ctx.beginPath();
+      for (let x = w * 0.35; x < w - 20; x += 4) {
+        const y = h * 0.64 + Math.sin(x * 0.018) * 38 + Math.cos(x * 0.05) * 10;
+        if (x === Math.round(w * 0.35)) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Curvas secundárias de relevo
+      ctx.strokeStyle = "rgba(63, 244, 213, 0.4)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = 30; x < w - 30; x += 5) {
+        const y = h * 0.44 + Math.sin(x * 0.013 + 1) * 20 + Math.cos(x * 0.03) * 8;
+        if (x === 30) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // 4. Arcos de Varredura de Radar Orbital
+      const radarCx = w * 0.48;
+      const radarCy = h * 0.45;
+      const sweepR = 60 + (t * 40) % 220;
+      ctx.strokeStyle = `rgba(63, 244, 213, ${Math.max(0, 0.6 - sweepR / 280)})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(radarCx, radarCy, sweepR, Math.PI * 0.8, Math.PI * 2.1);
+      ctx.stroke();
+
+      // 5. Rótulos Geográficos
+      ctx.fillStyle = "#3ff4d5";
+      ctx.font = "bold 9px monospace";
+      ctx.fillText("EAST O", 50, h * 0.38 - 15);
+      ctx.fillText("O NORTH", w * 0.82, h * 0.28);
+
+      ctx.fillStyle = "#ff9f1c";
+      ctx.fillText("O SINAI DORSA", w * 0.38, h * 0.72);
+      ctx.fillText("O MELAS CHASMA", w * 0.78, h * 0.74);
+      ctx.font = "8px monospace";
+      ctx.fillText("   15km", w * 0.78, h * 0.74 + 11);
+
+      // 6. Vetor Base Camp <-> Daedalus
+      const bcX = w * this.baseCamp.pxPct;
+      const bcY = h * this.baseCamp.pyPct;
+      const ddX = w * this.daedalus.pxPct;
+      const ddY = h * this.daedalus.pyPct;
+
+      // Círculo Range Finder ao redor dos dois pontos
+      ctx.strokeStyle = "rgba(255, 159, 28, 0.75)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      const midX = (bcX + ddX) / 2;
+      const midY = (bcY + ddY) / 2;
+      const rangeR = Math.hypot(bcX - ddX, bcY - ddY) * 1.05;
+      ctx.arc(midX, midY, rangeR, Math.PI * 0.1, Math.PI * 1.85);
+      ctx.stroke();
+
+      // Linha de Vetor
+      ctx.strokeStyle = "#ff9f1c";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(bcX, bcY);
+      ctx.lineTo(ddX, ddY);
+      ctx.stroke();
+
+      // Pulsos que viajam ao longo do vetor
+      for (let i = 0; i < this.vectorPulses.length; i++) {
+        this.vectorPulses[i] += 0.008;
+        if (this.vectorPulses[i] > 1) this.vectorPulses[i] = 0;
+        const pT = this.vectorPulses[i];
+        const pX = bcX + (ddX - bcX) * pT;
+        const pY = bcY + (ddY - bcY) * pT;
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "#ff9f1c";
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(pX, pY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      // Retículo do Base Camp
+      ctx.strokeStyle = "#ff9f1c";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(bcX, bcY, 7, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "#ff9f1c";
+      ctx.beginPath();
+      ctx.arc(bcX, bcY, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Retículo do Daedalus
+      ctx.strokeStyle = "#ff9f1c";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(ddX, ddY, 7, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "#ff9f1c";
+      ctx.beginPath();
+      ctx.arc(ddX, ddY, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      this._animId = requestAnimationFrame(renderMap);
+    };
+
+    renderMap();
+  }
+
+  async close(options) {
+    if (this._animId) {
+      cancelAnimationFrame(this._animId);
+      this._animId = null;
+    }
+    if (this._distInterval) {
+      clearInterval(this._distInterval);
+      this._distInterval = null;
+    }
+    return super.close(options);
+  }
+
+  static #onCloseMarsSatviewWindow(event, target) {
+    this.close();
+  }
+}
+
 // Instâncias singleton para controle
 let oficinaAppInstance = null;
 let navegacaoAppInstance = null;
 let dnaAppInstance = null;
 let reactorAppInstance = null;
+let dataTopologyAppInstance = null;
+let colliderAppInstance = null;
+let marsSatviewAppInstance = null;
 
+// ==================== GETTERS & CONTROLLERS ====================
+
+// 1. Oficina Tática
 export function getOficinaHudApp() {
-  if (!oficinaAppInstance) {
-    oficinaAppInstance = new TesteHudApp();
-  }
+  if (!oficinaAppInstance) oficinaAppInstance = new TesteHudApp();
   return oficinaAppInstance;
 }
-
-export function openOficinaHud() {
-  return getOficinaHudApp().render(true);
-}
-
-export function closeOficinaHud() {
-  return oficinaAppInstance?.close();
-}
-
+export function openOficinaHud() { return getOficinaHudApp().render(true); }
+export function closeOficinaHud() { return oficinaAppInstance?.close(); }
 export function toggleOficinaHud() {
   const app = getOficinaHudApp();
-  if (app.rendered) return app.close();
-  return app.render(true);
+  return app.rendered ? app.close() : app.render(true);
 }
 
+// 2. Navegação Marciana v1
 export function getNavegacaoHudApp() {
-  if (!navegacaoAppInstance) {
-    navegacaoAppInstance = new NavegacaoHudApp();
-  }
+  if (!navegacaoAppInstance) navegacaoAppInstance = new NavegacaoHudApp();
   return navegacaoAppInstance;
 }
-
-export function openNavegacaoHud() {
-  return getNavegacaoHudApp().render(true);
-}
-
-export function closeNavegacaoHud() {
-  return navegacaoAppInstance?.close();
-}
-
+export function openNavegacaoHud() { return getNavegacaoHudApp().render(true); }
+export function closeNavegacaoHud() { return navegacaoAppInstance?.close(); }
 export function toggleNavegacaoHud() {
   const app = getNavegacaoHudApp();
-  if (app.rendered) return app.close();
-  return app.render(true);
+  return app.rendered ? app.close() : app.render(true);
 }
 
+// 3. Análise Genômica DNA
 export function getDnaHudApp() {
-  if (!dnaAppInstance) {
-    dnaAppInstance = new DnaHudApp();
-  }
+  if (!dnaAppInstance) dnaAppInstance = new DnaHudApp();
   return dnaAppInstance;
 }
-
-export function openDnaHud() {
-  return getDnaHudApp().render(true);
-}
-
-export function closeDnaHud() {
-  return dnaAppInstance?.close();
-}
-
+export function openDnaHud() { return getDnaHudApp().render(true); }
+export function closeDnaHud() { return dnaAppInstance?.close(); }
 export function toggleDnaHud() {
   const app = getDnaHudApp();
-  if (app.rendered) return app.close();
-  return app.render(true);
+  return app.rendered ? app.close() : app.render(true);
 }
 
+// 4. Núcleo do Reator
 export function getReactorHudApp() {
-  if (!reactorAppInstance) {
-    reactorAppInstance = new ReactorHudApp();
-  }
+  if (!reactorAppInstance) reactorAppInstance = new ReactorHudApp();
   return reactorAppInstance;
 }
-
-export function openReactorHud() {
-  return getReactorHudApp().render(true);
-}
-
-export function closeReactorHud() {
-  return reactorAppInstance?.close();
-}
-
+export function openReactorHud() { return getReactorHudApp().render(true); }
+export function closeReactorHud() { return reactorAppInstance?.close(); }
 export function toggleReactorHud() {
   const app = getReactorHudApp();
-  if (app.rendered) return app.close();
-  return app.render(true);
+  return app.rendered ? app.close() : app.render(true);
 }
 
-// Aliases retrocompatíveis para chamadas anteriores
+// 5. Topologia de Dados 3D & Alluvial Flow
+export function getDataTopologyHudApp() {
+  if (!dataTopologyAppInstance) dataTopologyAppInstance = new DataTopologyApp();
+  return dataTopologyAppInstance;
+}
+export function openDataTopologyHud() { return getDataTopologyHudApp().render(true); }
+export function closeDataTopologyHud() { return dataTopologyAppInstance?.close(); }
+export function toggleDataTopologyHud() {
+  const app = getDataTopologyHudApp();
+  return app.rendered ? app.close() : app.render(true);
+}
+export const openDataTopology = openDataTopologyHud;
+export const closeDataTopology = closeDataTopologyHud;
+export const toggleDataTopology = toggleDataTopologyHud;
+export const getDataTopology = getDataTopologyHudApp;
+
+// 6. Colisor Quântico & Íris Holográfico
+export function getColliderHudApp() {
+  if (!colliderAppInstance) colliderAppInstance = new ColliderHudApp();
+  return colliderAppInstance;
+}
+export function openColliderHud() { return getColliderHudApp().render(true); }
+export function closeColliderHud() { return colliderAppInstance?.close(); }
+export function toggleColliderHud() {
+  const app = getColliderHudApp();
+  return app.rendered ? app.close() : app.render(true);
+}
+export const openCollider = openColliderHud;
+export const closeCollider = closeColliderHud;
+export const toggleCollider = toggleColliderHud;
+export const getCollider = getColliderHudApp;
+
+// 7. Reconhecimento Orbital Marciano MARS.SATVIEW.17-A
+export function getMarsSatviewHudApp() {
+  if (!marsSatviewAppInstance) marsSatviewAppInstance = new MarsSatviewApp();
+  return marsSatviewAppInstance;
+}
+export function openMarsSatviewHud() { return getMarsSatviewHudApp().render(true); }
+export function closeMarsSatviewHud() { return marsSatviewAppInstance?.close(); }
+export function toggleMarsSatviewHud() {
+  const app = getMarsSatviewHudApp();
+  return app.rendered ? app.close() : app.render(true);
+}
+export const openMarsSatview = openMarsSatviewHud;
+export const closeMarsSatview = closeMarsSatviewHud;
+export const toggleMarsSatview = toggleMarsSatviewHud;
+export const getMarsSatview = getMarsSatviewHudApp;
+
+// Aliases retrocompatíveis
 export const getHudApp = getReactorHudApp;
 export const openHud = openReactorHud;
 export const closeHud = closeReactorHud;
@@ -2342,10 +3551,10 @@ export const toggleHud = toggleReactorHud;
 
 // Inicialização de Hooks no Foundry VTT
 Hooks.once("init", () => {
-  console.log("Teste-Hud | Inicializando Tetralogia Tática: Oficina, Navegação, DNA & Núcleo do Reator v1.4.0...");
+  console.log("Teste-Hud | Inicializando Heptalogia Tática: 7 Consoles Militares v1.5.0...");
 
   game.modules.get("teste-hud").api = {
-    // Atalhos Padrão (Abre o HUD mais recente ou configurado)
+    // Atalhos Padrão
     open: openReactorHud,
     close: closeReactorHud,
     toggle: toggleReactorHud,
@@ -2357,7 +3566,7 @@ Hooks.once("init", () => {
     toggleOficina: toggleOficinaHud,
     getOficina: getOficinaHudApp,
 
-    // Tela 2: Navegação Marciana [火星 NAVIGATION]
+    // Tela 2: Navegação Marciana v1 [火星 NAVIGATION]
     openNavegacao: openNavegacaoHud,
     closeNavegacao: closeNavegacaoHud,
     toggleNavegacao: toggleNavegacaoHud,
@@ -2378,11 +3587,27 @@ Hooks.once("init", () => {
     closeCore: closeReactorHud,
     toggleCore: toggleReactorHud,
 
+    // Tela 5: Topologia de Dados & Grafo Alluvial [DATA TOPOLOGY]
+    openDataTopology: openDataTopologyHud,
+    closeDataTopology: closeDataTopologyHud,
+    toggleDataTopology: toggleDataTopologyHud,
+    getDataTopology: getDataTopologyHudApp,
+    openTopology: openDataTopologyHud,
+
+    // Tela 6: Colisor Quântico & Íris Holográfico [COLLIDER HUD]
+    openCollider: openColliderHud,
+    closeCollider: closeColliderHud,
+    toggleCollider: toggleColliderHud,
+    getCollider: getColliderHudApp,
+
+    // Tela 7: Reconhecimento Orbital Marciano [MARS.SATVIEW.17-A]
+    openMarsSatview: openMarsSatviewHud,
+    closeMarsSatview: closeMarsSatviewHud,
+    toggleMarsSatview: toggleMarsSatviewHud,
+    getMarsSatview: getMarsSatviewHudApp,
+    openSatview: openMarsSatviewHud,
+
     // Motor de Áudio Procedural
     sound: soundFx
   };
 });
-
-
-
-

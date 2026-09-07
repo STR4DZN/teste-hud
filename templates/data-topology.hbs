@@ -1,0 +1,471 @@
+<div class="topology-console">
+  <!-- Efeitos Ópticos Analógicos CRT e Vinheta Sci-Fi -->
+  <div class="topology-crt-overlay"></div>
+  <div class="topology-vignette"></div>
+
+  <!-- Botão Militar Integrado de Fechar HUD -->
+  <button type="button" class="topology-hud-close-btn" data-action="closeTopologyWindow" title="Encerrar Topologia de Dados">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+  <!-- ==================== FAIXA SUPERIOR (TOP STATUS BAR) ==================== -->
+  <header class="topology-top-bar">
+    <div class="top-badge-box">
+      <span class="top-cyan-sq"></span>
+      <span class="top-dark-pill"></span>
+    </div>
+
+    <div class="top-serials-ticker">
+      <span class="serial-item">460762</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">1 251 261 24</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">Ospobwl vi4 276</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">01 261 751 235080-04 6095</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">wri xhni ai kpyzn cb20823</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">460762</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">1 251 261 24</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">Ospobwl vi4 276</span>
+      <span class="serial-sep">|</span>
+      <span class="serial-item">01 261 751 235080-04 6095</span>
+    </div>
+
+    <div class="top-coords-matrix">
+      <div class="coord-row"><span class="axis">X</span> <span>01</span> <span>02</span> <span>03</span></div>
+      <div class="coord-row"><span class="axis">Y</span> <span>04</span> <span>05</span> <span>06</span></div>
+    </div>
+  </header>
+
+  <!-- ==================== ÁREA PRINCIPAL DO CONSOLE ==================== -->
+  <div class="topology-main-frame">
+
+    <!-- ==================== MARGEM ESQUERDA (RETÍCULOS 001 - 005) ==================== -->
+    <aside class="topology-left-nav">
+      <div class="reticle-nav-item">
+        <span class="idx-num">001</span>
+        <div class="reticle-dial-mini">
+          <svg viewBox="0 0 32 32" class="mini-reticle-svg">
+            <circle cx="16" cy="16" r="14" class="reticle-ring" />
+            <circle cx="16" cy="16" r="8" class="reticle-ring-inner" />
+            <line x1="16" y1="2" x2="16" y2="30" class="reticle-cross" />
+            <line x1="2" y1="16" x2="30" y2="16" class="reticle-cross" />
+          </svg>
+        </div>
+        <span class="idx-label">DATA SET<br>01</span>
+      </div>
+
+      <div class="reticle-nav-item">
+        <span class="idx-num">002</span>
+        <div class="reticle-dial-mini">
+          <svg viewBox="0 0 32 32" class="mini-reticle-svg">
+            <circle cx="16" cy="16" r="13" class="reticle-ring" />
+            <circle cx="16" cy="16" r="7" class="reticle-gold" />
+          </svg>
+        </div>
+        <span class="idx-label">DATA SET<br>02</span>
+      </div>
+
+      <div class="reticle-nav-item">
+        <span class="idx-num">003</span>
+        <div class="reticle-dial-mini">
+          <svg viewBox="0 0 32 32" class="mini-reticle-svg">
+            <circle cx="16" cy="16" r="13" class="reticle-ring" />
+            <line x1="5" y1="16" x2="27" y2="16" class="reticle-cross" />
+            <circle cx="16" cy="10" r="2" class="reticle-dot" />
+          </svg>
+        </div>
+        <span class="idx-label">DATA SET<br>03</span>
+      </div>
+
+      <div class="reticle-nav-item">
+        <span class="idx-num">004</span>
+        <div class="reticle-dial-mini">
+          <svg viewBox="0 0 32 32" class="mini-reticle-svg">
+            <circle cx="16" cy="16" r="13" class="reticle-ring" />
+            <line x1="7" y1="7" x2="25" y2="25" class="reticle-red-cross" />
+            <line x1="7" y1="25" x2="25" y2="7" class="reticle-red-cross" />
+          </svg>
+        </div>
+        <span class="idx-label">DATA SET<br>04</span>
+      </div>
+
+      <div class="reticle-nav-item">
+        <span class="idx-num">005</span>
+        <div class="reticle-dial-mini">
+          <svg viewBox="0 0 32 32" class="mini-reticle-svg">
+            <circle cx="16" cy="16" r="13" class="reticle-ring" />
+            <circle cx="16" cy="16" r="4" class="reticle-dot" />
+          </svg>
+        </div>
+        <span class="idx-label">DATA SET<br>05</span>
+      </div>
+    </aside>
+
+    <!-- ==================== AS 3 COLUNAS CENTRAIS (3D VISUALIZERS) ==================== -->
+    <div class="topology-three-cols">
+
+      <!-- COLUNA 1: POLYHEDRAL LATTICE CLOUD -->
+      <section class="topology-col col-1">
+        <div class="col-header">
+          <span class="col-tag">IT'S NEVER ANYTHING GOOD</span>
+          <span class="col-subtag">LIKE EVERY</span>
+          <div class="col-micro-matrix">
+            <span>89.4</span><span>04.2</span><span>77.1</span><span>31.8</span>
+          </div>
+        </div>
+
+        <div class="canvas-viewport-box">
+          <canvas id="topology-canvas-1" class="viewport-canvas"></canvas>
+          <div class="viewport-corner tl"></div>
+          <div class="viewport-corner tr"></div>
+          <div class="viewport-corner bl"></div>
+          <div class="viewport-corner br"></div>
+        </div>
+
+        <div class="col-mid-label">
+          <span class="graph-title">RANDOM GRAPH</span>
+          <span class="graph-code">// 04_21</span>
+        </div>
+
+        <div class="col-telemetry-row">
+          <div class="telem-numbers">
+            <div>81062 82877 8494 068 50</div>
+            <div>8980 910 205 300</div>
+            <div>956000 463c* 553 :: 72735</div>
+          </div>
+          <div class="dot-matrix-4x8" id="dot-matrix-1">
+            <!-- Procedural 32 mini leds -->
+          </div>
+        </div>
+
+        <div class="col-waveform-box">
+          <canvas id="topology-wave-canvas-1" class="wave-canvas"></canvas>
+        </div>
+
+        <div class="col-tech-pill-box">
+          <div class="pill-row"><span>80972 63100</span><span>9805 155 49</span></div>
+          <div class="pill-row highlight"><span>087917 S</span><span>1441 776 || 05088</span></div>
+        </div>
+
+        <div class="col-waveform-sub">
+          <span class="sub-title">WAVEFORM_DATA</span>
+          <canvas id="topology-wave-canvas-sub-1" class="sub-wave-canvas"></canvas>
+        </div>
+
+        <div class="col-barcode-strip">
+          <div class="barcode-lines"></div>
+        </div>
+
+        <div class="col-bottom-widget">
+          <div class="gimbal-dial-single">
+            <div class="gimbal-wing left"></div>
+            <div class="gimbal-core">
+              <svg viewBox="0 0 44 44" class="gimbal-svg">
+                <circle cx="22" cy="22" r="20" class="dial-outer" />
+                <circle cx="22" cy="22" r="14" class="dial-mid" />
+                <circle cx="22" cy="22" r="6" class="dial-inner" />
+              </svg>
+            </div>
+            <div class="gimbal-wing right"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUNA 2: TORUS PARTICLE VORTEX -->
+      <section class="topology-col col-2">
+        <div class="col-header">
+          <span class="col-tag">IT'S NEVER ANYTHING GOOD</span>
+          <span class="col-subtag">LIKE EVERY</span>
+          <div class="col-micro-matrix">
+            <span>52.1</span><span>19.7</span><span>63.4</span><span>90.2</span>
+          </div>
+        </div>
+
+        <div class="canvas-viewport-box">
+          <canvas id="topology-canvas-2" class="viewport-canvas"></canvas>
+          <div class="viewport-corner tl"></div>
+          <div class="viewport-corner tr"></div>
+          <div class="viewport-corner bl"></div>
+          <div class="viewport-corner br"></div>
+        </div>
+
+        <div class="col-mid-label">
+          <span class="graph-title">RANDOM GRAPH</span>
+          <span class="graph-code">// 04_21</span>
+        </div>
+
+        <div class="col-telemetry-row">
+          <div class="telem-numbers">
+            <div>70661 70655 4172 020 35</div>
+            <div>8768 694 873 177</div>
+            <div>645706 392c* 553 :: 93715</div>
+          </div>
+          <div class="dot-matrix-4x8" id="dot-matrix-2"></div>
+        </div>
+
+        <div class="col-waveform-box">
+          <canvas id="topology-wave-canvas-2" class="wave-canvas"></canvas>
+        </div>
+
+        <div class="col-tech-pill-box">
+          <div class="pill-row"><span>80972 63100</span><span>7592 037 70</span></div>
+          <div class="pill-row highlight"><span>179029 R</span><span>3503 988 || 16170</span></div>
+        </div>
+
+        <div class="col-waveform-sub">
+          <span class="sub-title">WAVEFORM_DATA</span>
+          <canvas id="topology-wave-canvas-sub-2" class="sub-wave-canvas"></canvas>
+        </div>
+
+        <div class="col-barcode-strip">
+          <div class="barcode-lines"></div>
+        </div>
+
+        <div class="col-bottom-widget">
+          <div class="gimbal-dial-triple">
+            <div class="satellite-dial"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" class="dial-mid" /></svg></div>
+            <div class="main-dial"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" class="dial-gold" /><circle cx="22" cy="22" r="13" class="dial-outer" /></svg></div>
+            <div class="satellite-dial"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" class="dial-mid" /></svg></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUNA 3: GEODETIC SPHERE / RADAR GRID -->
+      <section class="topology-col col-3">
+        <div class="col-header">
+          <span class="col-tag">IT'S NEVER ANYTHING GOOD</span>
+          <span class="col-subtag">LIKE EVERY</span>
+          <div class="col-micro-matrix">
+            <span>33.9</span><span>84.5</span><span>12.0</span><span>44.6</span>
+          </div>
+        </div>
+
+        <div class="canvas-viewport-box">
+          <canvas id="topology-canvas-3" class="viewport-canvas"></canvas>
+          <div class="viewport-corner tl"></div>
+          <div class="viewport-corner tr"></div>
+          <div class="viewport-corner bl"></div>
+          <div class="viewport-corner br"></div>
+        </div>
+
+        <div class="col-mid-label">
+          <span class="graph-title">RANDOM GRAPH</span>
+          <span class="graph-code">// 04_21</span>
+        </div>
+
+        <div class="col-telemetry-row">
+          <div class="telem-numbers">
+            <div>81062 82877 8494 068 50</div>
+            <div>8980 910 205 300</div>
+            <div>956000 463c* 553 :: 72735</div>
+          </div>
+          <div class="dot-matrix-4x8" id="dot-matrix-3"></div>
+        </div>
+
+        <div class="col-waveform-box">
+          <canvas id="topology-wave-canvas-3" class="wave-canvas"></canvas>
+        </div>
+
+        <div class="col-tech-pill-box">
+          <div class="pill-row"><span>80972 63100</span><span>9805 155 49</span></div>
+          <div class="pill-row highlight"><span>087917 S</span><span>1441 776 || 05088</span></div>
+        </div>
+
+        <div class="col-waveform-sub">
+          <span class="sub-title">WAVEFORM_DATA</span>
+          <canvas id="topology-wave-canvas-sub-3" class="sub-wave-canvas"></canvas>
+        </div>
+
+        <div class="col-barcode-strip">
+          <div class="barcode-lines"></div>
+        </div>
+
+        <div class="col-bottom-widget">
+          <div class="gimbal-dial-single">
+            <div class="gimbal-wing left"></div>
+            <div class="gimbal-core">
+              <svg viewBox="0 0 44 44" class="gimbal-svg">
+                <circle cx="22" cy="22" r="20" class="dial-outer" />
+                <line x1="2" y1="22" x2="42" y2="22" class="dial-cross" />
+                <line x1="22" y1="2" x2="22" y2="42" class="dial-cross" />
+              </svg>
+            </div>
+            <div class="gimbal-wing right"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ==================== PAINEL DIREITO (DATA CHARTS & ALLUVIAL FLOW) ==================== -->
+    <main class="topology-right-panel">
+
+      <!-- SEÇÃO SUPERIOR: TABELA MONOSPACE DE DADOS -->
+      <section class="data-table-section">
+        <div class="section-header-row">
+          <span class="header-title">DATA_CHARTS</span>
+          <span class="header-index">// 03-06 //</span>
+        </div>
+
+        <div class="charts-grid-header">
+          <span>OBFFFTSS</span><span>238</span><span>7-71</span><span>31KM</span><span>04</span><span>88</span><span>BGSCOUT</span><span>238</span><span>MOV*</span><span>B-KB</span><span>24</span>
+        </div>
+
+        <div class="charts-grid-rows">
+          <div class="chart-row">
+            <span class="code-val">B4VENC16</span><span class="num-val">728</span><span class="code-val">A-71</span><span class="num-val">31KM</span><span class="num-val">04</span><span class="num-val">88</span><span class="code-val">BGSCOUT</span><span class="num-val">238</span><span class="code-val">MOV*</span><span class="code-val">B-KB</span><span class="num-val">24</span>
+          </div>
+          <div class="chart-row">
+            <span class="code-val">ULGD1003</span><span class="num-val">567</span><span class="code-val">MH-*</span><span class="code-val">NWLC</span><span class="num-val">00</span><span class="num-val">--</span><span class="code-val">ULGD1003</span><span class="num-val">567</span><span class="code-val">UP</span><span class="code-val">--</span><span class="num-val">--</span>
+          </div>
+          <div class="chart-row">
+            <span class="code-val">2754WGR4</span><span class="num-val">513</span><span class="num-val">75.2</span><span class="code-val">X867</span><span class="num-val">97</span><span class="num-val">--</span><span class="code-val">2754WGR4</span><span class="num-val">513</span><span class="num-val">14.2</span><span class="code-val">DWIP</span><span class="num-val">05</span>
+          </div>
+          <div class="chart-row highlight-pill">
+            <span class="code-val">UTOA300</span><span class="num-val">265</span><span class="num-val">14/-</span><span class="code-val">DWIP</span><span class="code-val">PZ</span><span class="num-val">--</span><span class="code-val">UTOA300</span><span class="num-val">265</span><span class="code-val">MH1*</span><span class="code-val">TWXT</span><span class="code-val">MB</span>
+          </div>
+          <div class="chart-row">
+            <span class="code-val">02ATXENO</span><span class="num-val">798</span><span class="code-val">MH1*</span><span class="code-val">4VBM</span><span class="code-val">KP</span><span class="num-val">--</span><span class="code-val">02ATXENO</span><span class="num-val">798</span><span class="code-val">UN/N</span><span class="code-val">DYDZ</span><span class="code-val">OU</span>
+          </div>
+          <div class="chart-row highlight-pill">
+            <span class="code-val">ISAPUPRINC</span><span class="num-val">988</span><span class="code-val">27CW</span><span class="code-val">NA</span><span class="num-val">88</span><span class="num-val">--</span><span class="code-val">ISAPUPRINC</span><span class="num-val">988</span><span class="code-val">RN-L</span><span class="code-val">0148</span><span class="code-val">2R</span>
+          </div>
+          <div class="chart-row">
+            <span class="code-val">BA2N3528</span><span class="num-val">828</span><span class="num-val">2176</span><span class="code-val">HF</span><span class="num-val">02</span><span class="num-val">--</span><span class="code-val">BA2N3528</span><span class="num-val">828</span><span class="code-val">T.CZ</span><span class="code-val">HF</span><span class="num-val">02</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO INTERMEDIÁRIA: ALLUVIAL / SANKEY FLOW DIAGRAM -->
+      <section class="alluvial-flow-section">
+        <div class="flow-section-header">
+          <span class="flow-tag">DATA_CHARTS</span>
+          <span class="flow-desc">// RELATIONAL TOPOLOGY NETWORK</span>
+        </div>
+
+        <div class="alluvial-diagram-container">
+          <!-- Coluna Esquerda: Nós de Origem (16 itens) -->
+          <div class="alluvial-nodes-col left-nodes">
+            <div class="flow-node"><span class="node-label">NUEVO LEON</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">PUEBLA</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">QUERETARO DE ARTEAGA</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">SAN LUIS POTOSI</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">TABASCO</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">TAMAULIPAS</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">YUCATAN</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">AGUASCALIENTES</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">BAJA CALIFORNIA SUR</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">COLIMA</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">COAHUILA DE ZARAGOZA</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">DISTRITO FEDERAL</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">GUERRERO</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">HIDALGO</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">MICHOACAN DE OCAMPO</span><span class="node-dot"></span></div>
+            <div class="flow-node"><span class="node-label">MEXICO</span><span class="node-dot"></span></div>
+          </div>
+
+          <!-- Canvas Central dos Fluxos Bezier Trançados -->
+          <div class="alluvial-canvas-wrap">
+            <canvas id="alluvial-stream-canvas" class="alluvial-canvas"></canvas>
+          </div>
+
+          <!-- Coluna Direita: Nós de Destino (16 itens) -->
+          <div class="alluvial-nodes-col right-nodes">
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">OAXACA</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">QUINTANA ROO</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">SINALOA</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">SONORA</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">TLAXCALA</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">VERACRUZ-LLAVE</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">ZACATECAS</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">BAJA CALIFORNIA</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">CHIHUAHUA</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">CAMPECHE</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">CHIAPAS</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">DURANGO</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">GUANAJUATO</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">JALISCO</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">MORELOS</span></div>
+            <div class="flow-node"><span class="node-dot"></span><span class="node-label">NAYARIT</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BARRA TELEMÉTRICA LED ÂMBAR -->
+      <div class="amber-led-telemetry-bar">
+        <div class="led-label">
+          <span class="code">10_2414</span>
+          <span class="val">23.2</span>
+        </div>
+        <div class="led-pixel-strip" id="amber-led-matrix">
+          <!-- Matriz procedural de pixels âmbar -->
+        </div>
+      </div>
+
+      <!-- SEÇÃO INFERIOR: RANDOM_NUMBERS & TELEMETRY MATRIX -->
+      <section class="bottom-data-section">
+        <!-- Esquerda: 4 Barras de Progresso Segmentadas -->
+        <div class="bottom-progress-col">
+          <div class="prog-header">
+            <span class="prog-title">RANDOM_NUMBERS</span>
+            <span class="prog-code">// 123142</span>
+          </div>
+
+          <div class="progress-bars-stack">
+            <div class="prog-bar-unit">
+              <div class="bar-label">AANDDDES THIS NOT ME // DISHTAG NEW</div>
+              <div class="bar-track"><div class="bar-fill" style="width: 75%;"></div></div>
+            </div>
+            <div class="prog-bar-unit">
+              <div class="bar-label">AANDDDES THIS NOT ME // DISHTAG NEW</div>
+              <div class="bar-track"><div class="bar-fill" style="width: 52%;"></div></div>
+            </div>
+            <div class="prog-bar-unit">
+              <div class="bar-label">AANDDDES THIS NOT ME // DISHTAG NEW</div>
+              <div class="bar-track"><div class="bar-fill" style="width: 88%;"></div></div>
+            </div>
+            <div class="prog-bar-unit">
+              <div class="bar-label">AANDDDES THIS NOT ME // DISHTAG NEW</div>
+              <div class="bar-track"><div class="bar-fill" style="width: 63%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direita: Tabela Telemetria Secundária -->
+        <div class="bottom-matrix-col">
+          <div class="matrix-header">
+            <span>POYSSER</span><span>453</span><span>-27</span><span>20***</span><span>8-KB</span><span>24</span>
+          </div>
+          <div class="matrix-rows">
+            <div class="m-row"><span>021VLA00</span><span>051</span><span>7-71</span><span>L-MG</span><span>8VA</span><span>10</span></div>
+            <div class="m-row"><span>YMPPFE74</span><span>788</span><span>110</span><span>YLLR</span><span>05</span><span>--</span></div>
+            <div class="m-row highlight"><span>XW30FQHG</span><span>755</span><span>TG-2</span><span>VLCS</span><span>G5</span><span>04</span></div>
+            <div class="m-row"><span>SRMAN1M2</span><span>587</span><span>12IN</span><span>INVT</span><span>PZ</span><span>--</span></div>
+            <div class="m-row"><span>POYPOCXO</span><span>971</span><span>27CW</span><span>CWIP</span><span>27KM</span><span>WD</span></div>
+            <div class="m-row"><span>KOG16349</span><span>149</span><span>DWIP</span><span>05</span><span>--</span><span>--</span></div>
+            <div class="m-row highlight"><span>ISAPUPRINC</span><span>988</span><span>RN-L</span><span>0148</span><span>2R</span><span>--</span></div>
+            <div class="m-row"><span>BA2N3528</span><span>828</span><span>T.CZ</span><span>HF</span><span>02</span><span>--</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BARRA DE RODAPÉ MONOLÍTICA -->
+      <footer class="topology-footer-bar">
+        <div class="footer-seg active"></div>
+        <div class="footer-seg active"></div>
+        <div class="footer-seg"></div>
+        <div class="footer-seg active"></div>
+        <div class="footer-seg active"></div>
+        <div class="footer-seg"></div>
+        <div class="footer-seg active"></div>
+      </footer>
+
+    </main>
+
+  </div>
+</div>

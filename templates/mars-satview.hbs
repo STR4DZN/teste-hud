@@ -1,0 +1,204 @@
+<div class="mars-satview-console">
+  <!-- Efeitos Ópticos Analógicos CRT e Vinheta Sci-Fi -->
+  <div class="mars-crt-overlay"></div>
+  <div class="mars-vignette"></div>
+
+  <!-- ==================== FAIXA SUPERIOR: MISSION CONTROL ==================== -->
+  <header class="mars-top-bar">
+    <div class="mission-title-group">
+      <span class="mission-title">MISSION CONTROL</span>
+      <div class="win-ctrl-box">
+        <span class="ctrl-btn">-</span>
+        <span class="ctrl-btn">+</span>
+        <span class="ctrl-btn close-action" data-action="closeMarsSatviewWindow">x</span>
+      </div>
+    </div>
+
+    <div class="top-bar-spacer"></div>
+
+    <div class="mission-right-controls">
+      <div class="win-ctrl-box">
+        <span class="ctrl-btn">-</span>
+        <span class="ctrl-btn">+</span>
+        <span class="ctrl-btn close-action" data-action="closeMarsSatviewWindow">x</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== ÁREA PRINCIPAL DO MAPA ==================== -->
+  <div class="mars-main-frame">
+
+    <!-- ==================== PAINEL LATERAL ESQUERDO ==================== -->
+    <aside class="mars-left-sidebar">
+      <!-- Bloco Equatorial Coordinates -->
+      <div class="side-coords-box">
+        <div class="coords-title">EQUATORIAL COORDINATES</div>
+        <div class="coords-sub"><span>PS/22</span><span>MAR-PH</span></div>
+        <div class="coords-rows">
+          <div><span>07</span><span>269.51</span><span>3.2</span><span>5.50</span><span>09</span><span>126.842.50</span></div>
+          <div><span>X8</span><span>134.905</span><span>1.3</span><span>7.47</span><span>99</span><span>89.72</span><span>5.94</span></div>
+          <div><span>I9</span><span>955.296</span><span>0.5</span><span>14.17</span><span>50</span><span>132.776.36</span></div>
+          <div><span>M5</span><span>745.774</span><span>7.2</span><span>4.15</span><span>09</span><span>30.76</span><span>4.20</span></div>
+          <div><span>U6</span><span>481.383</span><span>6.9</span><span>8.42</span><span>3</span><span>71.42</span><span>8.52</span></div>
+        </div>
+      </div>
+
+      <!-- Tabela de 21 Probes XI NUMBER | TEMP - STATUS -->
+      <div class="probes-table-box">
+        <div class="probes-header">
+          <span>XI NUMBER</span>
+          <span>TEMP - STATUS</span>
+        </div>
+        <div class="probes-list">
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2012</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2654</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row active-cyan"><span class="status-circle cyan"></span><span class="p-num">ENGAGED</span><span class="p-stat">ONLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2567</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2623</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row active-amber"><span class="status-circle amber"></span><span class="p-num">DELAYED</span><span class="p-stat">NO STATUS</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2190</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row active-cyan"><span class="status-circle cyan"></span><span class="p-num">ENGAGED</span><span class="p-stat">ONLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2605</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2492</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row active-amber"><span class="status-circle amber"></span><span class="p-num">DELAYED</span><span class="p-stat">NO STATUS</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2100</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2011</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2489</span><span class="p-stat">OFFLINE</span></div>
+          <div class="probe-row"><span class="status-circle"></span><span class="p-num">NR2109</span><span class="p-stat">OFFLINE</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== CENTRO: RECONHECIMENTO ORBITAL MARCIANO ==================== -->
+    <main class="mars-map-viewport">
+
+      <!-- Faixa de Cabeçalho do Mapa -->
+      <div class="map-top-header">
+        <div class="satview-title-block">
+          <div class="sat-title">MARS.SATVIEW.17-A</div>
+          <div class="sat-coords-1">LON. 297° 32' 12.3" LAT. -20° 57' 51.1" [WGS84 COORDINATES]</div>
+          <div class="sat-coords-2">LON. 248° 18' 17.9" LAT. -0° 43' 38.2" &nbsp;|&nbsp; 263° 30' 28.7" LAT. -20° 58' 06.0"</div>
+        </div>
+
+        <!-- Badges de Sinal Orbitais -->
+        <div class="signal-badges-group">
+          <div class="signal-badge-unit">
+            <span class="sig-name">MAR.-EP</span>
+            <span class="sig-val">34 396.33V<br>23 643.64V</span>
+            <div class="sig-buttons">
+              <span class="sig-btn">SIGNAL</span>
+              <span class="sig-btn active">ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="signal-badge-unit">
+            <span class="sig-name">MAR.-WR</span>
+            <span class="sig-val">W5 567.69V<br>31 649.87V</span>
+            <div class="sig-buttons">
+              <span class="sig-btn">SIGNAL</span>
+              <span class="sig-btn active">ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="signal-badge-unit">
+            <span class="sig-name">MAR.-UV</span>
+            <div class="sig-buttons">
+              <span class="sig-btn">SIGNAL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Bloco Equatorial à Direita -->
+        <div class="map-right-equatorial">
+          <div class="eq-title">EQUATORIAL COORDINATES</div>
+          <div class="eq-data">
+            <div><span>07</span><span>269.51</span><span>3.2</span><span>5.50</span><span>09</span></div>
+            <div><span>X8</span><span>134.905</span><span>1.3</span><span>7.47</span><span>99</span></div>
+            <div><span>I9</span><span>955.296</span><span>0.5</span><span>14.17</span><span>50</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Container do Canvas Cartográfico Marciano -->
+      <div class="mars-canvas-container">
+        <!-- Régua de Ticks Superior -->
+        <div class="map-top-ruler">
+          <span>000002</span><span>000005</span><span>000008</span><span>000010</span><span>000012</span><span>000016</span>
+        </div>
+
+        <!-- Régua de Ticks Lateral Esquerda -->
+        <div class="map-left-axis">
+          <span>59</span><span>58</span><span>57</span><span>58</span><span>59</span><span>58</span><span>55</span><span>56</span>
+        </div>
+
+        <!-- Canvas Principal de Relevo e Vetores 2D -->
+        <canvas id="mars-satview-map-canvas" class="mars-map-canvas"></canvas>
+
+        <!-- Cartão Proeminente de Cálculo de Distância (Sobreposto) -->
+        <div class="distance-calculation-card">
+          <div class="dist-card-header">CALCULATING DISTANCE</div>
+          <div class="dist-card-body">
+            <span class="dist-digits" id="mars-distance-digits">75.3</span>
+            <span class="dist-unit">KM</span>
+          </div>
+        </div>
+
+        <!-- Cartão Base Camp Location -->
+        <div class="location-card base-camp-card">
+          <div class="loc-card-title">BASE CAMP LOCATION</div>
+          <div class="loc-card-details">
+            <div>D7 269.513.2 ALTITUDE -5.50 50.132</div>
+            <div>M5 745.774 29.70° LOCATION 7.2 4.15 09</div>
+            <div>30.76 4.2 U6 481.3836.98 ALT PREFIX --01</div>
+          </div>
+        </div>
+
+        <!-- Cartão Daedalus Location -->
+        <div class="location-card daedalus-card">
+          <div class="loc-card-title">DAEDALUS LOCATION</div>
+          <div class="loc-card-details">
+            <div>D7 269.513.2 ALTITUDE -5.50 50.132</div>
+            <div>M5 745.774 29.70° LOCATION 7.2 4.15 09</div>
+            <div>30.76 4.2 U6 481.3836.98 ALT PREFIX --01</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faixa Inferior de Telemetria Planetográfica -->
+      <footer class="mars-bottom-telemetry">
+        <div class="coord-system-label">Coordinate System: PLANETOGRAPHIC // +WEST, 0 -360</div>
+        <div class="telemetry-table-grid">
+          <div class="telem-row"><span>56</span><span>333.77V</span><span>E2/62 MAR.-NP</span><span>07</span><span>70659456962</span><span>11.30 20.96</span><span>408335</span><span>UDF/C</span><span>2.80 25.63%</span><span>HM-32.55.699</span><span>949.675.44 943.336.707</span><span>156597</span><span>20-96333/N</span><span>13%</span><span>V1.325.28.2</span><span>6966</span></div>
+          <div class="telem-row"><span>L2</span><span>635.72V</span><span>P5/22 MAR.-PH</span><span>78</span><span>7053 456537</span><span>8.66 157.65</span><span>408336</span><span>VLY/V</span><span>6.36 24.93%</span><span>YR-28 541 192</span><span>878.975.89 642.576.449</span><span>950573</span><span>89-95798/L</span><span>9%</span><span>V1.297.43.4</span><span>5423</span></div>
+          <div class="telem-row"><span>96</span><span>564.43V</span><span>QC/38 MAR.-FM</span><span>59</span><span>356435645467</span><span>8.86 103.41</span><span>408337</span><span>WGH/H</span><span>2.62 32.48%</span><span>9Y-63 131 531</span><span>727.495.53 522.735.644</span><span>44868</span><span>08-92543/G</span><span>94%</span><span>V1.252.97.8</span><span>194</span></div>
+          <div class="telem-row"><span>53</span><span>633.65V</span><span>CE/23 MAR.-PY</span><span>66</span><span>05675675 1</span><span>1.02 101.98</span><span>408339</span><span>GHU/A</span><span>7.49 67.48%</span><span>R9-25 568 706</span><span>567.648.62 266.623.462</span><span>648572</span><span>03-37995/C</span><span>94%</span><span>V1.438.77.4</span><span>0233</span></div>
+          <div class="telem-row"><span>23</span><span>434.43V</span><span>BC/94 MAR.-UF</span><span>46</span><span>65757 689687</span><span>0.19 12.03</span><span>519440</span><span>BFA/D</span><span>3.87 72.06%</span><span>5G-82 787 492</span><span>722.255.97 232.447.578</span><span>402859</span><span>YY-66482/G</span><span>5%</span><span>V1.376.94.5</span><span>4269</span></div>
+        </div>
+
+        <!-- Barras de Segmentos de Status no Canto Inferior Direito -->
+        <div class="mars-status-segment-cluster">
+          <div class="seg-row"><span class="seg cyan"></span><span class="seg cyan"></span><span class="seg amber"></span><span class="seg cyan"></span><span class="seg amber"></span></div>
+          <div class="seg-row"><span class="seg amber"></span><span class="seg cyan"></span><span class="seg cyan"></span><span class="seg cyan"></span><span class="seg cyan"></span></div>
+          <div class="seg-row"><span class="seg cyan"></span><span class="seg amber"></span><span class="seg cyan"></span><span class="seg amber"></span><span class="seg cyan"></span></div>
+          <div class="seg-row"><span class="seg cyan"></span><span class="seg cyan"></span><span class="seg amber"></span><span class="seg cyan"></span><span class="seg amber"></span></div>
+          <div class="seg-row"><span class="seg amber"></span><span class="seg cyan"></span><span class="seg cyan"></span><span class="seg cyan"></span><span class="seg cyan"></span></div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Margem Direita com Rótulos Rotacionados -->
+    <aside class="mars-right-margin">
+      <span class="rot-label">PLANETOGRAPHIC</span>
+      <span class="rot-label">LONG. 7.34</span>
+      <span class="rot-label">LAT 7.28</span>
+      <span class="rot-label">AXIS CORRECT</span>
+    </aside>
+
+  </div>
+</div>

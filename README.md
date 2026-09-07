@@ -1,52 +1,116 @@
-# Teste-Hud // Tetralogia Tática para Foundry VTT v13
+# Teste-Hud // Heptalogia Tática para Foundry VTT v13
 
-Módulo de alta fidelidade visual e imersão militar contendo 4 consoles de bordo totalmente funcionais e complementares:
+Módulo de altíssima fidelidade visual, imersão militar e ficção científica avançada, contendo 7 consoles operacionais e cenográficos totalmente independentes para Foundry VTT v13 (construídos sobre `ApplicationV2` e renderização procedural Canvas 2D a 60 FPS):
 
-1. **Oficina Tática [МАСТЕРСКАЯ]:** Console de bancada e manutenção com matriz de 15 dials de telemetria, circuito de relés interativos, analisador de espectro de áudio e 8 retículos giroscópicos.
-2. **Navegação Marciana [火星 NAVIGATION]:** Central cartográfica e topográfica em octógono com 14 curvas de nível em relevo, radar polar, rastreamento de vetor do Rover em direção ao alvo `WORKSHOP` (54.3 KM), matriz de diagnóstico, sistema de coordenadas e radar tático secundário.
-3. **Análise Genômica e DNA [DNA ANALYSIS] (v1.4.2 - Hiper-Detalhado):** Laboratório de biotecnologia com dupla-hélice 3D procedural de ultra-densidade:
-   - **64 Degraus de Pares de Bases Frisados:** Cada degrau renderizado como coluna vertical de 13 micro-pérolas luminosas com gradiente ciano-turquesa profundo.
-   - **Coroas de Anéis Vesiculares (Donuts) Completas:** Anéis vesiculares concêntricos com miolo espesso, reflexo perolado e satélites orbitantes renderizados simultaneamente em ambas as cristas superior e inferior da hélice.
-   - **Nós de Constrição e Torção:** Micro-pérolas nos eixos nodais centrais simulando compressão molecular real.
-   - **Cauda Fractal Ramificada Orgânica:** Extremidade direita desfazendo-se organicamente em 3 filamentos ramificados com pérolas decrescentes (eliminando o padrão artificial anterior).
-   - **Plexo Molecular Expansivo:** Rede molecular de fundo com 140 nós 3D, conexões intermoleculares de 65px e facetas triangulares translúcidas.
-   - **Scanner Laser Dourado Contínuo:** Varredura laser com excitação luminescente em branco/dourado incandescente e emissão de faíscas dinâmicas.
-4. **Núcleo do Reator // Fusão Quântica [REACTOR CORE // ANALYSING DATA] (v1.4.1 - Hiper-Detalhado):** Console de contenção de plasma e aceleração quântica com simulação 3D volumétrica explodida de altíssima densidade no HTML5 Canvas:
-   - **10 Estágios Mecânicos Ricos:** Bocal injetor frontal com enrolamentos longitudinais de cobre e presilhas C-brackets, estator dentado de indexação, disco de compressão frontal com matriz de agulhas e raios, flange com tirantes de ligação, câmara Tokamak com 32 nervuras longitudinais, 7 anéis equatoriais, tubos de resfriamento em S com terminais e vórtice incandescente de plasma, anéis gêmeos chanfrados com profundidade volumétrica e bore interno, volante acelerador gigante com recortes em setor, pente de 72 dentes de engrenagem e sapatas de freio em arco, estator perfurado intermediário, solenoide traseiro de cobre, rotor impulsor com palhetas curvas e bocal cônico de exaustão com spray de plasma.
-   - **Retículo HUD Circular Gigante ao Fundo:** Bússola técnica de 360° com graduações de 2 em 2 graus, miras em cruz radiais, suportes de canto e matrizes de pontos técnicos.
-   - **Nuvem Volumétrica de 350 Micro-Partículas:** Poeira quântica holográfica e linhas de fluxo magnético contínuas.
-   - **Visualizador Molecular 3D `ATOM_VIEW`:** Modelo atômico orbital contínuo.
-   - **Monitor Digital de Temperatura e Radiação:** Painel térmico com flutuações e matriz de verificação de radiação.
+---
+
+## Os 7 Consoles Táticos
+
+### 1. Oficina Tática [МАСТЕРСКАЯ]
+- **Bancada de Verificação e Manutenção:** Matriz de 15 dials circulares de telemetria rotativa.
+- **Painel de Controle de Relés:** Comutadores interativos com feedback de áudio procedural analógico.
+- **Forma de Onda de Áudio & Pinouts:** 36 pinos de estado lógico e analisador de espectro militar.
+- **8 Retículos Giroscópicos:** Miras com arcos graduados e leituras angulares independentes.
+
+### 2. Navegação Marciana [火星 NAVIGATION]
+- **Central Cartográfica Octogonal:** 14 curvas de nível em relevo topográfico com altitude dinâmica.
+- **Vetor de Deslocamento do Rover:** Trajetória em tempo real em direção ao alvo `WORKSHOP` (54.3 KM).
+- **Radar Polar & Diagnóstico:** Análise de terreno, bússola de azimute e sistema de coordenadas planetárias.
+
+### 3. Análise Genômica e DNA [DNA ANALYSIS]
+- **Dupla-Hélice 3D de Ultra-Densidade:** 64 degraus frisados compostos por micro-pérolas moleculares.
+- **Coroas de Anéis Vesiculares:** Anéis concêntricos nas cristas superior e inferior da hélice.
+- **Cauda Fractal Ramificada:** Desdobramento orgânico com nós de constrição molecular real.
+- **Plexo Molecular Tridimensional:** 140 nós 3D interligados por facetas translúcidas.
+- **Scanner Laser Dourado Contínuo:** Excitação luminescente com emissão de faíscas dinâmicas.
+
+### 4. Núcleo do Reator // Fusão Quântica [REACTOR CORE]
+- **Simulação Volumétrica Explodida 3D:** 10 estágios mecânicos com enrolamentos de cobre e bocal injetor.
+- **Câmara Tokamak:** 32 nervuras longitudinais, 7 anéis equatoriais e vórtice de plasma incandescente.
+- **Retículo HUD 360° Circular:** Bússola técnica de fundo com graduações milimétricas.
+- **Nuvem de 350 Micro-Partículas:** Poeira quântica holográfica e analisador molecular `ATOM_VIEW`.
+
+### 5. Topologia 3D de Dados & Grafo Alluvial [DATA TOPOLOGY] *(Novo na v1.5.0)*
+- **3 Visualizadores Holográficos Centrais:**
+  - **Coluna 1 (Poliedro Irregular 3D):** Rede de 28 nós tridimensionais interconectados por arestas dinâmicas de distância variável, pulso orgânico e poeira espacial.
+  - **Coluna 2 (Torus Paramétrico):** Vórtice toroidal de 64 pontos com rotação biaxial e filamentos de entrelaçamento dourado e ciano.
+  - **Coluna 3 (Esfera Geodésica & Radar):** Globo de coordenadas latitude/longitude com retículo concêntrico e feixe de varredura laser vertical.
+- **Grafo Alluvial / Sankey de Conexões Relacionais:**
+  - 16 nós de origem à esquerda e 16 nós de destino à direita interligados por 24 splines cúbicas de Bezier trançadas.
+  - Mais de 40 pacotes de fótons luminosos que viajam continuamente pelas curvas a 60 FPS.
+- **Telemetria de Alta Densidade:** Matriz de dados tabulares `DATA_CHARTS`, barra de LEDs âmbar `10_2414 23.2` e 4 barras de progresso segmentadas horizontais.
+
+### 6. Colisor Quântico // Íris Holográfica [COLLIDER HUD] *(Novo na v1.5.0)*
+- **Acelerador Central de Partículas & Íris Mecânica:**
+  - Núcleo de fusão com plasma pulsante e 16 lâminas de íris em rotação mecânica lenta.
+  - 4 anéis concêntricos de telemetria com marcas de precisão angular e vernier militar.
+  - Envelope harmônico ondulante em flor (curva flutuante sinusoidal).
+  - Mais de 180 partículas relativísticas em órbita com caudas de luminosidade e colisões estocásticas energéticas.
+  - Linhas de chamada holográficas com pílulas de dados `PRAVO` e `BRAVO [POINT_DATA_NODE]` e retículos de anomalia laranja `(O)`.
+- **Monitor Térmico Digital CORE TEMP 89.02°:**
+  - Display térmico digital de alta voltagem com oscilação orgânica.
+  - Espectro equalizador de barras verticais e analisador óptico `// VISUAL ANALYSIS`.
+- **Módulos de Controle e Interatividade:**
+  - 12 botões interativos `DATA BLOCK` clicáveis com iluminação de status.
+  - Mini poliedro 3D wireframe em rotação no canto inferior esquerdo.
+
+### 7. Controle de Missão Orbital // Reconhecimento Marciano [MARS.SATVIEW.17-A] *(Novo na v1.5.0)*
+- **Cartografia de Satélite em Relevo Sombreado:**
+  - Mapa topográfico do cânion de *Melas Chasma* e planalto de *Sinai Dorsa* (Valles Marineris).
+  - Curvas de nível topográficas em ciano neon com detalhe multi-frequência.
+  - Varredura de radar orbital contínua com expansão de ondas em fósforo ciano.
+- **Vetor Tático Base Camp <-> Daedalus:**
+  - Retículos alvos interligados por vetor de alcance em laranja/âmbar com pulsos dinâmicos de rádio.
+  - Círculo de alcance geodésico e cartões de telemetria individuais para cada base.
+- **Display Proeminente de Distância:**
+  - Cartão central em ciano com visor numérico grande `75.3 KM` e micro-deriva de telemetria.
+- **Painéis Orbitais de Suporte:**
+  - Tabela lateral com 21 sondas de superfície (`ENGAGED ONLINE`, `DELAYED NO STATUS`, `OFFLINE`).
+  - Badges de recepção de sinal (`MAR.-EP`, `MAR.-WR`, `MAR.-UV`) e coordenadas equatoriais `WGS84`.
 
 ---
 
 ## Como Abrir no Foundry VTT (Macros de Script)
 
-Crie uma **Macro de Script** no Foundry VTT para o console desejado:
+Crie uma **Macro de Script** no Foundry VTT para qualquer um dos 7 consoles:
 
-### 1. Abrir Núcleo do Reator // Fusão Quântica
+### 1. Abrir Topologia de Dados 3D & Grafo Alluvial
+```javascript
+game.modules.get("teste-hud").api.openDataTopology();
+// Ou use: api.toggleDataTopology(); ou api.openTopology();
+```
+
+### 2. Abrir Colisor Quântico & Íris Holográfica
+```javascript
+game.modules.get("teste-hud").api.openCollider();
+// Ou use: api.toggleCollider();
+```
+
+### 3. Abrir Reconhecimento Orbital Marciano (MARS.SATVIEW.17-A)
+```javascript
+game.modules.get("teste-hud").api.openMarsSatview();
+// Ou use: api.toggleMarsSatview(); ou api.openSatview();
+```
+
+### 4. Abrir Núcleo do Reator // Fusão Quântica
 ```javascript
 game.modules.get("teste-hud").api.openReactor();
 ```
-*(Ou use `game.modules.get("teste-hud").api.toggleReactor();` ou `api.openCore();`)*
 
-### 2. Abrir Análise Genômica & DNA
+### 5. Abrir Análise Genômica & DNA
 ```javascript
 game.modules.get("teste-hud").api.openDna();
 ```
-*(Ou use `game.modules.get("teste-hud").api.toggleDna();`)*
 
-### 3. Abrir Navegação Marciana
+### 6. Abrir Navegação Marciana v1
 ```javascript
 game.modules.get("teste-hud").api.openNavegacao();
 ```
-*(Ou use `game.modules.get("teste-hud").api.toggleNavegacao();`)*
 
-### 4. Abrir Oficina Tática
+### 7. Abrir Oficina Tática
 ```javascript
 game.modules.get("teste-hud").api.openOficina();
 ```
-*(Ou use `game.modules.get("teste-hud").api.toggleOficina();`)*
 
 ---
 
@@ -54,19 +118,34 @@ game.modules.get("teste-hud").api.openOficina();
 
 ```
 teste-hud/
-├── module.json            # Manifesto v13 (v1.4.2)
-├── package-zip.ps1        # Script para gerar os pacotes .zip
+├── module.json                # Manifesto v13 (v1.5.0)
+├── package-zip.ps1            # Script para gerar pacotes .zip de distribuição
 ├── scripts/
-│   ├── main.js            # Aplicações ApplicationV2 (Oficina, Navegação, DNA, Reator)
-│   └── sound-fx.js        # Sintetizador procedural de áudio Web Audio API
+│   ├── main.js                # Classes ApplicationV2 dos 7 consoles e registro da API
+│   └── sound-fx.js            # Sintetizador procedural de áudio Web Audio API
 ├── styles/
-│   ├── hud.css            # Estilos da Oficina Tática
-│   ├── navigation.css     # Estilos da Navegação Marciana
-│   ├── dna.css            # Estilos da Análise de DNA
-│   └── reactor.css        # Estilos do Núcleo do Reator
+│   ├── hud.css                # Estilos da Oficina Tática
+│   ├── navigation.css         # Estilos da Navegação Marciana v1
+│   ├── dna.css                # Estilos da Análise de DNA
+│   ├── reactor.css            # Estilos do Núcleo do Reator
+│   ├── data-topology.css      # Estilos da Topologia 3D & Grafo Alluvial
+│   ├── collider.css           # Estilos do Colisor Quântico & Íris
+│   └── mars-satview.css       # Estilos do Reconhecimento Orbital Marciano
 └── templates/
-    ├── hud.hbs            # Template da Oficina Tática
-    ├── navigation.hbs     # Template da Navegação Marciana
-    ├── dna.hbs            # Template da Análise de DNA
-    └── reactor.hbs        # Template do Núcleo do Reator
+    ├── hud.hbs                # Template da Oficina Tática
+    ├── navigation.hbs         # Template da Navegação Marciana v1
+    ├── dna.hbs                # Template da Análise de DNA
+    ├── reactor.hbs            # Template do Núcleo do Reator
+    ├── data-topology.hbs      # Template da Topologia 3D & Alluvial
+    ├── collider.hbs           # Template do Colisor Quântico
+    └── mars-satview.hbs       # Template do Reconhecimento Orbital Marciano
 ```
+
+---
+
+## Compatibilidade
+
+- **Foundry Virtual Tabletop:** v13 (mínimo `13.341`, verificado `13.351`).
+- **Arquitetura:** `foundry.applications.api.ApplicationV2` + `HandlebarsApplicationMixin`.
+- **Motor Gráfico:** HTML5 Canvas 2D Procedural de Alta Performance (60 FPS, sem bibliotecas externas pesadas).
+- **Proporção:** 16:9 dinâmica e responsiva.

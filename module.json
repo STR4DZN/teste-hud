@@ -1,8 +1,8 @@
 {
   "id": "teste-hud",
-  "title": "Teste-Hud // Tetralogia Tática: Oficina, Navegação, DNA & Núcleo do Reator",
-  "description": "Consoles táticos de bancada [МАСТЕРСКАЯ], navegação marciana [火星 NAVIGATION], análise genômica 3D de DNA [DNA ANALYSIS] e núcleo de fusão [REACTOR CORE] para Foundry VTT v13.",
-  "version": "1.4.2",
+  "title": "Teste-Hud // Heptalogia Tática: 7 Consoles Militares de Alta Fidelidade",
+  "description": "Consoles táticos de bancada [МАСТЕРСКАЯ], navegação marciana [火星 NAVIGATION], análise genômica 3D [DNA ANALYSIS], núcleo do reator [REACTOR CORE], topologia 3D de dados [DATA TOPOLOGY], colisor quântico [COLLIDER HUD] e controle de missão orbital [MARS SATVIEW] para Foundry VTT v13.",
+  "version": "1.5.0",
   "authors": [
     {
       "name": "Fusion",
@@ -11,7 +11,7 @@
   ],
   "url": "https://github.com/STR4DZN/teste-hud",
   "manifest": "https://raw.githubusercontent.com/STR4DZN/teste-hud/main/module.json",
-  "download": "https://github.com/STR4DZN/teste-hud/releases/download/v1.4.2/teste-hud.zip",
+  "download": "https://github.com/STR4DZN/teste-hud/releases/download/v1.5.0/teste-hud.zip",
   "compatibility": {
     "minimum": "13.341",
     "verified": "13.351"
@@ -23,6 +23,9 @@
     "styles/hud.css",
     "styles/navigation.css",
     "styles/dna.css",
-    "styles/reactor.css"
+    "styles/reactor.css",
+    "styles/data-topology.css",
+    "styles/collider.css",
+    "styles/mars-satview.css"
   ]
 }
